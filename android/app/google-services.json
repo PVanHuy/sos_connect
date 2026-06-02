@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "525355935870",
+    "project_id": "ban-say-toi-lai-cf735",
+    "storage_bucket": "ban-say-toi-lai-cf735.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:525355935870:android:ab25a725cf3c68043d902f",
+        "android_client_info": {
+          "package_name": "com.ban.say.toi.lai.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCcGDcVxp3l_yemjAHKii8EuMRj3bhG8hY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
