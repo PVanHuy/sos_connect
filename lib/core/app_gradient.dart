@@ -2,6 +2,12 @@ import 'package:flutter/widgets.dart';
 import 'package:sos_connect/main.dart';
 
 class AppGradient {
+  static LinearGradient whiteAndBlueF4Gradient = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [appTheme.blueF4Color, appTheme.whiteColor],
+  );
+
   static LinearGradient blueBFFAndAFFGradient = const LinearGradient(colors: [Color(0xFF006BFF), Color(0xFF00AAFF)]);
 
   static LinearGradient gradientBlueGenderMale = LinearGradient(colors: [appTheme.blueBFFColor, appTheme.blueFFColor]);

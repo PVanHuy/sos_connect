@@ -29,6 +29,7 @@ class SignInController extends GetxController {
     isLoading.value = true;
     Future.delayed(const Duration(seconds: 2), () {
       isLoading.value = false;
+      Get.offAllNamed(Routes.DASHBOARD);
     });
   }
 

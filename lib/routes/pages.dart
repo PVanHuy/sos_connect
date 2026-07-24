@@ -1,10 +1,14 @@
 import 'package:get/get.dart';
+import 'package:sos_connect/pages/dashboard/dashboard_binding.dart';
+import 'package:sos_connect/pages/dashboard/dashboard_page.dart';
 import 'package:sos_connect/pages/forgot_password/forgot_password_binding.dart';
 import 'package:sos_connect/pages/forgot_password/forgot_password_page.dart';
 import 'package:sos_connect/pages/onboarding/onboarding_binding.dart';
 import 'package:sos_connect/pages/onboarding/onboarding_page.dart';
 import 'package:sos_connect/pages/otp/otp_binding.dart';
 import 'package:sos_connect/pages/otp/otp_page.dart';
+import 'package:sos_connect/pages/personal_information/personal_information_binding.dart';
+import 'package:sos_connect/pages/personal_information/personal_information_page.dart';
 import 'package:sos_connect/pages/sign_in/sign_in_binding.dart';
 import 'package:sos_connect/pages/sign_in/sign_in_page.dart';
 import 'package:sos_connect/pages/sign_up/sign_up_binding.dart';
@@ -22,5 +26,11 @@ abstract class AppPages {
     GetPage(name: Routes.SIGN_UP, page: () => SignUpPage(), binding: SignUpBinding()),
     GetPage(name: Routes.FORGOT_PASSWORD, page: () => ForgotPasswordPage(), binding: ForgotPasswordBinding()),
     GetPage(name: Routes.OTP, page: () => OtpPage(), binding: OtpBinding()),
+    GetPage(name: Routes.DASHBOARD, page: () => DashboardPage(), binding: DashboardBinding()),
+    GetPage(
+      name: Routes.PERSONAL_INFORMATION,
+      page: () => PersonalInformationPage(),
+      binding: PersonalInformationBinding(),
+    ),
   ];
 }

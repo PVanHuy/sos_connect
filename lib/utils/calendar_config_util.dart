@@ -1,8 +1,8 @@
-import 'package:sos_connect/main.dart';
-import 'package:sos_connect/theme/style/style_theme.dart';
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:sos_connect/main.dart';
+import 'package:sos_connect/theme/style/style_theme.dart';
 
 class CalendarConfigUtil {
   static CalendarDatePicker2WithActionButtonsConfig getDefaultConfig(
@@ -38,6 +38,30 @@ class CalendarConfigUtil {
     );
   }
 
+  static Future<DateTime?> showDatePicker({
+    required BuildContext context,
+    DateTime? initialDate,
+    DateTime? firstDate,
+    DateTime? lastDate,
+    Size? dialogSize,
+  }) async {
+    initialDate ??= DateTime.now();
+    firstDate ??= initialDate.subtract(const Duration(days: 365 * 100));
+    lastDate ??= DateTime.now();
+
+    final selectedDate = await showCalendarDatePicker2Dialog(
+      context: context,
+      config: getDefaultConfig(context, singleMode: true, firstDate: firstDate, lastDate: lastDate),
+      dialogSize: dialogSize ?? Size(Get.width, Get.width),
+      borderRadius: BorderRadius.circular(15),
+      value: [initialDate],
+      dialogBackgroundColor: appTheme.whiteColor,
+    );
+
+    if (selectedDate == null || selectedDate.isEmpty) return null;
+    return selectedDate[0];
+  }
+
   static Future<DateTime?> showDateTimePicker({
     required BuildContext context,
     DateTime? initialDate,
@@ -54,7 +78,7 @@ class CalendarConfigUtil {
       context: context,
       config: getDefaultConfig(context, singleMode: true, firstDate: firstDate, lastDate: lastDate),
       dialogSize: dialogSize ?? Size(Get.width, Get.width),
-      borderRadius: .circular(15),
+      borderRadius: BorderRadius.circular(15),
       value: [initialDate],
       dialogBackgroundColor: appTheme.whiteColor,
     );

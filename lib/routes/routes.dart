@@ -10,4 +10,5 @@ abstract class Routes {
   static const DASHBOARD = '/dashboard';
   static const FORGOT_PASSWORD = '/forgot_password';
   static const OTP = '/otp';
+  static const PERSONAL_INFORMATION = '/personal_information';
 }

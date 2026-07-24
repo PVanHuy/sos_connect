@@ -15,6 +15,7 @@ class CustomImageWidget extends StatelessWidget {
     this.height,
     this.showBoder = false,
     this.colorBoder,
+    this.borderWidth,
     this.color,
     this.fit,
     this.noImage = true,
@@ -27,6 +28,7 @@ class CustomImageWidget extends StatelessWidget {
   final double? height;
   final bool showBoder;
   final Color? colorBoder;
+  final double? borderWidth;
   final Color? color;
   final BoxFit? fit;
   final bool noImage;
@@ -36,7 +38,9 @@ class CustomImageWidget extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         borderRadius: .circular(borderRadius),
-        border: showBoder ? Border.all(width: 1.w, color: colorBoder ?? appTheme.blueBellColor) : null,
+        border: showBoder
+            ? Border.all(width: borderWidth ?? 1.w, color: colorBoder ?? appTheme.blueBellColor)
+            : null,
         color: color,
       ),
       child: ClipRRect(
