@@ -84,7 +84,7 @@ class CustomTextField extends StatefulWidget {
     this.iconSize = 18,
     this.isPhone = false,
     this.isRequired = true,
-    this.borderRadius,
+    this.borderRadius = 50,
     this.colorStyle,
     this.colorBorder,
     this.fillColor,
@@ -225,7 +225,7 @@ class CustomTextFieldState extends State<CustomTextField> {
                                   width: 1.w,
                                   color: (widget.errorText.isNotEmpty || validateValue.isNotEmpty)
                                       ? appTheme.errorColor
-                                      : appTheme.green47Color,
+                                      : appTheme.appColor,
                                 ),
                               ),
                               border: OutlineInputBorder(
@@ -349,7 +349,7 @@ class CustomTextFieldState extends State<CustomTextField> {
                         spacing: 4.w,
                         children: [
                           Assets.icons.warningOther.svg(width: 20.w, height: 20.w),
-                          Text(validateMessage, style: StyleThemeData.size12Weight400(color: appTheme.appColor)),
+                          Text(validateMessage, style: StyleThemeData.size12Weight400(color: appTheme.red1AColor)),
                         ],
                       ),
                     ),
@@ -420,7 +420,7 @@ class CustomTextFieldState extends State<CustomTextField> {
           widget.onChanged?.call('');
           _onValidate('');
         },
-        child: Assets.icons.closeCircle.svg(width: 18.w, height: 18.w),
+        child: Assets.icons.closeCircle.svg(width: 18.w, height: 18.w, colorFilter: .mode(appTheme.appColor, .srcIn)),
       ),
     );
   }
@@ -431,9 +431,9 @@ class CustomTextFieldState extends State<CustomTextField> {
       child: InkWell(
         onTap: () => _obscureText.value = !_obscureText.value,
         child: (isObscured ? Assets.icons.eyeSlash : Assets.icons.eye).svg(
-          width: 18.w,
-          height: 18.w,
-          colorFilter: .mode(appTheme.gray8FColor, .srcIn),
+          width: 20.w,
+          height: 20.w,
+          colorFilter: .mode(appTheme.appColor, .srcIn),
         ),
       ),
     );

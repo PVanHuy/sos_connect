@@ -20,7 +20,7 @@ class Step1View extends GetView<OnboardingController> {
               crossAxisAlignment: .start,
               children: [
                 Text('onboarding_title_1'.tr, style: StyleThemeData.size20Weight700(color: appTheme.whiteColor)),
-                SizedBox(height: 12.h),
+                SizedBox(height: 4.h),
                 Text('onboarding_desc_1'.tr, style: StyleThemeData.size14Weight400(color: appTheme.whiteColor)),
               ],
             ),

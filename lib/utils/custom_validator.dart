@@ -1,5 +1,8 @@
-import 'package:sos_connect/utils/app_constants.dart';
 import 'package:get/get.dart';
+import 'package:phone_numbers_parser/phone_numbers_parser.dart';
+import 'package:sos_connect/model/phone_code_model.dart';
+import 'package:sos_connect/utils/app_constants.dart';
+import 'package:sos_connect/utils/logger_helper.dart';
 
 class CustomValidator {
   static final RegExp emailRegex = RegExp(
@@ -16,6 +19,16 @@ class CustomValidator {
     }
     if (fullName.trim().length < AppConstants.minNameLength || fullName.trim().length > AppConstants.maxNameLength) {
       return 'enter_full_field'.trParams({'field': 'name'.tr.toLowerCase()});
+    }
+    return '';
+  }
+
+  static String validateFullName(String fullName) {
+    if (fullName.trim().isEmpty) {
+      return 'field_is_required'.trParams({'field': 'full_name'.tr});
+    }
+    if (fullName.trim().length < AppConstants.minNameLength || fullName.trim().length > AppConstants.maxNameLength) {
+      return 'enter_full_field'.trParams({'field': 'full_name'.tr.toLowerCase()});
     }
     return '';
   }
@@ -50,9 +63,25 @@ class CustomValidator {
     return '';
   }
 
+  static String validateUserName(String userName) {
+    if (userName.trim().isEmpty) {
+      return 'field_is_required'.trParams({'field': 'user_name'.tr});
+    }
+    if (userName.trim().length < AppConstants.minNameLength) {
+      return 'field_must_be_at_least_min_characters'.trParams({
+        'field': 'user_name'.tr,
+        'min': AppConstants.minNameLength.toString(),
+      });
+    }
+    if (userName.trim().length > AppConstants.maxNameLength) {
+      return 'field_is_invalid'.trParams({'field': 'user_name'.tr});
+    }
+    return '';
+  }
+
   static String validatePassword(String password) {
     if (password.isEmpty) {
-      return 'validate_password'.tr;
+      return 'field_is_required'.trParams({'field': 'password'.tr});
     } else if (!passwordRegex.hasMatch(password)) {
       return 'validate_password'.tr;
     }
@@ -78,27 +107,37 @@ class CustomValidator {
     return '';
   }
 
-  static String validatePhoneSync(String phone, {bool isRequired = true}) {
-    final trimmed = phone.trim();
-    if (isRequired && trimmed.isEmpty) {
+  static Future<PhoneValid> isPhoneValid(String number) async {
+    String phone = number;
+    try {
+      PhoneNumber phoneNumber = PhoneNumber.parse(number);
+      phone = '+${phoneNumber.countryCode}${phoneNumber.nsn}';
+
+      final regex = RegExp(r'^\+84[35789]\d{8}$');
+      final isValid = regex.hasMatch(phone);
+
+      return PhoneValid(isValid: isValid, phone: phone);
+    } catch (e, a) {
+      loggerHelper.error('Phone number validation error', error: e, stackTrace: a);
+      return PhoneValid(isValid: false, phone: phone);
+    }
+  }
+
+  static Future<String> validatePhone(String phone, {bool isRequired = true}) async {
+    if (isRequired && phone.trim().isEmpty) {
       return 'field_is_required'.trParams({'field': 'phone_number'.tr});
     }
 
-    final digits = trimmed.replaceAll(RegExp(r'\D'), '');
-    if (digits.isEmpty) {
-      return 'field_is_invalid'.trParams({'field': 'phone_number'.tr});
-    }
+    if (phone.isNotEmpty) {
+      final number = phone.replaceFirst(RegExp(r'^\+84'), '0').replaceFirst(RegExp(r'^0'), '');
+      PhoneValid phoneValid = await isPhoneValid(PhoneCodeModel().getCodeAsString() + number);
 
-    if (digits.length != 10) {
-      return 'phone_number_must_be_10_digits'.tr;
+      if (!phoneValid.isValid && phone.isNotEmpty) {
+        return 'field_is_invalid'.trParams({'field': 'phone_number'.tr});
+      } else {
+        return '';
+      }
     }
-
-    final areaCode = digits.substring(0, 3);
-    final isUsPhone = RegExp(r'^[2-9][0-9]{2}$').hasMatch(areaCode);
-    if (!isUsPhone) {
-      return 'this_is_not_a_valid_us_phone'.tr;
-    }
-
     return '';
   }
 

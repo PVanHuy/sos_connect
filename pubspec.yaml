@@ -35,6 +35,8 @@ dependencies:
   flutter_local_notifications: ^21.0.0
   firebase_core: ^4.7.0
   firebase_messaging: ^16.2.0
+  phone_numbers_parser: ^9.0.21
+  pin_code_fields: ^8.0.1
 
 dev_dependencies:
   flutter_test:

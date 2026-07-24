@@ -8,4 +8,6 @@ abstract class Routes {
   static const SIGN_IN = '/sign_in';
   static const SIGN_UP = '/sign_up';
   static const DASHBOARD = '/dashboard';
+  static const FORGOT_PASSWORD = '/forgot_password';
+  static const OTP = '/otp';
 }

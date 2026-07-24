@@ -27,4 +27,14 @@ class AppGradient {
     end: Alignment.bottomRight,
     colors: [appTheme.appColor, appTheme.red58Color],
   );
+
+  static LinearGradient linearBlue = LinearGradient(
+    begin: Alignment.centerLeft,
+    end: Alignment.centerRight,
+    colors: [appTheme.blueF4Color, appTheme.whiteColor],
+  );
+
+  static LinearGradient purpleFFAndPurpleFFGradient = LinearGradient(
+    colors: [appTheme.purpleFFColor, appTheme.appColor],
+  );
 }

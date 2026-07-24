@@ -1,7 +1,7 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class AppConstants {
-  static const String appName = 'Jiang Li';
+  static const String appName = 'SOS Connect';
 
   static const int minNameLength = 2;
   static const int minAddressLength = 12;
@@ -9,6 +9,7 @@ class AppConstants {
   static const int maxNameLength = 255;
   static const int timeOtp = 120;
   static const int secondsTimeBannerSlide = 5;
+  static const int maxOtpLength = 4;
 
   static const int LIMIT = 10;
 

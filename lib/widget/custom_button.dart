@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:sos_connect/core/app_gradient.dart';
 import 'package:sos_connect/theme/style/style_theme.dart';
 import 'package:sos_connect/widget/reponsive/extension.dart';
 
@@ -43,6 +44,8 @@ class CustomButton extends StatelessWidget {
   }
 
   Widget _buildButtonWidget(BuildContext context) {
+    final resolvedGradient = color != null ? null : (gradient ?? AppGradient.purpleFFAndPurpleFFGradient);
+
     return Padding(
       padding: margin == null ? .zero : margin!,
       child: InkWell(
@@ -55,15 +58,11 @@ class CustomButton extends StatelessWidget {
         borderRadius: .circular(radius),
         child: Container(
           width: isFullWidth ? .infinity : null,
-          padding: paddingButton ?? padding(horizontal: 12, vertical: 8),
+          padding: paddingButton ?? padding(horizontal: 12, vertical: 16),
           decoration: BoxDecoration(
             borderRadius: .circular(radius),
-            color: onPressed == null
-                ? appTheme.grayF5Color
-                : gradient != null
-                ? null
-                : color ?? appTheme.appColor,
-            gradient: onPressed != null && gradient != null ? gradient : null,
+            color: onPressed == null ? appTheme.grayF5Color : (resolvedGradient != null ? null : color),
+            gradient: onPressed != null ? resolvedGradient : null,
           ),
           child: isLoading
               ? Row(

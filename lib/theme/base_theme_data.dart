@@ -24,6 +24,8 @@ abstract class BaseThemeData {
   Color transparentColor = Colors.transparent;
 
   Color whiteColor = const Color(0xFFFFFFFF);
+  Color white40Color = const Color(0x40FFFFFF);
+  Color white99Color = const Color(0x99FFFFFF);
 
   Color blackColor = const Color(0xFF000000);
   Color black53Color = const Color(0xFF535353);
@@ -43,6 +45,7 @@ abstract class BaseThemeData {
   Color redF4Color = const Color(0xFFFFF4F4);
   Color red1AColor = const Color(0xFFCF1A1A);
   Color red38Color = const Color(0xFFFF3838);
+  Color red26Color = const Color(0xFFEB2625);
 
   Color oldSliverColor = const Color(0xFF787878);
   Color gray86Color = const Color(0xff868686);
@@ -94,6 +97,8 @@ abstract class BaseThemeData {
   Color blueE4Color = const Color(0xFF00B4E4);
   Color blueE5Color = const Color(0xFF00B4E5);
   Color blueF5Color = const Color(0xFF5DAAF5);
+  Color blueF4Color = const Color(0xFF5899F4);
+  Color blueFAColor = const Color(0xFFC7EBFA);
 
   Color pinkA6Color = const Color(0xFFFF7DA6);
   Color pink8CColor = const Color(0xFFFF4A8C);
@@ -106,4 +111,6 @@ abstract class BaseThemeData {
   Color green11Color = const Color(0xFF00AD11);
 
   Color yellow22Color = const Color(0xFFFFB222);
+
+  Color purpleFFColor = const Color(0xFFB1BBFF);
 }
