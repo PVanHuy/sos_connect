@@ -86,4 +86,8 @@ extension StringFormatting on String {
     if (this.length <= length) return this;
     return substring(this.length - length);
   }
+
+  bool get isNetworkSource {
+    return startsWith('http://') || startsWith('https://');
+  }
 }

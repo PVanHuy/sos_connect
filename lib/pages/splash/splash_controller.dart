@@ -1,7 +1,7 @@
+import 'package:get/get.dart';
 import 'package:sos_connect/routes/pages.dart';
 import 'package:sos_connect/utils/local_storage.dart';
 import 'package:sos_connect/utils/shared_key.dart';
-import 'package:get/get.dart';
 
 class SplashController extends GetxController {
   @override

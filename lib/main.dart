@@ -16,6 +16,7 @@ import 'package:sos_connect/utils/app_enums.dart';
 import 'package:sos_connect/utils/local_storage.dart';
 import 'package:sos_connect/utils/shared_key.dart';
 import 'package:sos_connect/widget/reponsive/size_config.dart';
+import 'package:vietnam_provinces/vietnam_provinces.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
@@ -27,6 +28,7 @@ void main() async {
   await dotenv.load(fileName: '.env');
   await LocalStorage.init();
   await AppService.initAppService();
+  await VietnamProvinces.initialize(version: AdministrativeDivisionVersion.v2);
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   // await Firebase.initializeApp();
   // NotificationService().onInit();

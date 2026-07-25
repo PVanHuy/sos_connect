@@ -27,9 +27,7 @@ class ItemRowWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: isLast
-          ? const BorderRadius.only(bottomLeft: Radius.circular(12), bottomRight: Radius.circular(12))
-          : BorderRadius.zero,
+      borderRadius: isLast ? const .only(bottomLeft: Radius.circular(12), bottomRight: Radius.circular(12)) : .zero,
       child: Padding(
         padding: padding(all: 12),
         child: Row(
@@ -39,7 +37,7 @@ class ItemRowWidget extends StatelessWidget {
               icon.path,
               width: 24.w,
               height: 24.w,
-              colorFilter: ColorFilter.mode(iconColor ?? appTheme.appColor, BlendMode.srcIn),
+              colorFilter: ColorFilter.mode(iconColor ?? appTheme.appColor, .srcIn),
             ),
             Expanded(child: Text(label, style: StyleThemeData.size14Weight400())),
             if (trailing != null) trailing!,

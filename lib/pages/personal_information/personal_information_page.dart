@@ -18,7 +18,7 @@ class PersonalInformationPage extends GetWidget<PersonalInformationController> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      behavior: HitTestBehavior.translucent,
+      behavior: .translucent,
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         backgroundColor: appTheme.whiteColor,
@@ -33,13 +33,13 @@ class PersonalInformationPage extends GetWidget<PersonalInformationController> {
                 Obx(
                   () => InkWell(
                     onTap: controller.pickImage,
-                    borderRadius: BorderRadius.circular(1000),
+                    borderRadius: .circular(1000),
                     child: Stack(
                       clipBehavior: Clip.none,
                       children: [
                         controller.avatarFile.value?.file != null
                             ? ClipRRect(
-                                borderRadius: BorderRadius.circular(1000),
+                                borderRadius: .circular(1000),
                                 child: Image.file(
                                   controller.avatarFile.value!.file!,
                                   width: 114.w,
@@ -61,7 +61,7 @@ class PersonalInformationPage extends GetWidget<PersonalInformationController> {
                             child: Assets.icons.camera.svg(
                               width: 20.w,
                               height: 20.w,
-                              colorFilter: ColorFilter.mode(appTheme.appColor, BlendMode.srcIn),
+                              colorFilter: ColorFilter.mode(appTheme.appColor, .srcIn),
                             ),
                           ),
                         ),

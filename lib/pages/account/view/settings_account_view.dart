@@ -6,6 +6,7 @@ import 'package:sos_connect/gen/assets.gen.dart';
 import 'package:sos_connect/main.dart';
 import 'package:sos_connect/pages/account/account_controller.dart';
 import 'package:sos_connect/pages/account/widget/item_row_widget.dart';
+import 'package:sos_connect/routes/pages.dart';
 import 'package:sos_connect/theme/style/style_theme.dart';
 import 'package:sos_connect/utils/app_enums.dart';
 import 'package:sos_connect/widget/dialog/show_select_language_dialog.dart';
@@ -18,11 +19,11 @@ class SettingsAccountView extends GetView<AccountController> {
       margin: padding(horizontal: 16, top: 12),
       decoration: BoxDecoration(
         color: appTheme.whiteColor,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: .circular(12),
         boxShadow: [BoxShadow(color: appTheme.blackColor.withSafeOpacity(.1), blurRadius: 24, offset: Offset.zero)],
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: .start,
         children: [
           Padding(
             padding: padding(all: 12),
@@ -43,7 +44,12 @@ class SettingsAccountView extends GetView<AccountController> {
               ),
             ),
           ),
-          ItemRowWidget(icon: Assets.icons.lock, label: 'change_password'.tr, isLast: true, onTap: () {}),
+          ItemRowWidget(
+            icon: Assets.icons.lock,
+            label: 'change_password'.tr,
+            isLast: true,
+            onTap: () => Get.toNamed(Routes.CHANGE_PASSWORD),
+          ),
         ],
       ),
     );

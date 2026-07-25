@@ -99,7 +99,7 @@ class _SearchCustomFieldState extends State<SearchCustomField> {
                         Assets.icons.searchNormal.svg(
                           width: 16.w,
                           height: 16.w,
-                          colorFilter: ColorFilter.mode(appTheme.grayC0Color, BlendMode.srcIn),
+                          colorFilter: ColorFilter.mode(appTheme.grayC0Color, .srcIn),
                         ),
                   ],
                 );

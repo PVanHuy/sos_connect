@@ -18,7 +18,7 @@ void showConfirmDialog({
   Color? textColorBtnBorder,
   Color? grayE0Color,
 }) {
-  final confirmGradient = gradientBtn ?? (colorBtn == null ? AppGradient.redGradient : null);
+  final confirmGradient = gradientBtn ?? (colorBtn == null ? AppGradient.blueBFFAndAFFGradient : null);
   final confirmColor = confirmGradient != null ? null : colorBtn ?? appTheme.appColor;
 
   Get.dialog(

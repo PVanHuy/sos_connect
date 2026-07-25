@@ -19,7 +19,7 @@ class MultiColumnGridWidget<T> extends StatelessWidget {
     this.horizontalSpacing = 10,
     this.verticalSpacing = 10,
     this.emptyWidget,
-    this.crossAxisAlignment = CrossAxisAlignment.start,
+    this.crossAxisAlignment = .start,
   });
 
   @override

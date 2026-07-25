@@ -53,7 +53,7 @@ class CalendarConfigUtil {
       context: context,
       config: getDefaultConfig(context, singleMode: true, firstDate: firstDate, lastDate: lastDate),
       dialogSize: dialogSize ?? Size(Get.width, Get.width),
-      borderRadius: BorderRadius.circular(15),
+      borderRadius: .circular(15),
       value: [initialDate],
       dialogBackgroundColor: appTheme.whiteColor,
     );
@@ -78,7 +78,7 @@ class CalendarConfigUtil {
       context: context,
       config: getDefaultConfig(context, singleMode: true, firstDate: firstDate, lastDate: lastDate),
       dialogSize: dialogSize ?? Size(Get.width, Get.width),
-      borderRadius: BorderRadius.circular(15),
+      borderRadius: .circular(15),
       value: [initialDate],
       dialogBackgroundColor: appTheme.whiteColor,
     );

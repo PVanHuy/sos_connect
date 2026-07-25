@@ -84,6 +84,7 @@ abstract class BaseThemeData {
   Color gray37Color = const Color(0xFF1F2937);
   Color grayEBColor = const Color(0xFFE5E7EB);
   Color grayAFColor = const Color(0xFF9CA3AF);
+  Color grayCDColor = const Color(0xFFCDCDCD);
   Color gray2BColor = const Color(0xFF1A202B);
   Color gray26Color = const Color(0xFF151B26);
   Color gray19Color = const Color(0xFF0f1419);

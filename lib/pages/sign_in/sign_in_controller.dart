@@ -35,14 +35,14 @@ class SignInController extends GetxController {
 
   void goToSignUp() => Get.toNamed(Routes.SIGN_UP);
 
-  @override
-  void onClose() {
-    phoneController
-      ..removeListener(_validateForm)
-      ..dispose();
-    passwordController
-      ..removeListener(_validateForm)
-      ..dispose();
-    super.onClose();
-  }
+  //   @override
+  //   void onClose() {
+  //     phoneController
+  //       ..removeListener(_validateForm)
+  //       ..dispose();
+  //     passwordController
+  //       ..removeListener(_validateForm)
+  //       ..dispose();
+  //     super.onClose();
+  //   }
 }
