@@ -17,4 +17,6 @@ class AppConstants {
   static String socketUrl = dotenv.get('SOCKET_URL');
 
   static const String notificationChannelId = 'notification';
+
+  static const String chatbotChatUri = '/chatbot/chat';
 }
