@@ -102,6 +102,7 @@ abstract class BaseThemeData {
   Color blueF5Color = const Color(0xFF5DAAF5);
   Color blueF4Color = const Color(0xFF5899F4);
   Color blueFAColor = const Color(0xFFC7EBFA);
+  Color blueAFFColor = const Color(0xFF70BAFF);
 
   Color pinkA6Color = const Color(0xFFFF7DA6);
   Color pink8CColor = const Color(0xFFFF4A8C);

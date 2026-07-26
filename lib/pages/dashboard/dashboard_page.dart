@@ -54,6 +54,12 @@ class DashboardPage extends GetWidget<DashboardController> {
             ),
             _buildNavItem(
               index: 3,
+              iconInactivePath: Assets.icons.notification.path,
+              iconActivePath: Assets.icons.notificationBold.path,
+              label: 'news'.tr,
+            ),
+            _buildNavItem(
+              index: 4,
               iconInactivePath: Assets.icons.user.path,
               iconActivePath: Assets.icons.userBold.path,
               label: 'account'.tr,

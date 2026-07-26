@@ -3,6 +3,8 @@ import 'package:sos_connect/pages/change_password/change_password_binding.dart';
 import 'package:sos_connect/pages/change_password/change_password_page.dart';
 import 'package:sos_connect/pages/chat/chat_binding.dart';
 import 'package:sos_connect/pages/chat/chat_page.dart';
+import 'package:sos_connect/pages/create_new_password/create_new_password_binding.dart';
+import 'package:sos_connect/pages/create_new_password/create_new_password_page.dart';
 import 'package:sos_connect/pages/dashboard/dashboard_binding.dart';
 import 'package:sos_connect/pages/dashboard/dashboard_page.dart';
 import 'package:sos_connect/pages/forgot_password/forgot_password_binding.dart';
@@ -55,5 +57,10 @@ abstract class AppPages {
       binding: SurvivalGuideDetailBinding(),
     ),
     GetPage(name: Routes.CHAT, page: () => ChatPage(), binding: ChatBinding()),
+    GetPage(
+      name: Routes.CREATE_NEW_PASSWORD,
+      page: () => CreateNewPasswordPage(),
+      binding: CreateNewPasswordBinding(),
+    ),
   ];
 }

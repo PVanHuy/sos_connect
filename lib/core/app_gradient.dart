@@ -43,4 +43,8 @@ class AppGradient {
   static LinearGradient purpleFFAndPurpleFFGradient = LinearGradient(
     colors: [appTheme.purpleFFColor, appTheme.appColor],
   );
+
+  static LinearGradient gradientBlueAFFAndAppColorGradient = LinearGradient(
+    colors: [appTheme.appColor, appTheme.blueAFFColor],
+  );
 }

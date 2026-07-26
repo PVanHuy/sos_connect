@@ -25,23 +25,28 @@ class ItemRowWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: isLast ? const .only(bottomLeft: Radius.circular(12), bottomRight: Radius.circular(12)) : .zero,
-      child: Padding(
-        padding: padding(all: 12),
-        child: Row(
-          spacing: 8.w,
-          children: [
-            SvgPicture.asset(
-              icon.path,
-              width: 24.w,
-              height: 24.w,
-              colorFilter: ColorFilter.mode(iconColor ?? appTheme.appColor, .srcIn),
-            ),
-            Expanded(child: Text(label, style: StyleThemeData.size14Weight400())),
-            if (trailing != null) trailing!,
-          ],
+    return Material(
+      color: appTheme.transparentColor,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: isLast
+            ? const BorderRadius.only(bottomLeft: Radius.circular(12), bottomRight: Radius.circular(12))
+            : BorderRadius.zero,
+        child: Padding(
+          padding: padding(all: 12),
+          child: Row(
+            spacing: 8.w,
+            children: [
+              SvgPicture.asset(
+                icon.path,
+                width: 24.w,
+                height: 24.w,
+                colorFilter: ColorFilter.mode(iconColor ?? appTheme.appColor, BlendMode.srcIn),
+              ),
+              Expanded(child: Text(label, style: StyleThemeData.size14Weight400())),
+              if (trailing != null) trailing!,
+            ],
+          ),
         ),
       ),
     );

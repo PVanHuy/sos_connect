@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:sos_connect/pages/create_new_password/create_new_password_parameter.dart';
 import 'package:sos_connect/pages/otp/otp_parameter.dart';
 import 'package:sos_connect/routes/pages.dart';
 import 'package:sos_connect/utils/app_constants.dart';
@@ -60,7 +61,14 @@ class OtpController extends GetxController {
         otpError.value = '';
         isOtpSuccess.value = true;
         dismissEasyLoading();
-        Get.offAllNamed(Routes.SIGN_IN);
+        if (parameter.type == OtpType.forgetPassword) {
+          Get.offNamed(
+            Routes.CREATE_NEW_PASSWORD,
+            arguments: CreateNewPasswordParameter(phoneNumber: phoneNumber),
+          );
+        } else {
+          Get.offAllNamed(Routes.SIGN_IN);
+        }
       } else {
         isOtpSuccess.value = false;
         otpError.value = 'otp_invalid'.tr;

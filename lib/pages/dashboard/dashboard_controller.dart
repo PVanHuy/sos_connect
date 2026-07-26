@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sos_connect/pages/account/account_page.dart';
 import 'package:sos_connect/pages/map/map_page.dart';
+import 'package:sos_connect/pages/noti/noti_page.dart';
 import 'package:sos_connect/pages/support/support_page.dart';
 import 'package:sos_connect/pages/survival/survival_page.dart';
 
@@ -13,6 +14,7 @@ class DashboardController extends GetxController {
     MapPage(),
     SurvivalPage(),
     SupportPage(),
+    NotiPage(),
     AccountPage(),
   ];
 

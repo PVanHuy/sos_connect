@@ -16,4 +16,5 @@ abstract class Routes {
   static const RESCUE_POSTS = '/rescue_posts';
   static const SURVIVAL_GUIDE_DETAIL = '/survival_guide_detail';
   static const CHAT = '/chat';
+  static const CREATE_NEW_PASSWORD = '/create_new_password';
 }

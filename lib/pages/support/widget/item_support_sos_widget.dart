@@ -45,10 +45,11 @@ class ItemSupportSosWidget extends StatelessWidget {
         border: Border.all(color: appTheme.grayE5Color),
       ),
       child: Column(
-        crossAxisAlignment: .start,
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            crossAxisAlignment: .start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
                 child: Text(type.title, style: StyleThemeData.size14Weight700(color: style.text)),
@@ -58,7 +59,7 @@ class ItemSupportSosWidget extends StatelessWidget {
                   Container(
                     padding: padding(all: 12),
                     alignment: Alignment.center,
-                    decoration: BoxDecoration(color: style.text, shape: .circle),
+                    decoration: BoxDecoration(color: style.text, shape: BoxShape.circle),
                     child: Text(urgencyScore, style: StyleThemeData.size10Weight700(color: appTheme.whiteColor)),
                   ),
                   SizedBox(height: 4.h),
@@ -106,9 +107,9 @@ class ItemSupportSosWidget extends StatelessWidget {
               Expanded(
                 child: CustomButton(
                   buttonText: 'view_on_map'.tr,
-
                   color: appTheme.greenECColor,
                   textColor: appTheme.green47Color,
+                  hasSafeArea: false,
                   onPressed: () => RouteLauncherUtil.openGoogleMapByAddress(address),
                 ),
               ),

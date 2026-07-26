@@ -14,9 +14,9 @@ class SplashController extends GetxController {
     final token = LocalStorage.getString(SharedKey.token);
 
     if (token.isNotEmpty) {
-      Get.offAllNamed(Routes.DASHBOARD);
+      Get.offAllNamed(Routes.ONBOARDING);
     } else {
-      Get.offAllNamed(Routes.DASHBOARD);
+      Get.offAllNamed(Routes.ONBOARDING);
     }
   }
 }

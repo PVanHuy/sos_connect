@@ -66,5 +66,9 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>SOS Connect cần vị trí của bạn để hiển thị bản đồ, thời tiết và hỗ trợ cứu hộ gần nhất.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>SOS Connect cần vị trí của bạn để hiển thị bản đồ, thời tiết và hỗ trợ cứu hộ gần nhất.</string>
 </dict>
 </plist>
