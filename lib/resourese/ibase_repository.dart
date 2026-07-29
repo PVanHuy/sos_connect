@@ -13,6 +13,7 @@ import 'package:sos_connect/utils/dialog_utils.dart';
 import 'package:sos_connect/utils/local_storage.dart';
 import 'package:sos_connect/utils/logger_helper.dart';
 import 'package:sos_connect/utils/shared_key.dart';
+import 'package:sos_connect/widget/dialog/show_network_error_dialog.dart';
 
 class IBaseRepository {
   final int timeoutInSeconds = 60;
@@ -36,8 +37,7 @@ class IBaseRepository {
       'Content-Type': 'application/json; charset=UTF-8',
       'Accept': 'application/json',
       'X-localization': LocalizationService.language.locale.languageCode,
-      'accesstoken': token,
-      'is-staff-app': '1',
+      'Authorization': 'Bearer $token',
     };
   }
 
@@ -49,6 +49,9 @@ class IBaseRepository {
           .timeout(Duration(seconds: timeoutInSeconds));
 
       return handleResponse(response, uri);
+    } on SocketException {
+      showNetWorkErrorDialog();
+      throw Exception('No Internet Connection');
     } catch (e) {
       debugPrint('====> Get API Error: $e');
       rethrow;
@@ -68,10 +71,19 @@ class IBaseRepository {
           .timeout(Duration(seconds: timeoutInSeconds));
 
       return handleResponse(response, uri);
+    } on SocketException {
+      showNetWorkErrorDialog();
+      throw Exception('No Internet Connection');
     } catch (e) {
       debugPrint('====> Post API Error: $e');
       rethrow;
     }
+  }
+
+  Map<String, String> getMultipartAuthorizationHeader() {
+    final headers = Map<String, String>.from(getAuthorizationHeader());
+    headers.remove('Content-Type');
+    return headers;
   }
 
   Future<Response> clientPostMultipartData(
@@ -81,10 +93,10 @@ class IBaseRepository {
     Map<String, String>? headers,
   }) async {
     try {
-      debugPrint('====> API Call: $uri\nHeader: ${getAuthorizationHeader()}');
+      debugPrint('====> API Call: $uri\nHeader: ${getMultipartAuthorizationHeader()}');
       debugPrint('====> API Body: $body with ${multipartBody.length} files');
       http.MultipartRequest request = http.MultipartRequest('POST', Uri.parse(AppConstants.baseUrl + uri));
-      request.headers.addAll(headers ?? getAuthorizationHeader());
+      request.headers.addAll(headers ?? getMultipartAuthorizationHeader());
       for (MultipartBody multipart in multipartBody) {
         if (multipart.file != null) {
           File file = File(multipart.file!.path);
@@ -101,8 +113,47 @@ class IBaseRepository {
       request.fields.addAll(body);
       http.Response response = await http.Response.fromStream(await request.send());
       return handleResponse(response, uri);
+    } on SocketException {
+      showNetWorkErrorDialog();
+      throw Exception('No Internet Connection');
     } catch (e) {
       loggerHelper.error('====> Post AND FILES API Error: $e');
+      rethrow;
+    }
+  }
+
+  Future<Response> clientPatchMultipartData(
+    String uri,
+    Map<String, String> body,
+    List<MultipartBody> multipartBody, {
+    Map<String, String>? headers,
+  }) async {
+    try {
+      debugPrint('====> Patch Multipart API Call: $uri\nHeader: ${getMultipartAuthorizationHeader()}');
+      debugPrint('====> Patch Multipart API Body: $body with ${multipartBody.length} files');
+      http.MultipartRequest request = http.MultipartRequest('PATCH', Uri.parse(AppConstants.baseUrl + uri));
+      request.headers.addAll(headers ?? getMultipartAuthorizationHeader());
+      for (MultipartBody multipart in multipartBody) {
+        if (multipart.file != null) {
+          File file = File(multipart.file!.path);
+          request.files.add(
+            http.MultipartFile(
+              multipart.key,
+              file.readAsBytes().asStream(),
+              file.lengthSync(),
+              filename: file.path.split('/').last,
+            ),
+          );
+        }
+      }
+      request.fields.addAll(body);
+      http.Response response = await http.Response.fromStream(await request.send());
+      return handleResponse(response, uri);
+    } on SocketException {
+      showNetWorkErrorDialog();
+      throw Exception('No Internet Connection');
+    } catch (e) {
+      loggerHelper.error('====> Patch AND FILES API Error: $e');
       rethrow;
     }
   }
@@ -122,8 +173,33 @@ class IBaseRepository {
           .timeout(Duration(seconds: timeoutInSeconds));
 
       return handleResponse(response, uri);
+    } on SocketException {
+      showNetWorkErrorDialog();
+      throw Exception('No Internet Connection');
     } catch (e) {
       loggerHelper.error('====> Post API Error: $e');
+      rethrow;
+    }
+  }
+
+  Future<Response> clientPatchData(String uri, dynamic body, {Map<String, String>? headers}) async {
+    try {
+      debugPrint('====> Patch API Call: $uri\nHeader: ${getAuthorizationHeader()}');
+      debugPrint('====> Patch API Body: $body');
+      http.Response response = await http
+          .patch(
+            Uri.parse(AppConstants.baseUrl + uri),
+            body: jsonEncode(body),
+            headers: headers ?? getAuthorizationHeader(),
+          )
+          .timeout(Duration(seconds: timeoutInSeconds));
+
+      return handleResponse(response, uri);
+    } on SocketException {
+      showNetWorkErrorDialog();
+      throw Exception('No Internet Connection');
+    } catch (e) {
+      debugPrint('====> Patch API Error: $e');
       rethrow;
     }
   }
@@ -142,6 +218,9 @@ class IBaseRepository {
           .timeout(Duration(seconds: timeoutInSeconds));
 
       return handleResponse(response, uri);
+    } on SocketException {
+      showNetWorkErrorDialog();
+      throw Exception('No Internet Connection');
     } catch (e) {
       return Response(statusCode: 1, statusText: 'connection_to_api_server_failed'.tr);
     }
@@ -176,10 +255,15 @@ class IBaseRepository {
   }
 
   Future<void> _logout() async {
-    // DialogUtils.showErrorDialog('Phiên đăng nhập hết hạn, vui lòng đăng nhập lại!');
+    if (Get.currentRoute == Routes.SIGN_IN) {
+      return;
+    }
+    DialogUtils.showErrorDialog('session_expired'.tr);
 
     String? savedLanguage = LocalStorage.getString(SharedKey.language);
+
     await LocalStorage.clearAll();
+
     if (savedLanguage.isNotEmpty) {
       await LocalStorage.setString(SharedKey.language, savedLanguage);
     }

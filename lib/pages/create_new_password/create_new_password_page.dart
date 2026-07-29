@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:sos_connect/gen/assets.gen.dart';
 import 'package:sos_connect/main.dart';
 import 'package:sos_connect/pages/create_new_password/create_new_password_controller.dart';
+import 'package:sos_connect/routes/pages.dart';
 import 'package:sos_connect/theme/style/style_theme.dart';
 import 'package:sos_connect/utils/custom_validator.dart';
 import 'package:sos_connect/utils/formatter_util.dart';
@@ -74,7 +75,7 @@ class CreateNewPasswordPage extends GetWidget<CreateNewPasswordController> {
                                   child: Assets.icons.lock.svg(
                                     width: 20.w,
                                     height: 20.w,
-                                    colorFilter: ColorFilter.mode(appTheme.appColor, BlendMode.srcIn),
+                                    colorFilter: .mode(appTheme.appColor, BlendMode.srcIn),
                                   ),
                                 ),
                               ),
@@ -83,8 +84,7 @@ class CreateNewPasswordPage extends GetWidget<CreateNewPasswordController> {
                                 () => Text(
                                   'desc_password_rule'.tr,
                                   style: StyleThemeData.size12Weight400(
-                                    color: !controller.isPasswordTouched.value ||
-                                            controller.isPasswordRuleValid.value
+                                    color: !controller.isPasswordTouched.value || controller.isPasswordRuleValid.value
                                         ? appTheme.blackColor
                                         : appTheme.errorColor,
                                   ),
@@ -107,7 +107,7 @@ class CreateNewPasswordPage extends GetWidget<CreateNewPasswordController> {
                               child: Assets.icons.lock.svg(
                                 width: 20.w,
                                 height: 20.w,
-                                colorFilter: ColorFilter.mode(appTheme.appColor, BlendMode.srcIn),
+                                colorFilter: .mode(appTheme.appColor, BlendMode.srcIn),
                               ),
                             ),
                             onValidate: (value) {
@@ -129,7 +129,7 @@ class CreateNewPasswordPage extends GetWidget<CreateNewPasswordController> {
                               Text('already_have_account'.tr, style: StyleThemeData.size12Weight400()),
                               SizedBox(width: 4.w),
                               InkWell(
-                                onTap: controller.goToSignIn,
+                                onTap: () => Get.offNamed(Routes.SIGN_IN),
                                 child: Text(
                                   'sign_in'.tr,
                                   style: StyleThemeData.size12Weight400(color: appTheme.appColor),

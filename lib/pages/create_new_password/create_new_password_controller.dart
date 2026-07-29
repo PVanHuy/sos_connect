@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sos_connect/pages/create_new_password/create_new_password_parameter.dart';
+import 'package:sos_connect/resourese/auth/iauth_repository.dart';
 import 'package:sos_connect/routes/pages.dart';
 import 'package:sos_connect/utils/custom_validator.dart';
 import 'package:sos_connect/utils/dialog_utils.dart';
 
 class CreateNewPasswordController extends GetxController {
+  final IAuthRepository authRepository;
+
+  CreateNewPasswordController({required this.authRepository});
+
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
 
@@ -33,10 +38,7 @@ class CreateNewPasswordController extends GetxController {
 
     final passwordValid = CustomValidator.validatePassword(passwordController.text.trim()).isEmpty;
     final confirmPassword = confirmPasswordController.text.trim();
-    final confirmRequired = CustomValidator.validateRequiredField(
-      confirmPassword,
-      'confirm_new_password'.tr,
-    ).isEmpty;
+    final confirmRequired = CustomValidator.validateRequiredField(confirmPassword, 'confirm_new_password'.tr).isEmpty;
     final confirmMatched = confirmPassword == passwordController.text.trim();
 
     if (!isPasswordTouched.value && passwordController.text.trim().isNotEmpty) {
@@ -50,27 +52,41 @@ class CreateNewPasswordController extends GetxController {
   Future<void> onConfirm() async {
     if (!isFormValid.value || isLoading.value) return;
 
+    final password = passwordController.text.trim();
+    final confirmPassword = confirmPasswordController.text.trim();
+
     try {
       isLoading.value = true;
-      // TODO: Call create/reset password API with phoneNumber.
-      await Future<void>.delayed(const Duration(milliseconds: 800));
-      DialogUtils.showSuccessDialog('create_new_password_success'.tr);
-      Get.offAllNamed(Routes.SIGN_IN);
+
+      final response = await authRepository.forgotPassword({
+        'phone': phoneNumber,
+        'password': password,
+        'confirmPassword': confirmPassword,
+      });
+
+      if (isClosed) return;
+
+      if (response.isOk) {
+        DialogUtils.showSuccessDialog(response.body['message'] ?? 'create_new_password_success'.tr);
+        Get.offAllNamed(Routes.SIGN_IN);
+      } else {
+        DialogUtils.showErrorDialog(response.body['message'] ?? '');
+      }
+    } catch (e) {
+      debugPrint(e.toString());
     } finally {
       if (!isClosed) isLoading.value = false;
     }
   }
 
-  void goToSignIn() => Get.offAllNamed(Routes.SIGN_IN);
-
   @override
-  void dispose() {
+  void onClose() {
     passwordController
       ..removeListener(_validateForm)
       ..dispose();
     confirmPasswordController
       ..removeListener(_validateForm)
       ..dispose();
-    super.dispose();
+    super.onClose();
   }
 }

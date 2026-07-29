@@ -135,6 +135,11 @@ class FormatterUtil {
     LengthLimitingTextInputFormatter(20),
   ];
 
+  static final List<TextInputFormatter> cccdFormatter = [
+    FilteringTextInputFormatter.digitsOnly,
+    LengthLimitingTextInputFormatter(12),
+  ];
+
   static final List<TextInputFormatter> numberFormatterNoLeadingZero = [
     FilteringTextInputFormatter.allow(RegExp('[0-9]')),
     LengthLimitingTextInputFormatter(20),

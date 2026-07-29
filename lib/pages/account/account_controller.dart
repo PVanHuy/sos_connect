@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:sos_connect/pages/dashboard/dashboard_controller.dart';
 import 'package:sos_connect/resourese/service/localization_service.dart';
 import 'package:sos_connect/routes/pages.dart';
 import 'package:sos_connect/utils/app_enums.dart';
@@ -6,8 +7,8 @@ import 'package:sos_connect/utils/local_storage.dart';
 import 'package:sos_connect/utils/shared_key.dart';
 
 class AccountController extends GetxController {
-  var userName = 'Văn Huy'.obs;
-  var phoneNumber = '0978410127'.obs;
+  DashboardController get dashboardController => Get.find<DashboardController>();
+
   var currentLanguage = LocalizationService.language.obs;
 
   void changeLanguage(Languages language) {

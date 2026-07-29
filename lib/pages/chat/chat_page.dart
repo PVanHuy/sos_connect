@@ -25,7 +25,7 @@ class ChatPage extends GetWidget<ChatController> {
             icon: Assets.icons.arrowLeft.svg(
               width: 24.w,
               height: 24.w,
-              colorFilter: ColorFilter.mode(appTheme.blackColor, BlendMode.srcIn),
+              colorFilter: .mode(appTheme.blackColor, BlendMode.srcIn),
             ),
           ),
           title: Row(
@@ -218,7 +218,7 @@ class ChatPage extends GetWidget<ChatController> {
                                     : Assets.icons.send.svg(
                                         width: 20.w,
                                         height: 20.w,
-                                        colorFilter: ColorFilter.mode(appTheme.whiteColor, BlendMode.srcIn),
+                                        colorFilter: .mode(appTheme.whiteColor, BlendMode.srcIn),
                                       ),
                               ),
                             ),

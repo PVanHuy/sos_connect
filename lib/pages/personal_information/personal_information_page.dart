@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:sos_connect/core/app_gradient.dart';
 import 'package:sos_connect/gen/assets.gen.dart';
 import 'package:sos_connect/main.dart';
 import 'package:sos_connect/pages/personal_information/personal_information_controller.dart';
@@ -47,7 +46,7 @@ class PersonalInformationPage extends GetWidget<PersonalInformationController> {
                                   fit: BoxFit.cover,
                                 ),
                               )
-                            : CustomImageWidget(imageUrl: '', size: 114.w, noImage: false),
+                            : CustomImageWidget(imageUrl: controller.avatarUrl.value, size: 114.w, noImage: false),
                         Positioned(
                           right: 0,
                           bottom: -2,
@@ -61,7 +60,7 @@ class PersonalInformationPage extends GetWidget<PersonalInformationController> {
                             child: Assets.icons.camera.svg(
                               width: 20.w,
                               height: 20.w,
-                              colorFilter: ColorFilter.mode(appTheme.appColor, .srcIn),
+                              colorFilter: .mode(appTheme.appColor, .srcIn),
                             ),
                           ),
                         ),
@@ -76,7 +75,10 @@ class PersonalInformationPage extends GetWidget<PersonalInformationController> {
                   hintText: 'enter_full_name'.tr,
                   borderRadius: 12,
                   formatter: FormatterUtil.fullNameFormatter,
-                  prefixIcon: _prefixIcon(Assets.icons.user.path),
+                  prefixIcon: Padding(
+                    padding: padding(left: 12, right: 8),
+                    child: ImageAssetCustom(imagePath: Assets.icons.user.path, size: 20, color: appTheme.appColor),
+                  ),
                   onValidate: (value) => CustomValidator.validateFullName(value.trim()),
                 ),
                 SizedBox(height: 24.h),
@@ -85,6 +87,7 @@ class PersonalInformationPage extends GetWidget<PersonalInformationController> {
                   titleText: 'phone_number'.tr,
                   hintText: 'enter_phone_number'.tr,
                   borderRadius: 12,
+                  readOnly: true,
                   isPhone: true,
                   inputType: TextInputType.phone,
                   formatter: FormatterUtil.phoneFormatter,
@@ -99,7 +102,10 @@ class PersonalInformationPage extends GetWidget<PersonalInformationController> {
                   isRequired: false,
                   inputType: TextInputType.emailAddress,
                   formatter: FormatterUtil.emailFormatter,
-                  prefixIcon: _prefixIcon(Assets.icons.mail.path),
+                  prefixIcon: Padding(
+                    padding: padding(left: 12, right: 8),
+                    child: ImageAssetCustom(imagePath: Assets.icons.mail.path, size: 20, color: appTheme.appColor),
+                  ),
                   onValidate: (value) => CustomValidator.validateEmail(value.trim(), isRequired: false),
                 ),
                 SizedBox(height: 24.h),
@@ -108,9 +114,12 @@ class PersonalInformationPage extends GetWidget<PersonalInformationController> {
                   titleText: 'role'.tr,
                   hintText: 'enter_role'.tr,
                   borderRadius: 12,
-                  formatter: FormatterUtil.titleFormatter,
-                  prefixIcon: _prefixIcon(Assets.icons.tagUser.path),
-                  onValidate: (value) => CustomValidator.validateRequiredField(value.trim(), 'role'.tr),
+                  isRequired: false,
+                  readOnly: true,
+                  prefixIcon: Padding(
+                    padding: padding(left: 12, right: 8),
+                    child: ImageAssetCustom(imagePath: Assets.icons.tagUser.path, size: 20, color: appTheme.appColor),
+                  ),
                 ),
                 SizedBox(height: 24.h),
                 CustomTextField(
@@ -118,11 +127,18 @@ class PersonalInformationPage extends GetWidget<PersonalInformationController> {
                   titleText: 'cccd'.tr,
                   hintText: 'enter_cccd'.tr,
                   borderRadius: 12,
+                  isRequired: false,
                   inputType: TextInputType.number,
-                  formatter: FormatterUtil.numberFormatter,
-                  maxLength: 12,
-                  prefixIcon: _prefixIcon(Assets.icons.clipboardText.path),
-                  onValidate: (value) => CustomValidator.validateRequiredField(value.trim(), 'cccd'.tr),
+                  formatter: FormatterUtil.cccdFormatter,
+                  prefixIcon: Padding(
+                    padding: padding(left: 12, right: 8),
+                    child: ImageAssetCustom(
+                      imagePath: Assets.icons.clipboardText.path,
+                      size: 20,
+                      color: appTheme.appColor,
+                    ),
+                  ),
+                  onValidate: (value) => CustomValidator.validateCCCD(value.trim(), isRequired: false),
                 ),
                 SizedBox(height: 24.h),
                 CustomTextField(
@@ -130,10 +146,17 @@ class PersonalInformationPage extends GetWidget<PersonalInformationController> {
                   titleText: 'birth_date'.tr,
                   hintText: 'enter_birth_date'.tr,
                   borderRadius: 12,
+                  isRequired: false,
                   readOnly: true,
                   onTap: () => controller.pickBirthDate(context),
-                  prefixIcon: _prefixIcon(Assets.icons.calendarDays.path),
-                  onValidate: (value) => CustomValidator.validateRequiredField(value.trim(), 'birth_date'.tr),
+                  prefixIcon: Padding(
+                    padding: padding(left: 12, right: 8),
+                    child: ImageAssetCustom(
+                      imagePath: Assets.icons.calendarDays.path,
+                      size: 20,
+                      color: appTheme.appColor,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -147,7 +170,6 @@ class PersonalInformationPage extends GetWidget<PersonalInformationController> {
               CustomButton(
                 margin: padding(horizontal: 16, bottom: 16, top: 12),
                 buttonText: 'save'.tr,
-                gradient: AppGradient.redGradient,
                 onPressed: controller.isFormValid.value ? controller.savePersonalInformation : null,
                 isLoading: controller.isLoading.value,
               ),
@@ -155,13 +177,6 @@ class PersonalInformationPage extends GetWidget<PersonalInformationController> {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _prefixIcon(String path) {
-    return Padding(
-      padding: padding(left: 12, right: 8),
-      child: ImageAssetCustom(imagePath: path, size: 20, color: appTheme.appColor),
     );
   }
 }

@@ -9,6 +9,8 @@ class CustomValidator {
     r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$',
   );
 
+  static final RegExp cccdRegex = RegExp(r'^\d{12}$');
+
   static final RegExp passwordRegex = RegExp(
     r'^(?!.*[ÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯưĂâđêôơư])(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[#?!@$%^&*-])\S{8,}$',
   );
@@ -30,6 +32,18 @@ class CustomValidator {
     if (fullName.trim().length < AppConstants.minNameLength || fullName.trim().length > AppConstants.maxNameLength) {
       return 'enter_full_field'.trParams({'field': 'full_name'.tr.toLowerCase()});
     }
+    return '';
+  }
+
+  static String validateCCCD(String cccd, {bool isRequired = true}) {
+    if (cccd.trim().isEmpty) {
+      return isRequired ? 'field_is_required'.trParams({'field': 'cccd'.tr}) : '';
+    }
+
+    if (cccd.isNotEmpty && !cccdRegex.hasMatch(cccd.trim())) {
+      return 'field_is_invalid'.trParams({'field': 'cccd'.tr});
+    }
+
     return '';
   }
 

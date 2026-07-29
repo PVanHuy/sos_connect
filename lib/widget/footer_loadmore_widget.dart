@@ -65,7 +65,7 @@ class FooterLoadmoreWidget extends StatelessWidget {
               child: Assets.icons.arrowLeft.svg(
                 width: 16.w,
                 height: 16.w,
-                colorFilter: ColorFilter.mode(currentPage > 1 ? appTheme.blackColor : appTheme.gray78Color, .srcIn),
+                colorFilter: .mode(currentPage > 1 ? appTheme.blackColor : appTheme.gray78Color, .srcIn),
               ),
             ),
           )
@@ -90,7 +90,7 @@ class FooterLoadmoreWidget extends StatelessWidget {
               child: Assets.icons.arrowRight.svg(
                 width: 16.w,
                 height: 16.w,
-                colorFilter: ColorFilter.mode(
+                colorFilter: .mode(
                   currentPage < totalPages ? appTheme.blackColor : appTheme.gray78Color,
                   .srcIn,
                 ),

@@ -41,7 +41,7 @@ class ItemRowWidget extends StatelessWidget {
                 icon.path,
                 width: 24.w,
                 height: 24.w,
-                colorFilter: ColorFilter.mode(iconColor ?? appTheme.appColor, BlendMode.srcIn),
+                colorFilter: .mode(iconColor ?? appTheme.appColor, BlendMode.srcIn),
               ),
               Expanded(child: Text(label, style: StyleThemeData.size14Weight400())),
               if (trailing != null) trailing!,

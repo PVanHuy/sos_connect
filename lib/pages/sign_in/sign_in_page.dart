@@ -66,7 +66,7 @@ class SignInPage extends GetWidget<SignInController> {
                             child: Assets.icons.callBold.svg(
                               width: 20.w,
                               height: 20.w,
-                              colorFilter: ColorFilter.mode(appTheme.appColor, .srcIn),
+                              colorFilter: .mode(appTheme.appColor, .srcIn),
                             ),
                           ),
                           onValidateAsync: (value) async => CustomValidator.validatePhone(value),

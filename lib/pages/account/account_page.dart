@@ -11,6 +11,7 @@ import 'package:sos_connect/theme/style/style_theme.dart';
 import 'package:sos_connect/widget/custom_button.dart';
 import 'package:sos_connect/widget/custom_image_widget.dart';
 import 'package:sos_connect/widget/dialog/show_confirm_dialog.dart';
+import 'package:sos_connect/widget/full_photo_viewer.dart';
 import 'package:sos_connect/widget/image_asset_custom.dart';
 import 'package:sos_connect/widget/reponsive/extension.dart';
 
@@ -27,16 +28,28 @@ class AccountPage extends GetWidget<AccountController> {
             child: SafeArea(
               child: Column(
                 children: [
-                  CustomImageWidget(
-                    imageUrl: '',
-                    size: 100.w,
-                    showBoder: true,
-                    colorBoder: appTheme.whiteColor,
-                    borderWidth: 4,
-                    noImage: false,
-                  ),
-                  SizedBox(height: 12.h),
-                  Obx(() => Text(controller.userName.value, style: StyleThemeData.size20Weight700())),
+                  Obx(() {
+                    final user = controller.dashboardController.userModel.value;
+                    final avatar = user?.avatar ?? '';
+                    return Column(
+                      children: [
+                        InkWell(
+                          onTap: avatar.isEmpty ? null : () => FullPhotoViewer.open(context, assets: [avatar]),
+                          borderRadius: .circular(1000),
+                          child: CustomImageWidget(
+                            imageUrl: avatar,
+                            size: 100.w,
+                            showBoder: true,
+                            colorBoder: appTheme.whiteColor,
+                            borderWidth: 4,
+                            noImage: false,
+                          ),
+                        ),
+                        SizedBox(height: 12.h),
+                        Text(user?.username ?? '', style: StyleThemeData.size20Weight700()),
+                      ],
+                    );
+                  }),
                   AccountSectionView(),
                   RescueView(),
                   SettingsAccountView(),

@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:sos_connect/gen/assets.gen.dart';
 import 'package:sos_connect/main.dart';
 import 'package:sos_connect/pages/sign_up/sign_up_controller.dart';
+import 'package:sos_connect/routes/pages.dart';
 import 'package:sos_connect/theme/style/style_theme.dart';
 import 'package:sos_connect/utils/custom_validator.dart';
 import 'package:sos_connect/utils/formatter_util.dart';
@@ -65,7 +66,7 @@ class SignUpPage extends GetWidget<SignUpController> {
                             child: Assets.icons.callBold.svg(
                               width: 20.w,
                               height: 20.w,
-                              colorFilter: ColorFilter.mode(appTheme.appColor, .srcIn),
+                              colorFilter: .mode(appTheme.appColor, .srcIn),
                             ),
                           ),
                           onValidateAsync: (value) async => CustomValidator.validatePhone(value),
@@ -130,7 +131,7 @@ class SignUpPage extends GetWidget<SignUpController> {
                             Text('already_have_account'.tr, style: StyleThemeData.size12Weight400()),
                             SizedBox(width: 4.w),
                             InkWell(
-                              onTap: controller.goToSignIn,
+                              onTap: () => Get.offNamed(Routes.SIGN_IN),
                               child: Text(
                                 'sign_in'.tr,
                                 style: StyleThemeData.size12Weight400(color: appTheme.appColor),

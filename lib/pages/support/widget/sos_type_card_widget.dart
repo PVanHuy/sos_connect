@@ -38,12 +38,7 @@ class SosTypeCardWidget extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SvgPicture.asset(
-              iconPath,
-              width: 28.w,
-              height: 28.w,
-              colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
-            ),
+            SvgPicture.asset(iconPath, width: 28.w, height: 28.w, colorFilter: .mode(color, BlendMode.srcIn)),
             SizedBox(height: 8.h),
             Text(
               title,

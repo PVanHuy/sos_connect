@@ -34,7 +34,7 @@ class ImageAssetCustom extends StatelessWidget {
             ? width?.h
             : height?.h,
         fit: boxFit ?? .contain,
-        colorFilter: color != null ? ColorFilter.mode(color!, .srcIn) : null,
+        colorFilter: color != null ? .mode(color!, .srcIn) : null,
       );
     }
     return Image.asset(

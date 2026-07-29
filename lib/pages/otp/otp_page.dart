@@ -38,7 +38,7 @@ class OtpPage extends GetWidget<OtpController> {
 
                         Expanded(
                           child: Text(
-                            controller.phoneNumber,
+                            controller.parameter.phoneNumber,
                             overflow: .ellipsis,
                             style: StyleThemeData.size14Weight400(color: appTheme.appColor),
                           ),
@@ -77,6 +77,7 @@ class OtpPage extends GetWidget<OtpController> {
 
       return PinCodeTextField(
         controller: controller.otpTextController,
+        autoDisposeControllers: false,
         appContext: Get.context!,
         length: AppConstants.maxOtpLength,
         onChanged: controller.updateVerificationCode,

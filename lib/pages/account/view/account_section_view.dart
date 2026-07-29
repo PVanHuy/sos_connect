@@ -5,6 +5,7 @@ import 'package:sos_connect/gen/assets.gen.dart';
 import 'package:sos_connect/main.dart';
 import 'package:sos_connect/pages/account/account_controller.dart';
 import 'package:sos_connect/pages/account/widget/item_row_widget.dart';
+import 'package:sos_connect/pages/personal_information/personal_information_parameter.dart';
 import 'package:sos_connect/pages/rescue_posts/rescue_posts_parameter.dart';
 import 'package:sos_connect/routes/pages.dart';
 import 'package:sos_connect/theme/style/style_theme.dart';
@@ -31,7 +32,12 @@ class AccountSectionView extends GetView<AccountController> {
           ItemRowWidget(
             icon: Assets.icons.userSquare,
             label: 'personal_info'.tr,
-            onTap: () => Get.toNamed(Routes.PERSONAL_INFORMATION),
+            onTap: () => Get.toNamed(
+              Routes.PERSONAL_INFORMATION,
+              arguments: PersonalInformationParameter(
+                userModel: controller.dashboardController.userModel.value,
+              ),
+            ),
           ),
           ItemRowWidget(
             icon: Assets.icons.message,
