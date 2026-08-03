@@ -86,7 +86,7 @@ class _SearchCustomFieldState extends State<SearchCustomField> {
         hintStyle: widget.hintStyle ?? StyleThemeData.size14Weight500(color: appTheme.oldSliverColor),
         textStyle: widget.textStyle ?? StyleThemeData.size16Weight400(),
         suffixIcon: Padding(
-          padding: widget.suffixIconConstraints != null ? padding(right: 12) : .zero,
+          padding: padding(right: 12),
           child: ValueListenableBuilder<TextEditingValue>(
             valueListenable: controller,
             builder: (context, value, child) {

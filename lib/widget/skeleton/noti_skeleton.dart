@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:skeletonizer/skeletonizer.dart';
-import 'package:sos_connect/main.dart';
 import 'package:sos_connect/widget/reponsive/extension.dart';
 
 class NotiSkeletonView extends StatelessWidget {
@@ -8,35 +7,44 @@ class NotiSkeletonView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: padding(all: 12),
-      decoration: BoxDecoration(borderRadius: .circular(12), color: appTheme.whiteColor),
+    return Padding(
+      padding: padding(horizontal: 16, vertical: 12),
       child: Row(
-        mainAxisSize: .min,
-        crossAxisAlignment: .start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ClipRRect(
-            borderRadius: .circular(1000),
-            child: Skeleton.replace(width: 46.w, height: 46.h, child: Container()),
+            borderRadius: BorderRadius.circular(12),
+            child: Skeleton.replace(width: 48.w, height: 48.w, child: const SizedBox.expand()),
           ),
           SizedBox(width: 12.w),
           Expanded(
             child: Column(
-              crossAxisAlignment: .start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ClipRRect(
-                  borderRadius: .circular(4),
-                  child: Skeleton.replace(width: .infinity, height: 17.h, child: Container()),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(4),
+                        child: Skeleton.replace(width: double.infinity, height: 16.h, child: Container()),
+                      ),
+                    ),
+                    SizedBox(width: 12.w),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(4),
+                      child: Skeleton.replace(width: 70.w, height: 12.h, child: Container()),
+                    ),
+                  ],
                 ),
                 SizedBox(height: 8.h),
                 ClipRRect(
-                  borderRadius: .circular(4),
-                  child: Skeleton.replace(width: .infinity, height: 15.h, child: Container()),
+                  borderRadius: BorderRadius.circular(4),
+                  child: Skeleton.replace(width: double.infinity, height: 12.h, child: Container()),
                 ),
-                SizedBox(height: 8.h),
+                SizedBox(height: 6.h),
                 ClipRRect(
-                  borderRadius: .circular(4),
-                  child: Skeleton.replace(width: 49.w, height: 15.h, child: Container()),
+                  borderRadius: BorderRadius.circular(4),
+                  child: Skeleton.replace(width: 160.w, height: 12.h, child: Container()),
                 ),
               ],
             ),

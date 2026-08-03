@@ -15,6 +15,7 @@ class UserModel {
   String? teamId;
   String? email;
   String? cccd;
+  String? province;
 
   UserModel({
     this.id,
@@ -27,6 +28,7 @@ class UserModel {
     this.teamId,
     this.email,
     this.cccd,
+    this.province,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) => _$UserModelFromJson(json);
@@ -44,6 +46,7 @@ class UserModel {
     String? teamId,
     String? email,
     String? cccd,
+    String? province,
   }) {
     return UserModel(
       id: id ?? this.id,
@@ -56,6 +59,7 @@ class UserModel {
       teamId: teamId ?? this.teamId,
       email: email ?? this.email,
       cccd: cccd ?? this.cccd,
+      province: province ?? this.province,
     );
   }
 }

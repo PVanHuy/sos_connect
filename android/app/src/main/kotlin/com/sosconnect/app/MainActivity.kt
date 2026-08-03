@@ -1,4 +1,4 @@
-package com.sos.connect.app
+package com.sosconnect.app
 
 import io.flutter.embedding.android.FlutterActivity
 

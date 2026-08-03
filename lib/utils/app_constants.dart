@@ -9,7 +9,7 @@ class AppConstants {
   static const int maxNameLength = 255;
   static const int timeOtp = 120;
   static const int secondsTimeBannerSlide = 5;
-  static const int maxOtpLength = 6;
+  static const int maxOtpLength = 4;
 
   static const int LIMIT = 10;
 
@@ -26,4 +26,20 @@ class AppConstants {
   static const String verifyOtpUri = '/auth/otp/verify';
   static const String forgotPasswordUri = '/auth/forgot-password';
   static const String userProfileUri = '/user/profile';
+  static const String teamRegisterInformationsUri = '/team/register/informations';
+  static const String teamMyTeamUri = '/team/my-team';
+  static const String teamDetailUri = '/team/detail';
+  static const String teamListUri = '/team';
+  static const String teamJoinRequestUri = '/team/join-request';
+  static const String teamJoinRequestCurrentUri = '/team/join-request/current';
+  static const String teamJoinRequestsPendingUri = '/team/join-requests/pending';
+  static const String updateFcmTokenUri = '/user/fcm-token';
+  static const String logOutUri = '/auth/logout';
+  static const String notificationUri = '/notification';
+
+  static String teamJoinRequestRespondUri(String requestId) => '/team/join-request/$requestId/respond';
+
+  static String notificationDetailUri(String notificationId) => '/notification/$notificationId';
+
+  static String markNotificationAsReadUri(String notificationId) => '/notification/$notificationId/read';
 }

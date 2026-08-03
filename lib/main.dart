@@ -1,3 +1,4 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -6,6 +7,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 import 'package:sos_connect/extension/color_extension.dart';
+import 'package:sos_connect/firebase_options.dart';
 import 'package:sos_connect/resourese/service/app_service.dart';
 import 'package:sos_connect/resourese/service/localization_service.dart';
 import 'package:sos_connect/routes/pages.dart';
@@ -27,11 +29,10 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: '.env');
   await LocalStorage.init();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await AppService.initAppService();
   await VietnamProvinces.initialize(version: AdministrativeDivisionVersion.v2);
-  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-  // await Firebase.initializeApp();
-  // NotificationService().onInit();
+  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
 
   runApp(
     LayoutBuilder(

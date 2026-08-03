@@ -1,0 +1,3 @@
+class RescueTeamListParameter {
+  const RescueTeamListParameter();
+}

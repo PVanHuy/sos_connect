@@ -31,7 +31,7 @@ class MapPage extends GetWidget<MapController> {
               children: [
                 TileLayer(
                   urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                  userAgentPackageName: 'com.sos.connect.app',
+                  userAgentPackageName: 'com.sosconnect.app',
                   maxNativeZoom: 19,
                   keepBuffer: 2,
                   panBuffer: 1,

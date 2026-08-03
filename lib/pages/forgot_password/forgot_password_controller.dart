@@ -4,7 +4,6 @@ import 'package:sos_connect/pages/otp/otp_parameter.dart';
 import 'package:sos_connect/resourese/auth/iauth_repository.dart';
 import 'package:sos_connect/routes/pages.dart';
 import 'package:sos_connect/utils/custom_validator.dart';
-import 'package:sos_connect/utils/dialog_utils.dart';
 
 class ForgotPasswordController extends GetxController {
   final IAuthRepository authRepository;
@@ -38,19 +37,25 @@ class ForgotPasswordController extends GetxController {
     try {
       isLoading.value = true;
 
-      final response = await authRepository.sendOtp({'phone': phone, 'type': 'forgot-password'});
+      // TODO: tạm ẩn gửi OTP qua SĐT — backend mặc định OTP 1234. Mở lại khi cần.
+      // final response = await authRepository.sendOtp({'phone': phone, 'type': 'forgot-password'});
+      //
+      // if (isClosed) return;
+      //
+      // if (response.isOk) {
+      //   DialogUtils.showSuccessDialog(response.body['message'] ?? '');
+      //   Get.toNamed(
+      //     Routes.OTP,
+      //     arguments: OtpParameter(phoneNumber: phone, type: OtpType.forgetPassword),
+      //   );
+      // } else {
+      //   DialogUtils.showErrorDialog(response.body['message'] ?? '');
+      // }
 
-      if (isClosed) return;
-
-      if (response.isOk) {
-        DialogUtils.showSuccessDialog(response.body['message'] ?? '');
-        Get.toNamed(
-          Routes.OTP,
-          arguments: OtpParameter(phoneNumber: phone, type: OtpType.forgetPassword),
-        );
-      } else {
-        DialogUtils.showErrorDialog(response.body['message'] ?? '');
-      }
+      Get.toNamed(
+        Routes.OTP,
+        arguments: OtpParameter(phoneNumber: phone, type: OtpType.forgetPassword),
+      );
     } catch (e) {
       debugPrint(e.toString());
     } finally {

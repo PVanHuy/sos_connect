@@ -1,176 +1,355 @@
-// import 'dart:async';
-// import 'dart:convert';
-// import 'dart:io';
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 
-// import 'package:sos_connect/utils/app_constants.dart';
-// import 'package:sos_connect/utils/logger_helper.dart';
-// import 'package:firebase_messaging/firebase_messaging.dart';
-// import 'package:flutter/material.dart';
-// import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:get/get.dart';
+import 'package:sos_connect/model/notification/fcm_notification_model.dart';
+import 'package:sos_connect/pages/dashboard/dashboard_controller.dart';
+import 'package:sos_connect/pages/join_request_detail/join_request_detail_parameter.dart';
+import 'package:sos_connect/pages/join_team_request_list/join_team_request_list_controller.dart';
+import 'package:sos_connect/pages/noti/noti_controller.dart';
+import 'package:sos_connect/pages/notification_detail/notification_detail_parameter.dart';
+import 'package:sos_connect/pages/rescue_team_detail/rescue_team_detail_parameter.dart';
+import 'package:sos_connect/pages/rescue_team_list/rescue_team_list_controller.dart';
+import 'package:sos_connect/resourese/dashboard/idashboard_repository.dart';
+import 'package:sos_connect/routes/pages.dart';
+import 'package:sos_connect/utils/app_constants.dart';
+import 'package:sos_connect/utils/join_team_request_status_utils.dart';
+import 'package:sos_connect/utils/local_storage.dart';
+import 'package:sos_connect/utils/logger_helper.dart';
+import 'package:sos_connect/utils/noti_type_utils.dart';
+import 'package:sos_connect/utils/shared_key.dart';
 
-// import 'background_service.dart';
+class NotificationService {
+  StreamSubscription<RemoteMessage>? _onMessageSub;
+  StreamSubscription<RemoteMessage>? _onMessageOpenAppSub;
+  StreamSubscription<String>? _onTokenRefresh;
 
-// class NotificationService {
-//   StreamSubscription<RemoteMessage>? _onMessageSub;
-//   StreamSubscription<RemoteMessage>? _onMessageOpenAppSub;
-//   StreamSubscription<String>? _onTokenRefresh;
+  final _messaging = FirebaseMessaging.instance;
+  final _plugin = FlutterLocalNotificationsPlugin();
 
-//   final _messaging = FirebaseMessaging.instance;
-//   final _plugin = FlutterLocalNotificationsPlugin();
+  /// Chỉ xử lý initial launch 1 lần / process.
+  bool _didHandleInitialMessage = false;
 
-//   void onClose() {
-//     _onTokenRefresh?.cancel();
-//     _onMessageSub?.cancel();
-//     _onMessageOpenAppSub?.cancel();
-//   }
+  void onClose() {
+    _onTokenRefresh?.cancel();
+    _onMessageSub?.cancel();
+    _onMessageOpenAppSub?.cancel();
+  }
 
-//   Future<bool?> onRequestPermission() async {
-//     if (Platform.isAndroid) {
-//       final granted = _plugin
-//           .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()!
-//           .requestNotificationsPermission();
+  Future<bool?> onRequestPermission() async {
+    if (Platform.isAndroid) {
+      final granted = _plugin
+          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()!
+          .requestNotificationsPermission();
 
-//       await _plugin
-//           .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
-//           ?.createNotificationChannel(
-//             const AndroidNotificationChannel(
-//               AppConstants.notificationChannelId,
-//               'Normal Notifications',
-//               description: 'This channel is used for normal notifications.',
-//               importance: Importance.high,
-//             ),
-//           );
+      await _plugin
+          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+          ?.createNotificationChannel(
+            const AndroidNotificationChannel(
+              AppConstants.notificationChannelId,
+              'Normal SOS Connect channel',
+              description: 'This channel is used for normal notifications.',
+              importance: Importance.high,
+            ),
+          );
 
-//       return granted;
-//     } else if (Platform.isMacOS) {
-//       final settings = await _plugin
-//           .resolvePlatformSpecificImplementation<MacOSFlutterLocalNotificationsPlugin>()
-//           ?.requestPermissions(alert: true, badge: true, sound: true);
-//       loggerHelper.logBlue('notification permission: $settings');
-//       return settings;
-//     } else {
-//       return _plugin.resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>()?.requestPermissions(
-//         alert: true,
-//         badge: true,
-//         sound: true,
-//       );
-//     }
-//   }
+      return granted;
+    } else if (Platform.isMacOS) {
+      final settings = await _plugin
+          .resolvePlatformSpecificImplementation<MacOSFlutterLocalNotificationsPlugin>()
+          ?.requestPermissions(alert: true, badge: true, sound: true);
+      loggerHelper.logBlue('notification permission: $settings');
+      return settings;
+    } else {
+      return _plugin.resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>()?.requestPermissions(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
+    }
+  }
 
-//   Future<void> onInit() async {
-//     _plugin.initialize(
-//       settings: const InitializationSettings(
-//         android: AndroidInitializationSettings('@mipmap/ic_launcher'),
-//         iOS: DarwinInitializationSettings(
-//           requestAlertPermission: true,
-//           requestSoundPermission: true,
-//           requestBadgePermission: true,
-//         ),
-//         macOS: DarwinInitializationSettings(
-//           requestAlertPermission: true,
-//           requestSoundPermission: true,
-//           requestBadgePermission: true,
-//         ),
-//       ),
-//       onDidReceiveBackgroundNotificationResponse: onNotificationTapBackground,
-//       onDidReceiveNotificationResponse: onDidReceiveNotificationResponse,
-//     );
+  Future<void> onInit() async {
+    _plugin.initialize(
+      settings: const InitializationSettings(
+        android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+        iOS: DarwinInitializationSettings(
+          requestAlertPermission: true,
+          requestSoundPermission: true,
+          requestBadgePermission: true,
+        ),
+        macOS: DarwinInitializationSettings(
+          requestAlertPermission: true,
+          requestSoundPermission: true,
+          requestBadgePermission: true,
+        ),
+      ),
+      onDidReceiveNotificationResponse: onDidReceiveNotificationResponse,
+    );
 
-//     _onMessageOpenAppSub = FirebaseMessaging.onMessageOpenedApp.listen((message) {
-//       onHandleNotification(message.data);
-//     });
+    _onMessageOpenAppSub = FirebaseMessaging.onMessageOpenedApp.listen((message) {
+      onHandleNotification(message.data);
+    });
 
-//     _onMessageSub = FirebaseMessaging.onMessage.listen((message) {
-//       loggerHelper.success('FCM Message Data: ${message.data}');
-//       _hardReloadService(message.data);
-//       if (message.notification != null) {
-//         showNotification(message);
-//       }
-//     });
+    _onMessageSub = FirebaseMessaging.onMessage.listen((message) {
+      loggerHelper.success('FCM Message Data: ${message.data}');
+      if (message.notification != null) {
+        showNotification(message);
+      }
 
-//     _onTokenRefresh = _messaging.onTokenRefresh.listen((token) async {
-//       loggerHelper.logBlue('FCM Token Refresh: $token');
-//     });
-//   }
+      final notificationData = message.data['data'] is Map
+          ? Map<String, dynamic>.from(message.data['data'] as Map)
+          : Map<String, dynamic>.from(message.data);
+      _hardReloadService(notificationData);
+    });
 
-//   Future<void> onHandleInitialMessage() async {
-//     final lastMessage = await _messaging.getInitialMessage();
-//     if (lastMessage != null) {
-//       onHandleNotification(lastMessage.data);
-//       return;
-//     }
+    _onTokenRefresh = _messaging.onTokenRefresh.listen((token) async {
+      loggerHelper.logBlue('FCM Token Refresh: $token');
+      try {
+        if (Get.isRegistered<IDashboardRepository>()) {
+          await Get.find<IDashboardRepository>().updateFcmToken(token);
+        }
+      } catch (e) {
+        loggerHelper.error('Error updating refreshed FCM token: $e');
+      }
+    });
+  }
 
-//     final lastNotification = await _plugin.getNotificationAppLaunchDetails();
-//     if (lastNotification != null &&
-//         lastNotification.didNotificationLaunchApp &&
-//         lastNotification.notificationResponse != null) {
-//       onDidReceiveNotificationResponse(lastNotification.notificationResponse!);
-//     }
-//   }
+  Future<void> onHandleInitialMessage() async {
+    if (_didHandleInitialMessage) return;
+    _didHandleInitialMessage = true;
 
-//   Future<String?> getFcmToken() async {
-//     try {
-//       if (Platform.isIOS) {
-//         await onRequestPermission();
-//       } else if (Platform.isMacOS) {
-//         await onRequestPermission();
+    final lastMessage = await _messaging.getInitialMessage();
+    if (lastMessage != null) {
+      final launchKey = _buildLaunchKey(lastMessage.data);
+      if (_isLaunchAlreadyHandled(launchKey)) return;
 
-//         String? apnsToken = await _messaging.getAPNSToken();
-//         loggerHelper.success('APNs token: $apnsToken');
+      await _markLaunchHandled(launchKey);
+      onHandleNotification(lastMessage.data);
+      return;
+    }
 
-//         return apnsToken;
-//       }
-//       return _messaging.getToken();
-//     } catch (e) {
-//       loggerHelper.error('Error getting FCM token: $e');
-//       return null;
-//     }
-//   }
+    // Android: getNotificationAppLaunchDetails() hay trả lại notification cũ
+    // sau mỗi lần mở app dù user không tap → phải dedupe bằng LocalStorage.
+    final lastNotification = await _plugin.getNotificationAppLaunchDetails();
+    if (lastNotification == null ||
+        !lastNotification.didNotificationLaunchApp ||
+        lastNotification.notificationResponse == null) {
+      return;
+    }
 
-//   void onDidReceiveNotificationResponse(NotificationResponse notificationResponse) {
-//     final payload = (jsonDecode(notificationResponse.payload ?? '{}') as Map<String, dynamic>);
-//     onHandleNotification(payload['data']);
-//   }
+    final response = lastNotification.notificationResponse!;
+    final data = _payloadMapFromResponse(response);
+    final launchKey = _buildLaunchKey(data, fallback: response.payload);
+    if (_isLaunchAlreadyHandled(launchKey)) return;
 
-//   void showNotification(RemoteMessage message) {
-//     _plugin.show(
-//       id: message.notification.hashCode,
-//       title: message.notification?.title ?? '',
-//       body: message.notification?.body ?? '',
-//       notificationDetails: const NotificationDetails(
-//         android: AndroidNotificationDetails(
-//           AppConstants.notificationChannelId,
-//           '',
-//           color: Color(0xFF434336),
-//           importance: Importance.max,
-//           priority: Priority.high,
-//         ),
-//         iOS: DarwinNotificationDetails(presentBadge: true, presentAlert: true, presentSound: true),
-//       ),
-//       payload: jsonEncode(message.toMap()),
-//     );
-//   }
+    await _markLaunchHandled(launchKey);
+    onDidReceiveNotificationResponse(response);
+  }
 
-//   void onHandleNotification(Map<String, dynamic> payload) {
-//     loggerHelper.logWhite('Handle notification: $payload', name: 'NotificationService - CLICK');
+  Map<String, dynamic> _payloadMapFromResponse(NotificationResponse response) {
+    try {
+      final decoded = jsonDecode(response.payload ?? '{}');
+      if (decoded is! Map) return {};
+      final map = Map<String, dynamic>.from(decoded);
+      final data = map['data'];
+      if (data is Map) return Map<String, dynamic>.from(data);
+      return map;
+    } catch (_) {
+      return {};
+    }
+  }
 
-//     try {
-//       final modelType = payload['model_type'] as String? ?? '';
-//       // final id = parseToInt(payload['id']?.toString() ?? '');
+  String _buildLaunchKey(Map<String, dynamic> data, {String? fallback}) {
+    final notificationId = data['notification_id']?.toString() ?? data['id']?.toString() ?? '';
+    final time = data['time']?.toString() ?? data['created_at']?.toString() ?? '';
+    if (notificationId.isNotEmpty) {
+      return time.isNotEmpty ? '$notificationId|$time' : notificationId;
+    }
+    return fallback?.trim() ?? '';
+  }
 
-//       switch (modelType) {
-//         default:
-//           break;
-//       }
-//     } catch (e) {
-//       loggerHelper.error('Error handling notification: $e', name: 'NotificationService - CLICK');
-//     }
-//   }
+  bool _isLaunchAlreadyHandled(String launchKey) {
+    if (launchKey.isEmpty) return true;
+    return LocalStorage.getString(SharedKey.lastHandledNotificationLaunch) == launchKey;
+  }
 
-//   void _hardReloadService(Map<String, dynamic> payload) {
-//     final modelType = payload['model_type'] as String? ?? '';
+  Future<void> _markLaunchHandled(String launchKey) async {
+    if (launchKey.isEmpty) return;
+    await LocalStorage.setString(SharedKey.lastHandledNotificationLaunch, launchKey);
+  }
 
-//     final modelId = payload['model_id'] as String? ?? '';
-//     loggerHelper.log('Hard reload service for modelType: $modelType, modelId: $modelId');
-//   }
-// }
+  Future<String?> getFcmToken() async {
+    try {
+      if (Platform.isIOS) {
+        await onRequestPermission();
+      } else if (Platform.isMacOS) {
+        await onRequestPermission();
+
+        final apnsToken = await _messaging.getAPNSToken();
+        loggerHelper.success('APNs token: $apnsToken');
+
+        return apnsToken;
+      }
+      return _messaging.getToken();
+    } catch (e) {
+      loggerHelper.error('Error getting FCM token: $e');
+      return null;
+    }
+  }
+
+  void onDidReceiveNotificationResponse(NotificationResponse notificationResponse) {
+    final payload = jsonDecode(notificationResponse.payload ?? '{}');
+    if (payload is! Map) return;
+
+    final map = Map<String, dynamic>.from(payload);
+    final data = map['data'];
+    onHandleNotification(data is Map ? Map<String, dynamic>.from(data) : map);
+  }
+
+  void showNotification(RemoteMessage message) {
+    _plugin.show(
+      id: message.notification.hashCode,
+      title: message.notification?.title ?? '',
+      body: message.notification?.body ?? '',
+      notificationDetails: const NotificationDetails(
+        android: AndroidNotificationDetails(
+          AppConstants.notificationChannelId,
+          '',
+          color: Color(0xFF434336),
+          importance: Importance.max,
+          priority: Priority.high,
+        ),
+        iOS: DarwinNotificationDetails(presentBadge: true, presentAlert: true, presentSound: true),
+      ),
+      payload: jsonEncode(message.toMap()),
+    );
+  }
+
+  void onHandleNotification(Map<String, dynamic> payload) {
+    loggerHelper.logWhite('Handle notification: $payload', name: 'NotificationService - CLICK');
+
+    try {
+      final data = payload['data'] is Map ? Map<String, dynamic>.from(payload['data'] as Map) : payload;
+      final fcmNotification = FcmNotificationModel.fromJson(data);
+
+      navigateByNotification(
+        type: fcmNotification.type,
+        action: fcmNotification.action,
+        notificationId: fcmNotification.notificationId,
+        teamId: fcmNotification.teamId,
+        requestId: fcmNotification.requestId,
+      );
+    } catch (e) {
+      loggerHelper.error('Error handling notification: $e', name: 'NotificationService - CLICK');
+    }
+  }
+
+  void navigateByNotification({
+    required String? type,
+    required String? action,
+    String? notificationId,
+    String? teamId,
+    String? requestId,
+  }) {
+    final id = notificationId?.trim() ?? '';
+    final targetTeamId = teamId?.trim() ?? '';
+    final targetRequestId = requestId?.trim() ?? '';
+
+    switch (type) {
+      case NotiTypeUtils.joinRequest:
+        switch (action) {
+          case NotiActionUtils.created:
+            Get.toNamed(Routes.JOIN_TEAM_REQUEST_LIST);
+            break;
+          case NotiActionUtils.rejected:
+          case NotiActionUtils.accepted:
+            if (targetRequestId.isNotEmpty || id.isNotEmpty) {
+              Get.toNamed(
+                Routes.JOIN_REQUEST_DETAIL,
+                arguments: JoinRequestDetailParameter(
+                  requestId: targetRequestId.isNotEmpty ? targetRequestId : null,
+                  notificationId: id.isNotEmpty ? id : null,
+                ),
+              );
+            } else if (targetTeamId.isNotEmpty) {
+              Get.toNamed(Routes.RESCUE_TEAM_DETAIL, arguments: RescueTeamDetailParameter(teamId: targetTeamId));
+            } else {
+              Get.toNamed(Routes.JOIN_TEAM_REQUEST_LIST);
+            }
+            break;
+          default:
+            Get.toNamed(Routes.JOIN_TEAM_REQUEST_LIST);
+            break;
+        }
+        break;
+      case NotiTypeUtils.announcement:
+        if (id.isEmpty) return;
+        Get.toNamed(Routes.NOTIFICATION_DETAIL, arguments: NotificationDetailParameter(notificationId: id));
+        break;
+      default:
+        if (id.isNotEmpty) {
+          Get.toNamed(Routes.NOTIFICATION_DETAIL, arguments: NotificationDetailParameter(notificationId: id));
+        }
+        break;
+    }
+  }
+
+  void _hardReloadService(Map<String, dynamic> payload) {
+    final data = payload['data'] is Map ? Map<String, dynamic>.from(payload['data'] as Map) : payload;
+    final type = data['type']?.toString() ?? '';
+    loggerHelper.log('Hard reload service for type: $type');
+
+    switch (type) {
+      case NotiTypeUtils.announcement:
+        _addIncomingNotification(data);
+        break;
+      case NotiTypeUtils.joinRequest:
+        _addIncomingNotification(data);
+        _handleJoinRequestRealtime(FcmNotificationModel.fromJson(data));
+        break;
+      default:
+        break;
+    }
+  }
+
+  void _handleJoinRequestRealtime(FcmNotificationModel fcm) {
+    final requestId = fcm.requestId?.trim() ?? '';
+    final action = fcm.action;
+
+    if (Get.isRegistered<JoinTeamRequestListController>()) {
+      final joinController = Get.find<JoinTeamRequestListController>();
+
+      switch (action) {
+        case NotiActionUtils.accepted:
+          joinController.updateMyRequestStatus(requestId: requestId, status: JoinTeamRequestStatusUtils.accepted);
+          break;
+        case NotiActionUtils.rejected:
+          joinController.updateMyRequestStatus(requestId: requestId, status: JoinTeamRequestStatusUtils.rejected);
+          break;
+        case NotiActionUtils.created:
+          joinController.requestListController.onRefresh();
+          break;
+      }
+    }
+
+    if (action == NotiActionUtils.accepted && Get.isRegistered<DashboardController>()) {
+      Get.find<DashboardController>().fetchProfile();
+    }
+
+    if ((action == NotiActionUtils.accepted || action == NotiActionUtils.rejected) &&
+        Get.isRegistered<RescueTeamListController>()) {
+      Get.find<RescueTeamListController>().fetchCurrentJoinRequests();
+    }
+  }
+
+  void _addIncomingNotification(Map<String, dynamic> data) {
+    if (!Get.isRegistered<NotiController>()) return;
+    final fcmNotification = FcmNotificationModel.fromJson(data);
+    Get.find<NotiController>().addNotification(fcmNotification.toNotificationModel());
+  }
+}

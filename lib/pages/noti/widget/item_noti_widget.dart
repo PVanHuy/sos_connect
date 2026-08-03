@@ -28,9 +28,8 @@ class ItemNotiWidget extends StatelessWidget {
       onTap: onTap,
       child: Padding(
         padding: padding(horizontal: 16, vertical: 12),
-
         child: Row(
-          crossAxisAlignment: .start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           spacing: 12.w,
           children: [
             Container(
@@ -42,38 +41,35 @@ class ItemNotiWidget extends StatelessWidget {
               child: Assets.icons.notificationBold.svg(
                 width: 24.w,
                 height: 24.w,
-                colorFilter: .mode(appTheme.whiteColor, .srcIn),
+                colorFilter: ColorFilter.mode(appTheme.whiteColor, BlendMode.srcIn),
               ),
             ),
-
             Expanded(
               child: Column(
-                crossAxisAlignment: .start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 spacing: 8.h,
                 children: [
                   Row(
-                    crossAxisAlignment: .start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     spacing: 12.w,
                     children: [
                       Expanded(
                         child: Text(
                           title,
-                          overflow: .ellipsis,
+                          overflow: TextOverflow.ellipsis,
                           style: StyleThemeData.size16Weight700(color: textColor),
                         ),
                       ),
                       Text(time, style: StyleThemeData.size12Weight400(color: appTheme.grayColor)),
                     ],
                   ),
-
                   Row(
-                    crossAxisAlignment: .center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Expanded(
                         child: Text(
                           content,
-
-                          overflow: .ellipsis,
+                          overflow: TextOverflow.ellipsis,
                           style: StyleThemeData.size12Weight400(color: textColor),
                         ),
                       ),
@@ -82,7 +78,7 @@ class ItemNotiWidget extends StatelessWidget {
                         Container(
                           width: 12.w,
                           height: 12.w,
-                          decoration: BoxDecoration(color: appTheme.red57Color, shape: .circle),
+                          decoration: BoxDecoration(color: appTheme.red57Color, shape: BoxShape.circle),
                         ),
                       ],
                     ],

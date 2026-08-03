@@ -1,8 +1,12 @@
+import 'dart:io';
+
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:get/get_connect/http/src/response/response.dart';
 import 'package:sos_connect/model/media/post_media.dart';
 import 'package:sos_connect/resourese/ibase_repository.dart';
 import 'package:sos_connect/resourese/profile/iprofile_repository.dart';
 import 'package:sos_connect/utils/app_constants.dart';
+import 'package:sos_connect/utils/dialog_utils.dart';
 
 class ProfileRepository extends IProfileRepository {
   @override
@@ -27,6 +31,37 @@ class ProfileRepository extends IProfileRepository {
       } else {
         final result = await clientPatchData(AppConstants.userProfileUri, params);
         return result;
+      }
+    } catch (error) {
+      handleError(error);
+      rethrow;
+    }
+  }
+
+  @override
+  Future<bool> logOut() async {
+    try {
+      final deviceInfo = DeviceInfoPlugin();
+      String? deviceId;
+
+      if (Platform.isIOS) {
+        final iosInfo = await deviceInfo.iosInfo;
+        deviceId = iosInfo.identifierForVendor;
+      } else if (Platform.isAndroid) {
+        final androidInfo = await deviceInfo.androidInfo;
+        deviceId = androidInfo.id;
+      }
+
+      final response = await clientPostData(AppConstants.logOutUri, {
+        'device_id': deviceId.toString(),
+        'platform': Platform.isIOS ? 'ios' : 'android',
+      });
+
+      if (response.isOk) {
+        return true;
+      } else {
+        DialogUtils.showErrorDialog(response.body['message']);
+        return false;
       }
     } catch (error) {
       handleError(error);

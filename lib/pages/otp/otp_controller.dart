@@ -67,21 +67,28 @@ class OtpController extends GetxController {
     try {
       showEasyLoading();
 
-      final response = await authRepository.sendOtp({
-        'phone': parameter.phoneNumber,
-        'type': parameter.type == OtpType.signUp ? 'signup' : 'forgot-password',
-      });
+      // TODO: tạm ẩn gửi OTP qua SĐT — backend mặc định OTP 1234. Mở lại khi cần.
+      // final response = await authRepository.sendOtp({
+      //   'phone': parameter.phoneNumber,
+      //   'type': parameter.type == OtpType.signUp ? 'signup' : 'forgot-password',
+      // });
+      //
+      // if (response.statusCode == 200) {
+      //   verificationCode.value = '';
+      //   otpError.value = '';
+      //   isOtpSuccess.value = false;
+      //   otpTextController.clear();
+      //   DialogUtils.showSuccessDialog(response.body['message'] ?? '');
+      //   startCountdown();
+      // } else {
+      //   DialogUtils.showErrorDialog(response.body['message'] ?? '');
+      // }
 
-      if (response.statusCode == 200) {
-        verificationCode.value = '';
-        otpError.value = '';
-        isOtpSuccess.value = false;
-        otpTextController.clear();
-        DialogUtils.showSuccessDialog(response.body['message'] ?? '');
-        startCountdown();
-      } else {
-        DialogUtils.showErrorDialog(response.body['message'] ?? '');
-      }
+      verificationCode.value = '';
+      otpError.value = '';
+      isOtpSuccess.value = false;
+      otpTextController.clear();
+      startCountdown();
     } catch (e) {
       debugPrint(e.toString());
     } finally {
@@ -119,7 +126,12 @@ class OtpController extends GetxController {
             arguments: CreateNewPasswordParameter(phoneNumber: parameter.phoneNumber),
           );
         } else {
-          Get.offAllNamed(Routes.SIGN_IN);
+          // Pop về Sign In có sẵn trên stack — tránh Get.offAllNamed xóa SignInController
+          // của page mới khi remove route /sign_in cũ.
+          Get.until((route) => route.settings.name == Routes.SIGN_IN || route.isFirst);
+          if (Get.currentRoute != Routes.SIGN_IN) {
+            Get.offAllNamed(Routes.SIGN_IN);
+          }
         }
       } else {
         isOtpSuccess.value = false;

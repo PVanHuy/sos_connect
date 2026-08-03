@@ -4,6 +4,7 @@ import 'package:sos_connect/main.dart';
 import 'package:sos_connect/pages/register_rescue_team/register_rescue_team_controller.dart';
 import 'package:sos_connect/pages/register_rescue_team/view/step1_register_rescue_team_view.dart';
 import 'package:sos_connect/pages/register_rescue_team/view/step2_register_rescue_team_view.dart';
+import 'package:sos_connect/pages/register_rescue_team/view/team_info_view.dart';
 import 'package:sos_connect/widget/custom_button.dart';
 import 'package:sos_connect/widget/default_app_bar.dart';
 import 'package:sos_connect/widget/line_widget.dart';
@@ -16,46 +17,58 @@ class RegisterRescueTeamPage extends GetWidget<RegisterRescueTeamController> {
     return GestureDetector(
       behavior: .translucent,
       onTap: () => FocusScope.of(context).unfocus(),
-      child: Scaffold(
-        backgroundColor: appTheme.whiteColor,
-        body: SafeArea(
-          child: Column(
-            children: [
-              DefaultAppBar(title: 'register_rescue_team'.tr, onBackPressed: controller.onBack),
-              Padding(
-                padding: padding(horizontal: 16, bottom: 12),
-                child: Obx(() => StepProgressBar(totalSteps: 2, currentStep: controller.currentStepIndex)),
-              ),
-              Expanded(
-                child: Obx(() {
-                  switch (controller.currentStep.value) {
-                    case RegisterRescueTeamStep.step1:
-                      return Step1RegisterRescueTeamView();
-                    case RegisterRescueTeamStep.step2:
-                      return Step2RegisterRescueTeamView();
-                  }
-                }),
-              ),
-            ],
+      child: Obx(() {
+        final hasTeam = controller.hasRegisteredTeam.value;
+
+        return Scaffold(
+          backgroundColor: appTheme.whiteColor,
+          body: SafeArea(
+            child: Column(
+              children: [
+                DefaultAppBar(
+                  title: hasTeam ? 'team_information_title'.tr : 'register_rescue_team'.tr,
+                  onBackPressed: controller.onBack,
+                ),
+                if (!hasTeam)
+                  Padding(
+                    padding: padding(horizontal: 16, bottom: 12),
+                    child: Obx(() => StepProgressBar(totalSteps: 2, currentStep: controller.currentStepIndex)),
+                  ),
+                Expanded(
+                  child: hasTeam
+                      ? TeamInfoView()
+                      : Obx(() {
+                          switch (controller.currentStep.value) {
+                            case RegisterRescueTeamStep.step1:
+                              return Step1RegisterRescueTeamView();
+                            case RegisterRescueTeamStep.step2:
+                              return Step2RegisterRescueTeamView();
+                          }
+                        }),
+                ),
+              ],
+            ),
           ),
-        ),
-        bottomNavigationBar: Obx(() {
-          final isStep1 = controller.currentStep.value == RegisterRescueTeamStep.step1;
-          final canContinue = isStep1 ? controller.isStep1Valid.value : controller.isStep2Valid.value;
-          return Column(
-            mainAxisSize: .min,
-            children: [
-              LineWidget(color: appTheme.grayF6Color),
-              CustomButton(
-                margin: padding(horizontal: 16, bottom: 16, top: 12),
-                buttonText: isStep1 ? 'continue'.tr : 'submit'.tr,
-                isLoading: controller.isLoading.value,
-                onPressed: canContinue ? controller.onContinue : null,
-              ),
-            ],
-          );
-        }),
-      ),
+          bottomNavigationBar: hasTeam
+              ? null
+              : Obx(() {
+                  final isStep1 = controller.currentStep.value == RegisterRescueTeamStep.step1;
+                  final canContinue = isStep1 ? controller.isStep1Valid.value : controller.isStep2Valid.value;
+                  return Column(
+                    mainAxisSize: .min,
+                    children: [
+                      LineWidget(color: appTheme.grayF6Color),
+                      CustomButton(
+                        margin: padding(horizontal: 16, bottom: 16, top: 12),
+                        buttonText: isStep1 ? 'continue'.tr : 'submit'.tr,
+                        isLoading: controller.isLoading.value,
+                        onPressed: canContinue ? controller.onContinue : null,
+                      ),
+                    ],
+                  );
+                }),
+        );
+      }),
     );
   }
 }

@@ -5,6 +5,8 @@ import 'package:sos_connect/resourese/auth/iauth_repository.dart';
 import 'package:sos_connect/routes/pages.dart';
 import 'package:sos_connect/utils/custom_validator.dart';
 import 'package:sos_connect/utils/dialog_utils.dart';
+import 'package:sos_connect/utils/vietnam_address_utils.dart';
+import 'package:vietnam_provinces/vietnam_provinces.dart';
 
 class SignUpController extends GetxController {
   final IAuthRepository authRepository;
@@ -14,11 +16,13 @@ class SignUpController extends GetxController {
   final TextEditingController userNameController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  final TextEditingController provinceController = TextEditingController();
 
   var isFormValid = false.obs;
   var isLoading = false.obs;
   var isPasswordRuleValid = false.obs;
   var isPasswordTouched = false.obs;
+  var selectedProvince = Rxn<Province>();
 
   @override
   void onInit() {
@@ -26,6 +30,7 @@ class SignUpController extends GetxController {
     userNameController.addListener(_validateForm);
     phoneController.addListener(_validateForm);
     passwordController.addListener(_validateForm);
+    provinceController.addListener(_validateForm);
   }
 
   void _validateForm() async {
@@ -33,6 +38,10 @@ class SignUpController extends GetxController {
     var userNameValid = CustomValidator.validateUserName(userNameController.text.trim()).isEmpty;
     var phoneValid = (await CustomValidator.validatePhone(phoneController.text.trim())).isEmpty;
     var passwordValid = CustomValidator.validatePassword(passwordController.text.trim()).isEmpty;
+    var provinceValid = CustomValidator.validateRequiredField(
+      provinceController.text.trim(),
+      'province_city'.tr,
+    ).isEmpty;
 
     if (isClosed) return;
 
@@ -41,7 +50,16 @@ class SignUpController extends GetxController {
     }
 
     isPasswordRuleValid.value = passwordValid;
-    isFormValid.value = userNameValid && phoneValid && passwordValid;
+    isFormValid.value = userNameValid && phoneValid && passwordValid && provinceValid && selectedProvince.value != null;
+  }
+
+  Future<void> selectProvince() async {
+    final selected = await VietnamAddressUtils.pickProvince();
+    if (selected == null) return;
+
+    selectedProvince.value = selected;
+    provinceController.text = selected.name;
+    _validateForm();
   }
 
   Future<void> onSignUp() async {
@@ -50,11 +68,17 @@ class SignUpController extends GetxController {
     final phone = phoneController.text.trim();
     final username = userNameController.text.trim();
     final password = passwordController.text.trim();
+    final province = selectedProvince.value?.name ?? provinceController.text.trim();
 
     try {
       isLoading.value = true;
 
-      final response = await authRepository.signUp({'phone': phone, 'username': username, 'password': password});
+      final response = await authRepository.signUp({
+        'phone': phone,
+        'username': username,
+        'password': password,
+        'province': province,
+      });
 
       if (isClosed) return;
 
@@ -85,6 +109,9 @@ class SignUpController extends GetxController {
       ..removeListener(_validateForm)
       ..dispose();
     passwordController
+      ..removeListener(_validateForm)
+      ..dispose();
+    provinceController
       ..removeListener(_validateForm)
       ..dispose();
     super.onClose();

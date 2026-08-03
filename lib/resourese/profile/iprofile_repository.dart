@@ -6,4 +6,6 @@ abstract class IProfileRepository extends IBaseRepository {
   Future<Response> profile();
 
   Future<Response> updateProfile(Map<String, dynamic> params, {PostMedia? avatar});
+
+  Future<bool> logOut();
 }

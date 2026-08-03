@@ -9,6 +9,7 @@ import 'package:sos_connect/pages/rescue_posts/rescue_posts_parameter.dart';
 import 'package:sos_connect/routes/pages.dart';
 import 'package:sos_connect/theme/style/style_theme.dart';
 import 'package:sos_connect/utils/rescue_support_type_utils.dart';
+import 'package:sos_connect/utils/role_user.utils.dart';
 import 'package:sos_connect/widget/reponsive/extension.dart';
 
 class RescueView extends GetView<AccountController> {
@@ -21,33 +22,53 @@ class RescueView extends GetView<AccountController> {
         borderRadius: .circular(12),
         boxShadow: [BoxShadow(color: appTheme.blackColor.withSafeOpacity(.1), blurRadius: 24, offset: Offset.zero)],
       ),
-      child: Column(
-        crossAxisAlignment: .start,
-        children: [
-          Padding(
-            padding: padding(all: 12),
-            child: Text('rescue'.tr, style: StyleThemeData.size14Weight700()),
-          ),
-          ItemRowWidget(
-            icon: Assets.icons.driver,
-            label: 'register_rescue_team'.tr,
-            onTap: () => Get.toNamed(Routes.REGISTER_RESCUE_TEAM),
-          ),
-          ItemRowWidget(
-            icon: Assets.icons.task,
-            label: 'rescue_receiving'.tr,
-            onTap: () =>
-                Get.toNamed(Routes.RESCUE_POSTS, arguments: const RescuePostsParameter(type: RescueListType.receiving)),
-          ),
-          ItemRowWidget(
-            icon: Assets.icons.clipboardText,
-            label: 'rescue_received'.tr,
-            isLast: true,
-            onTap: () =>
-                Get.toNamed(Routes.RESCUE_POSTS, arguments: const RescuePostsParameter(type: RescueListType.received)),
-          ),
-        ],
-      ),
+      child: Obx(() {
+        final user = controller.dashboardController.userModel.value;
+        final hasTeam = (user?.teamId ?? '').trim().isNotEmpty;
+        final isLeader = (user?.roles ?? '').toLowerCase() == UserRoleUtils.leader;
+
+        return Column(
+          crossAxisAlignment: .start,
+          children: [
+            Padding(
+              padding: padding(all: 12),
+              child: Text('rescue'.tr, style: StyleThemeData.size14Weight700()),
+            ),
+            ItemRowWidget(
+              icon: Assets.icons.driver,
+              label: hasTeam ? 'team_information_title'.tr : 'register_rescue_team'.tr,
+              onTap: () => Get.toNamed(Routes.REGISTER_RESCUE_TEAM),
+            ),
+            ItemRowWidget(
+              icon: Assets.icons.listData,
+              label: 'approved_rescue_teams'.tr,
+              onTap: () => Get.toNamed(Routes.RESCUE_TEAM_LIST),
+            ),
+            ItemRowWidget(
+              icon: Assets.icons.userSquare,
+              label: isLeader ? 'join_team_request_list'.tr : 'my_join_team_request'.tr,
+              onTap: () => Get.toNamed(Routes.JOIN_TEAM_REQUEST_LIST),
+            ),
+            ItemRowWidget(
+              icon: Assets.icons.task,
+              label: 'rescue_receiving'.tr,
+              onTap: () => Get.toNamed(
+                Routes.RESCUE_POSTS,
+                arguments: const RescuePostsParameter(type: RescueListType.receiving),
+              ),
+            ),
+            ItemRowWidget(
+              icon: Assets.icons.clipboardText,
+              label: 'rescue_received'.tr,
+              isLast: true,
+              onTap: () => Get.toNamed(
+                Routes.RESCUE_POSTS,
+                arguments: const RescuePostsParameter(type: RescueListType.received),
+              ),
+            ),
+          ],
+        );
+      }),
     );
   }
 }

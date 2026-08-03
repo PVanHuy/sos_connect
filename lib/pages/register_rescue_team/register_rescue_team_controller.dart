@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sos_connect/model/media/post_media.dart';
+import 'package:sos_connect/model/team/rescue_team_model.dart';
+import 'package:sos_connect/pages/dashboard/dashboard_controller.dart';
+import 'package:sos_connect/resourese/team/iteam_repository.dart';
 import 'package:sos_connect/utils/custom_validator.dart';
+import 'package:sos_connect/utils/dialog_utils.dart';
 import 'package:sos_connect/utils/image_utils.dart';
-import 'package:sos_connect/utils/rescue_team_role_utils.dart';
+import 'package:sos_connect/utils/logger_helper.dart';
+import 'package:sos_connect/utils/role_user.utils.dart';
 import 'package:sos_connect/utils/vietnam_address_utils.dart';
 import 'package:sos_connect/widget/dialog/show_select_bottom_sheet.dart';
 import 'package:vietnam_provinces/vietnam_provinces.dart';
@@ -11,6 +16,10 @@ import 'package:vietnam_provinces/vietnam_provinces.dart';
 enum RegisterRescueTeamStep { step1, step2 }
 
 class RegisterRescueTeamController extends GetxController {
+  final ITeamRepository teamRepository;
+
+  RegisterRescueTeamController({required this.teamRepository});
+
   final teamNameController = TextEditingController();
   final provinceController = TextEditingController();
   final wardController = TextEditingController();
@@ -24,9 +33,12 @@ class RegisterRescueTeamController extends GetxController {
 
   var currentStep = RegisterRescueTeamStep.step1.obs;
   var isLoading = false.obs;
+  var isFetchingTeam = false.obs;
   var isStep1Valid = false.obs;
   var isStep2Valid = false.obs;
+  var hasRegisteredTeam = false.obs;
   var confirmationDocument = Rxn<PostMedia>();
+  var teamModel = Rxn<RescueTeamModel>();
 
   var selectedProvince = Rxn<Province>();
   var selectedWard = Rxn<Ward>();
@@ -50,10 +62,50 @@ class RegisterRescueTeamController extends GetxController {
 
     _validateStep1();
     _validateStep2();
+    _initTeamState();
+  }
+
+  Future<void> _initTeamState() async {
+    final teamId = Get.find<DashboardController>().userModel.value?.teamId?.trim() ?? '';
+    if (teamId.isEmpty) return;
+
+    hasRegisteredTeam.value = true;
+    await fetchTeamDetail();
+  }
+
+  Future<void> fetchTeamDetail() async {
+    try {
+      isFetchingTeam.value = true;
+      final response = await teamRepository.getMyTeam();
+      if (isClosed) return;
+      if (!response.isOk) return;
+
+      final body = response.body;
+      final raw = body is Map && body['data'] != null ? body['data'] : body;
+      final team = RescueTeamModel.fromJson(Map<String, dynamic>.from(raw));
+      teamModel.value = team;
+      _fillTeamForm(team);
+    } catch (e) {
+      loggerHelper.log('Error fetching team detail: $e');
+    } finally {
+      if (!isClosed) isFetchingTeam.value = false;
+    }
+  }
+
+  void _fillTeamForm(RescueTeamModel team) {
+    teamNameController.text = team.name ?? '';
+    provinceController.text = team.province ?? '';
+    wardController.text = team.commune ?? '';
+    memberCountController.text = team.sizeMember ?? '';
+    organizationController.text = team.organizational ?? '';
+    contactNameController.text = team.leader ?? '';
+    contactPhoneController.text = team.phone ?? '';
+    contactEmailController.text = team.email ?? '';
+    roleController.text = (team.position ?? '').rescueTeamRoleName;
   }
 
   void _validateStep1() {
-    if (isClosed) return;
+    if (isClosed || hasRegisteredTeam.value) return;
     isStep1Valid.value =
         CustomValidator.validateRequiredField(teamNameController.text.trim(), 'team_name'.tr).isEmpty &&
         selectedProvince.value != null &&
@@ -64,7 +116,7 @@ class RegisterRescueTeamController extends GetxController {
   }
 
   Future<void> _validateStep2() async {
-    if (isClosed) return;
+    if (isClosed || hasRegisteredTeam.value) return;
     final phoneValid = await CustomValidator.validatePhone(contactPhoneController.text.trim());
     if (isClosed) return;
     final emailValid = CustomValidator.validateEmail(contactEmailController.text.trim(), isRequired: false).isEmpty;
@@ -121,7 +173,7 @@ class RegisterRescueTeamController extends GetxController {
   }
 
   void onBack() {
-    if (currentStep.value == RegisterRescueTeamStep.step1) {
+    if (hasRegisteredTeam.value || currentStep.value == RegisterRescueTeamStep.step1) {
       Get.back();
       return;
     }
@@ -137,13 +189,67 @@ class RegisterRescueTeamController extends GetxController {
     onSubmit();
   }
 
+  String get _apiPosition {
+    switch (selectedRole.value) {
+      case RescueTeamRoleUtils.leader:
+        return 'LEADER';
+      case RescueTeamRoleUtils.volunteer:
+        return 'VOLUNTEER';
+      default:
+        return selectedRole.value?.toUpperCase() ?? '';
+    }
+  }
+
   Future<void> onSubmit() async {
     if (!isStep2Valid.value || isLoading.value) return;
+
     try {
       isLoading.value = true;
-      // TODO: Call register rescue team API.
-      await Future<void>.delayed(const Duration(milliseconds: 800));
-      Get.back();
+
+      final params = <String, String>{
+        'name': teamNameController.text.trim(),
+        'province': selectedProvince.value?.name ?? provinceController.text.trim(),
+        'commune': selectedWard.value?.name ?? wardController.text.trim(),
+        'size_member': memberCountController.text.trim(),
+        'organizational': organizationController.text.trim(),
+        'leader': contactNameController.text.trim(),
+        'phone': contactPhoneController.text.trim(),
+        'position': _apiPosition,
+        if (contactEmailController.text.trim().isNotEmpty) 'email': contactEmailController.text.trim(),
+      };
+
+      final response = await teamRepository.registerTeam(
+        params,
+        document: confirmationDocument.value,
+      );
+
+      if (isClosed) return;
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        DialogUtils.showSuccessDialog(response.body['message'] ?? '');
+
+        final data = response.body['data'];
+        if (data is Map) {
+          final team = RescueTeamModel.fromJson(Map<String, dynamic>.from(data));
+          teamModel.value = team;
+          hasRegisteredTeam.value = true;
+          _fillTeamForm(team);
+
+          final dashboard = Get.find<DashboardController>();
+          final user = dashboard.userModel.value;
+          if (user != null && (team.id ?? '').isNotEmpty) {
+            dashboard.updateUserModel(user.copyWith(teamId: team.id));
+          }
+        } else {
+          await Get.find<DashboardController>().fetchProfile();
+        }
+
+        Get.back();
+      } else {
+        DialogUtils.showErrorDialog(response.body['message'] ?? '');
+      }
+    } catch (e) {
+      loggerHelper.log('Error registering rescue team: $e');
     } finally {
       if (!isClosed) isLoading.value = false;
     }

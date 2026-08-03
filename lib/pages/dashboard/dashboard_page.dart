@@ -57,6 +57,7 @@ class DashboardPage extends GetWidget<DashboardController> {
               iconInactivePath: Assets.icons.notification.path,
               iconActivePath: Assets.icons.notificationBold.path,
               label: 'news'.tr,
+              badgeCount: controller.notificationCount.value,
             ),
             _buildNavItem(
               index: 4,
@@ -77,12 +78,14 @@ class DashboardPage extends GetWidget<DashboardController> {
     required String label,
     double iconSize = 24,
     Color? inactiveColor,
+    int badgeCount = 0,
   }) {
     final isActive = controller.currentPage.value == index;
     final defaultInactive = inactiveColor ?? appTheme.gray8FColor;
     final iconColor = isActive ? appTheme.appColor : defaultInactive;
     final textColor = isActive ? appTheme.appColor : defaultInactive;
     final iconPath = isActive ? iconActivePath : iconInactivePath;
+    final badgeText = badgeCount > 99 ? '99+' : '$badgeCount';
 
     return Expanded(
       child: InkWell(
@@ -91,7 +94,27 @@ class DashboardPage extends GetWidget<DashboardController> {
           mainAxisSize: MainAxisSize.min,
           spacing: 4.h,
           children: [
-            ImageAssetCustom(imagePath: iconPath, size: iconSize, color: iconColor),
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                ImageAssetCustom(imagePath: iconPath, size: iconSize, color: iconColor),
+                if (badgeCount > 0)
+                  Positioned(
+                    right: -8.w,
+                    top: -4.h,
+                    child: Container(
+                      constraints: BoxConstraints(minWidth: 16.w),
+                      padding: padding(horizontal: 4, vertical: 1),
+                      decoration: BoxDecoration(color: appTheme.red55Color, borderRadius: BorderRadius.circular(20)),
+                      child: Text(
+                        badgeText,
+                        textAlign: TextAlign.center,
+                        style: StyleThemeData.size10Weight700(color: appTheme.whiteColor, height: 1.2),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
             Text(
               label,
               style: isActive

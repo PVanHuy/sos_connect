@@ -75,12 +75,8 @@ class SignInController extends GetxController {
 
   @override
   void onClose() {
-    phoneController
-      ..removeListener(_validateForm)
-      ..dispose();
-    passwordController
-      ..removeListener(_validateForm)
-      ..dispose();
+    phoneController.removeListener(_validateForm);
+    passwordController.removeListener(_validateForm);
     super.onClose();
   }
 }

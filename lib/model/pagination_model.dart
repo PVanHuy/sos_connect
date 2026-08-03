@@ -8,16 +8,40 @@ class PaginationModel<T> {
   @JsonKey(fromJson: parseToInt)
   int? total;
 
+  @JsonKey(name: 'unread_count', fromJson: parseToInt)
+  int? unreadCount;
+
   List<T> models;
 
-  PaginationModel({this.total, this.models = const []});
+  PaginationModel({this.total, this.unreadCount, this.models = const []});
 
-  factory PaginationModel.fromJsonList(Map<String, int> json, List<T> models) {
-    return PaginationModel(models: models, total: json['total'] ?? 0);
+  factory PaginationModel.fromJsonList(Map<String, dynamic>? json, List<T> models, {int? unreadCount}) {
+    return PaginationModel(
+      models: models,
+      total: parseToInt(json?['total']) ?? models.length,
+      unreadCount: unreadCount,
+    );
   }
 
   factory PaginationModel.fromJsonListToMeta(int? total, List<T> models) {
     return PaginationModel(models: models, total: total ?? 0);
+  }
+
+  factory PaginationModel.fromApi(
+    dynamic body,
+    T Function(Map<String, dynamic> json) fromJson, {
+    String listKey = 'data',
+    String paginationKey = 'pagination',
+  }) {
+    final map = body is Map ? Map<String, dynamic>.from(body) : <String, dynamic>{};
+    final rawList = map[listKey] is List ? map[listKey] as List : const [];
+    final models = rawList.whereType<Map>().map((e) => fromJson(Map<String, dynamic>.from(e))).toList();
+    final pagination = map[paginationKey] is Map ? Map<String, dynamic>.from(map[paginationKey] as Map) : null;
+    return PaginationModel.fromJsonList(
+      pagination,
+      models,
+      unreadCount: parseToInt(map['unread_count']),
+    );
   }
 
   factory PaginationModel.fromJson(Map<String, dynamic> json, T Function(Object? json) fromJsonT) =>

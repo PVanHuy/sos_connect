@@ -5,6 +5,6 @@ import 'package:sos_connect/resourese/auth/iauth_repository.dart';
 class SignInBinding implements Bindings {
   @override
   void dependencies() {
-    Get.lazyPut(() => SignInController(authRepository: Get.find<IAuthRepository>()));
+    Get.lazyPut(() => SignInController(authRepository: Get.find<IAuthRepository>()), fenix: true);
   }
 }

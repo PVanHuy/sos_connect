@@ -124,6 +124,26 @@ class SignUpPage extends GetWidget<SignUpController> {
                           ),
                           onValidate: CustomValidator.validateUserName,
                         ),
+                        SizedBox(height: 16.h),
+                        CustomTextField(
+                          controller: controller.provinceController,
+                          titleText: 'province_city'.tr,
+                          hintText: 'select_province_city'.tr,
+                          borderRadius: 12,
+                          showFocusBorder: true,
+                          readOnly: true,
+                          onTap: controller.selectProvince,
+                          prefixIcon: Padding(
+                            padding: padding(left: 12, right: 8),
+                            child: Assets.icons.location.svg(width: 20.w, height: 20.w),
+                          ),
+                          suffixIcon: IconButton(
+                            onPressed: controller.selectProvince,
+                            icon: Assets.icons.arrowDown.svg(width: 18.w, height: 18.w),
+                          ),
+                          onValidate: (value) =>
+                              CustomValidator.validateRequiredField(value.trim(), 'province_city'.tr),
+                        ),
                         SizedBox(height: 12.h),
                         Row(
                           mainAxisAlignment: .center,

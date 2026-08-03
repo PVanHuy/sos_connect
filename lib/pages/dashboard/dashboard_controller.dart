@@ -3,26 +3,56 @@ import 'package:get/get.dart';
 import 'package:sos_connect/model/user/user_model.dart';
 import 'package:sos_connect/pages/account/account_page.dart';
 import 'package:sos_connect/pages/map/map_page.dart';
+import 'package:sos_connect/pages/noti/noti_controller.dart';
 import 'package:sos_connect/pages/noti/noti_page.dart';
 import 'package:sos_connect/pages/support/support_page.dart';
 import 'package:sos_connect/pages/survival/survival_page.dart';
+import 'package:sos_connect/resourese/dashboard/idashboard_repository.dart';
 import 'package:sos_connect/resourese/profile/iprofile_repository.dart';
+import 'package:sos_connect/resourese/service/notification/notification_service.dart';
+import 'package:sos_connect/utils/logger_helper.dart';
 
 class DashboardController extends GetxController {
   final IProfileRepository profileRepository;
+  final IDashboardRepository dashboardRepository;
+  final NotificationService notificationService;
 
-  DashboardController({required this.profileRepository});
+  DashboardController({
+    required this.profileRepository,
+    required this.dashboardRepository,
+    required this.notificationService,
+  });
 
   final PageController pageController = PageController();
   final RxInt currentPage = 0.obs;
   final Rx<UserModel?> userModel = Rx<UserModel?>(null);
+  final RxInt notificationCount = 0.obs;
 
   late final List<Widget> pages = [MapPage(), SurvivalPage(), SupportPage(), NotiPage(), AccountPage()];
 
   @override
   void onInit() {
     super.onInit();
+    // Create tab controllers under Dashboard route so GetX doesn't
+    // bind/delete them when child routes (e.g. notification deep-link) close.
+    Get.find<NotiController>();
     fetchProfile();
+    _init();
+  }
+
+  Future<void> _init() async {
+    try {
+      await notificationService.onInit();
+      await notificationService.onRequestPermission();
+
+      final fcmToken = await notificationService.getFcmToken();
+      if (fcmToken != null) {
+        await dashboardRepository.updateFcmToken(fcmToken);
+      }
+      await notificationService.onHandleInitialMessage();
+    } catch (e) {
+      loggerHelper.error('Dashboard notification init error: $e');
+    }
   }
 
   Future<void> fetchProfile() async {
@@ -53,6 +83,7 @@ class DashboardController extends GetxController {
   @override
   void onClose() {
     pageController.dispose();
+    notificationService.onClose();
     super.onClose();
   }
 }

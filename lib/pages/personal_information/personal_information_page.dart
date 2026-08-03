@@ -110,6 +110,24 @@ class PersonalInformationPage extends GetWidget<PersonalInformationController> {
                 ),
                 SizedBox(height: 24.h),
                 CustomTextField(
+                  controller: controller.provinceController,
+                  titleText: 'province_city'.tr,
+                  hintText: 'select_province_city'.tr,
+                  borderRadius: 12,
+                  readOnly: true,
+                  onTap: controller.selectProvince,
+                  prefixIcon: Padding(
+                    padding: padding(left: 12, right: 8),
+                    child: ImageAssetCustom(imagePath: Assets.icons.location.path, size: 20),
+                  ),
+                  suffixIcon: IconButton(
+                    onPressed: controller.selectProvince,
+                    icon: Assets.icons.arrowDown.svg(width: 18.w, height: 18.w),
+                  ),
+                  onValidate: (value) => CustomValidator.validateRequiredField(value.trim(), 'province_city'.tr),
+                ),
+                SizedBox(height: 24.h),
+                CustomTextField(
                   controller: controller.roleController,
                   titleText: 'role'.tr,
                   hintText: 'enter_role'.tr,

@@ -11,6 +11,9 @@ import 'package:sos_connect/utils/custom_validator.dart';
 import 'package:sos_connect/utils/dialog_utils.dart';
 import 'package:sos_connect/utils/image_utils.dart';
 import 'package:sos_connect/utils/logger_helper.dart';
+import 'package:sos_connect/utils/role_user.utils.dart';
+import 'package:sos_connect/utils/vietnam_address_utils.dart';
+import 'package:vietnam_provinces/vietnam_provinces.dart';
 
 class PersonalInformationController extends GetxController {
   final PersonalInformationParameter parameter;
@@ -24,12 +27,14 @@ class PersonalInformationController extends GetxController {
   final roleController = TextEditingController();
   final cccdController = TextEditingController();
   final birthDateController = TextEditingController();
+  final provinceController = TextEditingController();
 
   var isFormValid = false.obs;
   var isLoading = false.obs;
   var avatarUrl = ''.obs;
   var avatarFile = Rxn<PostMedia>();
   var birthDate = Rxn<DateTime>();
+  var selectedProvince = Rxn<Province>();
 
   @override
   void onInit() {
@@ -39,8 +44,9 @@ class PersonalInformationController extends GetxController {
     fullNameController.text = user?.username ?? '';
     phoneController.text = user?.phone ?? '';
     emailController.text = user?.email ?? '';
-    roleController.text = user?.roles ?? '';
+    roleController.text = (user?.roles ?? '').userRoleName;
     cccdController.text = user?.cccd ?? '';
+    provinceController.text = user?.province ?? '';
     avatarUrl.value = user?.avatar ?? '';
 
     final dob = user?.dob.toDateTime;
@@ -54,6 +60,7 @@ class PersonalInformationController extends GetxController {
     emailController.addListener(_updateFormValid);
     cccdController.addListener(_updateFormValid);
     birthDateController.addListener(_updateFormValid);
+    provinceController.addListener(_updateFormValid);
     _updateFormValid();
   }
 
@@ -63,15 +70,28 @@ class PersonalInformationController extends GetxController {
     final phoneValid = await CustomValidator.validatePhone(phoneController.text.trim());
     final emailValid = CustomValidator.validateEmail(emailController.text.trim(), isRequired: false).isEmpty;
     final cccdValid = CustomValidator.validateCCCD(cccdController.text.trim(), isRequired: false).isEmpty;
+    final provinceValid = CustomValidator.validateRequiredField(
+      provinceController.text.trim(),
+      'province_city'.tr,
+    ).isEmpty;
     if (isClosed) return;
 
-    isFormValid.value = fullNameValid && phoneValid.isEmpty && emailValid && cccdValid;
+    isFormValid.value = fullNameValid && phoneValid.isEmpty && emailValid && cccdValid && provinceValid;
   }
 
   Future<void> pickImage() async {
     final file = await ImageUtils.pickImage();
     if (file == null) return;
     avatarFile.value = PostMedia(file: file);
+  }
+
+  Future<void> selectProvince() async {
+    final selected = await VietnamAddressUtils.pickProvince();
+    if (selected == null) return;
+
+    selectedProvince.value = selected;
+    provinceController.text = selected.name;
+    _updateFormValid();
   }
 
   Future<void> pickBirthDate(BuildContext context) async {
@@ -95,12 +115,15 @@ class PersonalInformationController extends GetxController {
     try {
       isLoading.value = true;
 
+      final province = selectedProvince.value?.name ?? provinceController.text.trim();
+
       final params = <String, dynamic>{
         'username': fullNameController.text.trim(),
         'phone': phoneController.text.trim(),
         if (emailController.text.trim().isNotEmpty) 'email': emailController.text.trim(),
         if (cccdController.text.trim().isNotEmpty) 'cccd': cccdController.text.trim(),
         if (birthDate.value != null) 'dob': birthDate.value!.toyyyyMMdd,
+        if (province.isNotEmpty) 'province': province,
       };
 
       final response = await profileRepository.updateProfile(params, avatar: avatarFile.value);
@@ -123,6 +146,7 @@ class PersonalInformationController extends GetxController {
             avatar: parsed.avatar ?? avatarUrl.value,
             address: parsed.address ?? current?.address,
             teamId: parsed.teamId ?? current?.teamId,
+            province: province.isEmpty ? parsed.province ?? current?.province : province,
           ),
         );
         Get.back();
@@ -152,6 +176,9 @@ class PersonalInformationController extends GetxController {
       ..removeListener(_updateFormValid)
       ..dispose();
     birthDateController
+      ..removeListener(_updateFormValid)
+      ..dispose();
+    provinceController
       ..removeListener(_updateFormValid)
       ..dispose();
     super.onClose();

@@ -17,8 +17,18 @@ import 'package:sos_connect/pages/personal_information/personal_information_bind
 import 'package:sos_connect/pages/personal_information/personal_information_page.dart';
 import 'package:sos_connect/pages/register_rescue_team/register_rescue_team_binding.dart';
 import 'package:sos_connect/pages/register_rescue_team/register_rescue_team_page.dart';
+import 'package:sos_connect/pages/join_request_detail/join_request_detail_binding.dart';
+import 'package:sos_connect/pages/join_request_detail/join_request_detail_page.dart';
+import 'package:sos_connect/pages/join_team_request_list/join_team_request_list_binding.dart';
+import 'package:sos_connect/pages/join_team_request_list/join_team_request_list_page.dart';
+import 'package:sos_connect/pages/notification_detail/notification_detail_binding.dart';
+import 'package:sos_connect/pages/notification_detail/notification_detail_page.dart';
 import 'package:sos_connect/pages/rescue_posts/rescue_posts_binding.dart';
 import 'package:sos_connect/pages/rescue_posts/rescue_posts_page.dart';
+import 'package:sos_connect/pages/rescue_team_detail/rescue_team_detail_binding.dart';
+import 'package:sos_connect/pages/rescue_team_detail/rescue_team_detail_page.dart';
+import 'package:sos_connect/pages/rescue_team_list/rescue_team_list_binding.dart';
+import 'package:sos_connect/pages/rescue_team_list/rescue_team_list_page.dart';
 import 'package:sos_connect/pages/sign_in/sign_in_binding.dart';
 import 'package:sos_connect/pages/sign_in/sign_in_page.dart';
 import 'package:sos_connect/pages/sign_up/sign_up_binding.dart';
@@ -51,6 +61,23 @@ abstract class AppPages {
     ),
     GetPage(name: Routes.CHANGE_PASSWORD, page: () => ChangePasswordPage(), binding: ChangePasswordBinding()),
     GetPage(name: Routes.RESCUE_POSTS, page: () => RescuePostsPage(), binding: RescuePostsBinding()),
+    GetPage(name: Routes.RESCUE_TEAM_LIST, page: () => RescueTeamListPage(), binding: RescueTeamListBinding()),
+    GetPage(name: Routes.RESCUE_TEAM_DETAIL, page: () => RescueTeamDetailPage(), binding: RescueTeamDetailBinding()),
+    GetPage(
+      name: Routes.JOIN_TEAM_REQUEST_LIST,
+      page: () => JoinTeamRequestListPage(),
+      binding: JoinTeamRequestListBinding(),
+    ),
+    GetPage(
+      name: Routes.JOIN_REQUEST_DETAIL,
+      page: () => JoinRequestDetailPage(),
+      binding: JoinRequestDetailBinding(),
+    ),
+    GetPage(
+      name: Routes.NOTIFICATION_DETAIL,
+      page: () => NotificationDetailPage(),
+      binding: NotificationDetailBinding(),
+    ),
     GetPage(
       name: Routes.SURVIVAL_GUIDE_DETAIL,
       page: () => SurvivalGuideDetailPage(),
