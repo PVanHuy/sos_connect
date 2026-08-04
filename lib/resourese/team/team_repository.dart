@@ -4,6 +4,7 @@ import 'package:sos_connect/model/pagination_model.dart';
 import 'package:sos_connect/model/team/current_join_team_request_model.dart';
 import 'package:sos_connect/model/team/join_team_request_model.dart';
 import 'package:sos_connect/model/team/rescue_team_model.dart';
+import 'package:sos_connect/model/team/team_member_model.dart';
 import 'package:sos_connect/resourese/ibase_repository.dart';
 import 'package:sos_connect/resourese/team/iteam_repository.dart';
 import 'package:sos_connect/utils/app_constants.dart';
@@ -20,6 +21,21 @@ class TeamRepository extends ITeamRepository {
 
       final result = await clientPostData(AppConstants.teamRegisterInformationsUri, params);
       return result;
+    } catch (error) {
+      handleError(error);
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Response> updateMyTeam(Map<String, String> params, {PostMedia? document}) async {
+    try {
+      if (document != null && document.file != null) {
+        final multipartBody = [MultipartBody('document', document.file)];
+        return await clientPatchMultipartData(AppConstants.teamMyTeamUri, params, multipartBody);
+      }
+
+      return await clientPatchData(AppConstants.teamMyTeamUri, params);
     } catch (error) {
       handleError(error);
       rethrow;
@@ -145,6 +161,35 @@ class TeamRepository extends ITeamRepository {
       }
 
       return PaginationModel();
+    } catch (error) {
+      handleError(error);
+      rethrow;
+    }
+  }
+
+  @override
+  Future<PaginationModel<TeamMemberModel>> getTeamMembers({int page = 1}) async {
+    try {
+      final query = <String, String>{'page': page.toString(), 'limit': AppConstants.LIMIT.toString()};
+      final response = await clientGetData('${AppConstants.teamMembersUri}?${Uri(queryParameters: query).query}');
+
+      if (response.isOk) {
+        return PaginationModel.fromApi(response.body, TeamMemberModel.fromJson);
+      }
+
+      return PaginationModel();
+    } catch (error) {
+      handleError(error);
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Response> kickTeamMember({required String memberId, required String reasonKicked}) async {
+    try {
+      return await clientPostData(AppConstants.teamMemberKickUri(memberId), {
+        'reason_kicked': reasonKicked,
+      });
     } catch (error) {
       handleError(error);
       rethrow;

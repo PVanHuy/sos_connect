@@ -22,6 +22,7 @@ import 'package:sos_connect/utils/local_storage.dart';
 import 'package:sos_connect/utils/logger_helper.dart';
 import 'package:sos_connect/utils/noti_type_utils.dart';
 import 'package:sos_connect/utils/shared_key.dart';
+import 'package:sos_connect/widget/dialog/show_alert_dialog.dart';
 
 class NotificationService {
   StreamSubscription<RemoteMessage>? _onMessageSub;
@@ -243,6 +244,8 @@ class NotificationService {
         notificationId: fcmNotification.notificationId,
         teamId: fcmNotification.teamId,
         requestId: fcmNotification.requestId,
+        reasonKicked: fcmNotification.resolvedReasonKicked,
+        content: fcmNotification.content,
       );
     } catch (e) {
       loggerHelper.error('Error handling notification: $e', name: 'NotificationService - CLICK');
@@ -255,6 +258,8 @@ class NotificationService {
     String? notificationId,
     String? teamId,
     String? requestId,
+    String? reasonKicked,
+    String? content,
   }) {
     final id = notificationId?.trim() ?? '';
     final targetTeamId = teamId?.trim() ?? '';
@@ -291,6 +296,21 @@ class NotificationService {
         if (id.isEmpty) return;
         Get.toNamed(Routes.NOTIFICATION_DETAIL, arguments: NotificationDetailParameter(notificationId: id));
         break;
+      case NotiTypeUtils.teamMembership:
+        if (action == NotiActionUtils.kicked) {
+          final wasOnTeamPage = _isOnTeamRelatedPage();
+          _handleKickedFromTeam(
+            showDialogIfNeeded: true,
+            reasonKicked: reasonKicked,
+            content: content,
+          );
+          if (!wasOnTeamPage && id.isNotEmpty) {
+            Get.toNamed(Routes.NOTIFICATION_DETAIL, arguments: NotificationDetailParameter(notificationId: id));
+          }
+        } else if (id.isNotEmpty) {
+          Get.toNamed(Routes.NOTIFICATION_DETAIL, arguments: NotificationDetailParameter(notificationId: id));
+        }
+        break;
       default:
         if (id.isNotEmpty) {
           Get.toNamed(Routes.NOTIFICATION_DETAIL, arguments: NotificationDetailParameter(notificationId: id));
@@ -311,6 +331,10 @@ class NotificationService {
       case NotiTypeUtils.joinRequest:
         _addIncomingNotification(data);
         _handleJoinRequestRealtime(FcmNotificationModel.fromJson(data));
+        break;
+      case NotiTypeUtils.teamMembership:
+        _addIncomingNotification(data);
+        _handleTeamMembershipRealtime(FcmNotificationModel.fromJson(data));
         break;
       default:
         break;
@@ -337,6 +361,10 @@ class NotificationService {
       }
     }
 
+    if (action == NotiActionUtils.created && Get.isRegistered<DashboardController>()) {
+      Get.find<DashboardController>().fetchJoinRequestCount();
+    }
+
     if (action == NotiActionUtils.accepted && Get.isRegistered<DashboardController>()) {
       Get.find<DashboardController>().fetchProfile();
     }
@@ -345,6 +373,43 @@ class NotificationService {
         Get.isRegistered<RescueTeamListController>()) {
       Get.find<RescueTeamListController>().fetchCurrentJoinRequests();
     }
+  }
+
+  void _handleTeamMembershipRealtime(FcmNotificationModel fcm) {
+    if (fcm.action != NotiActionUtils.kicked) return;
+    _handleKickedFromTeam(showDialogIfNeeded: true, reasonKicked: fcm.resolvedReasonKicked, content: fcm.content);
+  }
+
+  Future<void> _handleKickedFromTeam({required bool showDialogIfNeeded, String? reasonKicked, String? content}) async {
+    final isOnTeamPage = _isOnTeamRelatedPage();
+
+    if (isOnTeamPage) {
+      Get.until((route) => route.settings.name == Routes.DASHBOARD || route.isFirst);
+      if (Get.isRegistered<DashboardController>()) {
+        Get.find<DashboardController>().goToTab(4);
+      }
+    }
+
+    if (Get.isRegistered<DashboardController>()) {
+      await Get.find<DashboardController>().fetchProfile();
+    }
+
+    if (showDialogIfNeeded && isOnTeamPage) {
+      final reason = reasonKicked?.trim() ?? '';
+      final dialogContent = reason.isNotEmpty
+          ? '${content?.trim().isNotEmpty == true ? content!.trim() : 'kicked_from_team_content'.tr}\n\n${'kicked_from_team_reason'.trParams({'reason': reason})}'
+          : (content?.trim().isNotEmpty == true ? content!.trim() : 'kicked_from_team_content'.tr);
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (Get.isDialogOpen == true) return;
+        showAlertDialog(title: 'kicked_from_team_title'.tr, content: dialogContent);
+      });
+    }
+  }
+
+  bool _isOnTeamRelatedPage() {
+    final route = Get.currentRoute;
+    return route == Routes.REGISTER_RESCUE_TEAM || route == Routes.TEAM_MEMBER_LIST || route == Routes.USER_DETAIL;
   }
 
   void _addIncomingNotification(Map<String, dynamic> data) {

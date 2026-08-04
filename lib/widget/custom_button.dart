@@ -45,6 +45,7 @@ class CustomButton extends StatelessWidget {
 
   Widget _buildButtonWidget(BuildContext context) {
     final resolvedGradient = color != null ? null : (gradient ?? AppGradient.purpleFFAndPurpleFFGradient);
+    final loadingColor = textColor ?? appTheme.whiteColor;
 
     return Padding(
       padding: margin == null ? .zero : margin!,
@@ -57,12 +58,13 @@ class CustomButton extends StatelessWidget {
               },
         borderRadius: .circular(radius),
         child: Container(
+          
           width: isFullWidth ? .infinity : null,
           padding: paddingButton ?? padding(horizontal: 12, vertical: 16),
           decoration: BoxDecoration(
             borderRadius: .circular(radius),
-            color: onPressed == null ? appTheme.grayF5Color : (resolvedGradient != null ? null : color),
-            gradient: onPressed != null ? resolvedGradient : null,
+            color: onPressed == null && !isLoading ? appTheme.grayF5Color : (resolvedGradient != null ? null : color),
+            gradient: onPressed != null || isLoading ? resolvedGradient : null,
           ),
           child: isLoading
               ? Row(
@@ -74,12 +76,12 @@ class CustomButton extends StatelessWidget {
                       height: 15.w,
                       width: 15.w,
                       child: CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(appTheme.whiteColor),
+                        valueColor: AlwaysStoppedAnimation<Color>(loadingColor),
                         strokeWidth: 2,
                       ),
                     ),
                     SizedBox(width: 8.w),
-                    Text('loading'.tr, style: StyleThemeData.size14Weight600(color: appTheme.whiteColor)),
+                    Text('loading'.tr, style: StyleThemeData.size14Weight600(color: loadingColor)),
                   ],
                 )
               : Row(

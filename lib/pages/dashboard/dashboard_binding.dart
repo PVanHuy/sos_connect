@@ -9,6 +9,7 @@ import 'package:sos_connect/resourese/dashboard/idashboard_repository.dart';
 import 'package:sos_connect/resourese/notification/inotification_repository.dart';
 import 'package:sos_connect/resourese/profile/iprofile_repository.dart';
 import 'package:sos_connect/resourese/service/notification/notification_service.dart';
+import 'package:sos_connect/resourese/team/iteam_repository.dart';
 
 class DashboardBinding implements Bindings {
   @override
@@ -17,6 +18,7 @@ class DashboardBinding implements Bindings {
       () => DashboardController(
         profileRepository: Get.find<IProfileRepository>(),
         dashboardRepository: Get.find<IDashboardRepository>(),
+        teamRepository: Get.find<ITeamRepository>(),
         notificationService: Get.find<NotificationService>(),
       ),
     );

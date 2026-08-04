@@ -39,7 +39,13 @@ class JoinTeamRequestListController extends GetxController {
   void onInit() {
     super.onInit();
     requestListController = LazyListController<JoinTeamRequestModel>(
-      onLoad: (page) => teamRepository.getPendingJoinRequests(page: page),
+      onLoad: (page) async {
+        final result = await teamRepository.getPendingJoinRequests(page: page);
+        if (page == 1 && result.countRequest != null && Get.isRegistered<DashboardController>()) {
+          Get.find<DashboardController>().setJoinRequestCount(result.countRequest!);
+        }
+        return result;
+      },
     );
     myRequestListController = LazyListController<CurrentJoinTeamRequestModel>(
       onLoad: (page) async {
@@ -110,6 +116,9 @@ class JoinTeamRequestListController extends GetxController {
           response.body['message'] ?? (isAccept ? 'accept_join_request_success'.tr : 'reject_join_request_success'.tr),
         );
         requestListController.removeWhere((e) => e.id == requestId);
+        if (Get.isRegistered<DashboardController>()) {
+          Get.find<DashboardController>().decreaseJoinRequestCount();
+        }
       } else {
         DialogUtils.showErrorDialog(response.body['message'] ?? '');
       }

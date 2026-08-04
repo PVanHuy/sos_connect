@@ -34,9 +34,7 @@ class AccountSectionView extends GetView<AccountController> {
             label: 'personal_info'.tr,
             onTap: () => Get.toNamed(
               Routes.PERSONAL_INFORMATION,
-              arguments: PersonalInformationParameter(
-                userModel: controller.dashboardController.userModel.value,
-              ),
+              arguments: PersonalInformationParameter(userModel: controller.dashboardController.userModel.value),
             ),
           ),
           ItemRowWidget(

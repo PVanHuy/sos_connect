@@ -4,6 +4,7 @@ import 'package:sos_connect/model/media/post_media.dart';
 import 'package:sos_connect/model/team/rescue_team_model.dart';
 import 'package:sos_connect/pages/dashboard/dashboard_controller.dart';
 import 'package:sos_connect/resourese/team/iteam_repository.dart';
+import 'package:sos_connect/routes/pages.dart';
 import 'package:sos_connect/utils/custom_validator.dart';
 import 'package:sos_connect/utils/dialog_utils.dart';
 import 'package:sos_connect/utils/image_utils.dart';
@@ -37,6 +38,7 @@ class RegisterRescueTeamController extends GetxController {
   var isStep1Valid = false.obs;
   var isStep2Valid = false.obs;
   var hasRegisteredTeam = false.obs;
+  var isEditingTeam = false.obs;
   var confirmationDocument = Rxn<PostMedia>();
   var teamModel = Rxn<RescueTeamModel>();
 
@@ -45,6 +47,20 @@ class RegisterRescueTeamController extends GetxController {
   var selectedRole = RxnString();
 
   int get currentStepIndex => currentStep.value.index + 1;
+
+  bool get isLeader {
+    final roles = Get.find<DashboardController>().userModel.value?.roles ?? '';
+    return roles.toLowerCase() == UserRoleUtils.leader;
+  }
+
+  bool get showTeamInfo => hasRegisteredTeam.value && !isEditingTeam.value;
+
+  bool get hasExistingDocument {
+    final url = teamModel.value?.documentUrl?.trim() ?? '';
+    return url.isNotEmpty;
+  }
+
+  String get existingDocumentUrl => teamModel.value?.documentUrl?.trim() ?? '';
 
   @override
   void onInit() {
@@ -101,22 +117,54 @@ class RegisterRescueTeamController extends GetxController {
     contactNameController.text = team.leader ?? '';
     contactPhoneController.text = team.phone ?? '';
     contactEmailController.text = team.email ?? '';
-    roleController.text = (team.position ?? '').rescueTeamRoleName;
+
+    final position = (team.position ?? '').toLowerCase();
+    if (position == RescueTeamRoleUtils.leader || position == RescueTeamRoleUtils.volunteer) {
+      selectedRole.value = position;
+      roleController.text = position.rescueTeamRoleName;
+    } else {
+      roleController.text = (team.position ?? '').rescueTeamRoleName;
+    }
+
+    _syncAddressSelection(team);
+  }
+
+  void _syncAddressSelection(RescueTeamModel team) {
+    final provinceName = team.province?.trim() ?? '';
+    if (provinceName.isEmpty) return;
+
+    final provinces = VietnamAddressUtils.getProvinces();
+    final matchedProvince = provinces.firstWhereOrNull(
+      (e) => e.name.toLowerCase() == provinceName.toLowerCase(),
+    );
+    selectedProvince.value = matchedProvince;
+
+    final wardName = team.commune?.trim() ?? '';
+    if (matchedProvince == null || wardName.isEmpty) {
+      selectedWard.value = null;
+      return;
+    }
+
+    final wards = VietnamAddressUtils.getWards(provinceCode: matchedProvince.code);
+    selectedWard.value = wards.firstWhereOrNull((e) => e.name.toLowerCase() == wardName.toLowerCase());
   }
 
   void _validateStep1() {
-    if (isClosed || hasRegisteredTeam.value) return;
+    if (isClosed || showTeamInfo) return;
+
+    final hasDocument = confirmationDocument.value?.file != null || (isEditingTeam.value && hasExistingDocument);
+
     isStep1Valid.value =
         CustomValidator.validateRequiredField(teamNameController.text.trim(), 'team_name'.tr).isEmpty &&
-        selectedProvince.value != null &&
-        selectedWard.value != null &&
+        provinceController.text.trim().isNotEmpty &&
+        wardController.text.trim().isNotEmpty &&
         CustomValidator.validateRequiredField(memberCountController.text.trim(), 'member_count'.tr).isEmpty &&
         CustomValidator.validateRequiredField(organizationController.text.trim(), 'organization_unit'.tr).isEmpty &&
-        confirmationDocument.value?.file != null;
+        hasDocument;
   }
 
   Future<void> _validateStep2() async {
-    if (isClosed || hasRegisteredTeam.value) return;
+    if (isClosed || showTeamInfo) return;
     final phoneValid = await CustomValidator.validatePhone(contactPhoneController.text.trim());
     if (isClosed) return;
     final emailValid = CustomValidator.validateEmail(contactEmailController.text.trim(), isRequired: false).isEmpty;
@@ -172,7 +220,35 @@ class RegisterRescueTeamController extends GetxController {
     _validateStep2();
   }
 
+  void onEditTeam() {
+    if (!isLeader || teamModel.value == null) return;
+
+    confirmationDocument.value = null;
+    _fillTeamForm(teamModel.value!);
+    currentStep.value = RegisterRescueTeamStep.step1;
+    isEditingTeam.value = true;
+    _validateStep1();
+    _validateStep2();
+  }
+
+  void onCancelEditTeam() {
+    isEditingTeam.value = false;
+    currentStep.value = RegisterRescueTeamStep.step1;
+    confirmationDocument.value = null;
+    final team = teamModel.value;
+    if (team != null) _fillTeamForm(team);
+  }
+
   void onBack() {
+    if (isEditingTeam.value) {
+      if (currentStep.value == RegisterRescueTeamStep.step2) {
+        currentStep.value = RegisterRescueTeamStep.step1;
+        return;
+      }
+      onCancelEditTeam();
+      return;
+    }
+
     if (hasRegisteredTeam.value || currentStep.value == RegisterRescueTeamStep.step1) {
       Get.back();
       return;
@@ -218,15 +294,17 @@ class RegisterRescueTeamController extends GetxController {
         if (contactEmailController.text.trim().isNotEmpty) 'email': contactEmailController.text.trim(),
       };
 
-      final response = await teamRepository.registerTeam(
-        params,
-        document: confirmationDocument.value,
-      );
+      final response = isEditingTeam.value
+          ? await teamRepository.updateMyTeam(params, document: confirmationDocument.value)
+          : await teamRepository.registerTeam(params, document: confirmationDocument.value);
 
       if (isClosed) return;
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        DialogUtils.showSuccessDialog(response.body['message'] ?? '');
+        final wasEditing = isEditingTeam.value;
+        DialogUtils.showSuccessDialog(
+          response.body['message'] ?? (wasEditing ? 'update_team_success'.tr : ''),
+        );
 
         final data = response.body['data'];
         if (data is Map) {
@@ -241,18 +319,31 @@ class RegisterRescueTeamController extends GetxController {
             dashboard.updateUserModel(user.copyWith(teamId: team.id));
           }
         } else {
-          await Get.find<DashboardController>().fetchProfile();
+          await fetchTeamDetail();
+          if (!wasEditing) {
+            await Get.find<DashboardController>().fetchProfile();
+          }
         }
 
-        Get.back();
+        confirmationDocument.value = null;
+        isEditingTeam.value = false;
+        currentStep.value = RegisterRescueTeamStep.step1;
+
+        if (!wasEditing) {
+          Get.back();
+        }
       } else {
         DialogUtils.showErrorDialog(response.body['message'] ?? '');
       }
     } catch (e) {
-      loggerHelper.log('Error registering rescue team: $e');
+      loggerHelper.log('Error submitting rescue team: $e');
     } finally {
       if (!isClosed) isLoading.value = false;
     }
+  }
+
+  void onViewTeamMembers() {
+    Get.toNamed(Routes.TEAM_MEMBER_LIST);
   }
 
   @override

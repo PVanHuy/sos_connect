@@ -37,6 +37,10 @@ import 'package:sos_connect/pages/splash/splash_binding.dart';
 import 'package:sos_connect/pages/splash/splash_page.dart';
 import 'package:sos_connect/pages/survival_guide_detail/survival_guide_detail_binding.dart';
 import 'package:sos_connect/pages/survival_guide_detail/survival_guide_detail_page.dart';
+import 'package:sos_connect/pages/team_member_list/team_member_list_binding.dart';
+import 'package:sos_connect/pages/team_member_list/team_member_list_page.dart';
+import 'package:sos_connect/pages/user_detail/user_detail_binding.dart';
+import 'package:sos_connect/pages/user_detail/user_detail_page.dart';
 
 part 'routes.dart';
 
@@ -72,6 +76,16 @@ abstract class AppPages {
       name: Routes.JOIN_REQUEST_DETAIL,
       page: () => JoinRequestDetailPage(),
       binding: JoinRequestDetailBinding(),
+    ),
+    GetPage(
+      name: Routes.TEAM_MEMBER_LIST,
+      page: () => TeamMemberListPage(),
+      binding: TeamMemberListBinding(),
+    ),
+    GetPage(
+      name: Routes.USER_DETAIL,
+      page: () => UserDetailPage(),
+      binding: UserDetailBinding(),
     ),
     GetPage(
       name: Routes.NOTIFICATION_DETAIL,

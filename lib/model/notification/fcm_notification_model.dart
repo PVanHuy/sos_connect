@@ -29,6 +29,8 @@ class FcmNotificationModel {
   String? action;
   @JsonKey(name: 'request_id')
   String? requestId;
+  @JsonKey(name: 'reason_kicked')
+  String? reasonKicked;
   String? time;
   @JsonKey(fromJson: parseFcmPayload)
   Map<String, dynamic>? payload;
@@ -41,6 +43,7 @@ class FcmNotificationModel {
     this.type,
     this.action,
     this.requestId,
+    this.reasonKicked,
     this.time,
     this.payload,
   });
@@ -50,6 +53,13 @@ class FcmNotificationModel {
   Map<String, dynamic> toJson() => _$FcmNotificationModelToJson(this);
 
   String? get teamId => payload?['team_id']?.toString();
+
+  String? get resolvedReasonKicked {
+    final direct = reasonKicked?.trim() ?? '';
+    if (direct.isNotEmpty) return direct;
+    final fromPayload = payload?['reason_kicked']?.toString().trim() ?? '';
+    return fromPayload.isNotEmpty ? fromPayload : null;
+  }
 
   NotificationModel toNotificationModel() {
     return NotificationModel(

@@ -14,6 +14,7 @@ class ItemRowWidget extends StatelessWidget {
     this.onTap,
     this.trailing,
     this.iconColor,
+    this.badgeCount = 0,
   });
 
   final SvgGenImage icon;
@@ -22,9 +23,12 @@ class ItemRowWidget extends StatelessWidget {
   final VoidCallback? onTap;
   final Widget? trailing;
   final Color? iconColor;
+  final int badgeCount;
 
   @override
   Widget build(BuildContext context) {
+    final badgeText = badgeCount > 99 ? '99+' : '$badgeCount';
+
     return Material(
       color: appTheme.transparentColor,
       child: InkWell(
@@ -37,11 +41,31 @@ class ItemRowWidget extends StatelessWidget {
           child: Row(
             spacing: 8.w,
             children: [
-              SvgPicture.asset(
-                icon.path,
-                width: 24.w,
-                height: 24.w,
-                colorFilter: .mode(iconColor ?? appTheme.appColor, BlendMode.srcIn),
+              Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  SvgPicture.asset(
+                    icon.path,
+                    width: 24.w,
+                    height: 24.w,
+                    colorFilter: .mode(iconColor ?? appTheme.appColor, BlendMode.srcIn),
+                  ),
+                  if (badgeCount > 0)
+                    Positioned(
+                      right: -8.w,
+                      top: -4.h,
+                      child: Container(
+                        constraints: BoxConstraints(minWidth: 16.w),
+                        padding: padding(horizontal: 4, vertical: 1),
+                        decoration: BoxDecoration(color: appTheme.red55Color, borderRadius: BorderRadius.circular(20)),
+                        child: Text(
+                          badgeText,
+                          textAlign: TextAlign.center,
+                          style: StyleThemeData.size10Weight700(color: appTheme.whiteColor, height: 1.2),
+                        ),
+                      ),
+                    ),
+                ],
               ),
               Expanded(child: Text(label, style: StyleThemeData.size14Weight400())),
               if (trailing != null) trailing!,

@@ -9,6 +9,7 @@ import 'package:sos_connect/utils/formatter_util.dart';
 import 'package:sos_connect/widget/custom_text_field.dart';
 import 'package:sos_connect/widget/dash_border_painter.dart';
 import 'package:sos_connect/widget/full_photo_viewer.dart';
+import 'package:sos_connect/widget/custom_image_widget.dart';
 import 'package:sos_connect/widget/reponsive/extension.dart';
 
 class Step1RegisterRescueTeamView extends GetView<RegisterRescueTeamController> {
@@ -98,10 +99,12 @@ class Step1RegisterRescueTeamView extends GetView<RegisterRescueTeamController> 
 
   Widget _buildUploadCard(BuildContext context) {
     final file = controller.confirmationDocument.value?.file;
+    final existingUrl = controller.existingDocumentUrl;
+
     return CustomPaint(
       painter: DashBorderPainter(color: appTheme.appColor, strokeWidth: 1.w, radius: 16, dashWidth: 4, dashGap: 4),
       child: ClipRRect(
-        borderRadius: .circular(16),
+        borderRadius: BorderRadius.circular(16),
         child: file != null
             ? AspectRatio(
                 aspectRatio: 16 / 10,
@@ -117,12 +120,51 @@ class Step1RegisterRescueTeamView extends GetView<RegisterRescueTeamController> 
                       bottom: 8.h,
                       child: InkWell(
                         onTap: controller.pickConfirmationDocument,
-                        borderRadius: .circular(20),
+                        borderRadius: BorderRadius.circular(20),
                         child: Container(
                           padding: padding(horizontal: 12, vertical: 8),
                           decoration: BoxDecoration(
                             color: appTheme.whiteColor.withValues(alpha: 0.92),
-                            borderRadius: .circular(20),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            'change_image'.tr,
+                            style: StyleThemeData.size12Weight400(color: appTheme.appColor),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            : existingUrl.isNotEmpty
+            ? AspectRatio(
+                aspectRatio: 16 / 10,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    InkWell(
+                      onTap: () => FullPhotoViewer.open(context, assets: [existingUrl]),
+                      child: CustomImageWidget(
+                        imageUrl: existingUrl,
+                        width: double.infinity,
+                        height: double.infinity,
+                        borderRadius: 0,
+                        noImage: false,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    Positioned(
+                      right: 8.w,
+                      bottom: 8.h,
+                      child: InkWell(
+                        onTap: controller.pickConfirmationDocument,
+                        borderRadius: BorderRadius.circular(20),
+                        child: Container(
+                          padding: padding(horizontal: 12, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: appTheme.whiteColor.withValues(alpha: 0.92),
+                            borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
                             'change_image'.tr,

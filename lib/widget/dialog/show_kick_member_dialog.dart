@@ -1,0 +1,115 @@
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:sos_connect/main.dart';
+import 'package:sos_connect/theme/style/style_theme.dart';
+import 'package:sos_connect/widget/custom_button.dart';
+import 'package:sos_connect/widget/custom_text_field.dart';
+import 'package:sos_connect/widget/reponsive/extension.dart';
+
+Future<String?> showKickMemberDialog({required String username}) {
+  return Get.dialog<String>(
+    _KickMemberDialog(username: username),
+    barrierDismissible: false,
+  );
+}
+
+class _KickMemberDialog extends StatefulWidget {
+  const _KickMemberDialog({required this.username});
+
+  final String username;
+
+  @override
+  State<_KickMemberDialog> createState() => _KickMemberDialogState();
+}
+
+class _KickMemberDialogState extends State<_KickMemberDialog> {
+  final _reasonController = TextEditingController();
+  var _isValid = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _reasonController.addListener(_validateForm);
+  }
+
+  void _validateForm() {
+    final isValid = _reasonController.text.trim().isNotEmpty;
+    if (isValid == _isValid) return;
+    setState(() => _isValid = isValid);
+  }
+
+  void _close([String? result]) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!(Get.isDialogOpen ?? false)) return;
+      Get.back(result: result);
+    });
+  }
+
+  @override
+  void dispose() {
+    _reasonController.removeListener(_validateForm);
+    _reasonController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: .circular(12)),
+      backgroundColor: appTheme.whiteColor,
+      insetPadding: padding(horizontal: 16),
+      child: Padding(
+        padding: padding(vertical: 24, horizontal: 12),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: .min,
+            children: [
+              Text('kick_team_member'.tr, style: StyleThemeData.size20Weight700(), textAlign: .center),
+              SizedBox(height: 8.h),
+              Text(
+                'kick_team_member_desc'.trParams({'name': widget.username}),
+                style: StyleThemeData.size12Weight400(),
+                textAlign: .center,
+              ),
+              SizedBox(height: 16.h),
+              CustomTextField(
+                controller: _reasonController,
+                titleText: 'kick_reason'.tr,
+                hintText: 'enter_kick_reason'.tr,
+                maxLines: 3,
+                borderRadius: 12,
+              ),
+              SizedBox(height: 24.h),
+              Row(
+                spacing: 8.w,
+                children: [
+                  Expanded(
+                    child: CustomButton(
+                      buttonText: 'cancel'.tr,
+                      color: appTheme.sliverColor,
+                      textColor: appTheme.appColor,
+                      onPressed: _close,
+                    ),
+                  ),
+                  Expanded(
+                    child: CustomButton(
+                      buttonText: 'kick'.tr,
+                      color: appTheme.errorColor,
+                      onPressed: _isValid
+                          ? () {
+                              final reason = _reasonController.text.trim();
+                              if (reason.isEmpty) return;
+                              _close(reason);
+                            }
+                          : null,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

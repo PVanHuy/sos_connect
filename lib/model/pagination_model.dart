@@ -11,15 +11,29 @@ class PaginationModel<T> {
   @JsonKey(name: 'unread_count', fromJson: parseToInt)
   int? unreadCount;
 
+  @JsonKey(name: 'count_member', fromJson: parseToInt)
+  int? countMember;
+
+  @JsonKey(name: 'count_request', fromJson: parseToInt)
+  int? countRequest;
+
   List<T> models;
 
-  PaginationModel({this.total, this.unreadCount, this.models = const []});
+  PaginationModel({this.total, this.unreadCount, this.countMember, this.countRequest, this.models = const []});
 
-  factory PaginationModel.fromJsonList(Map<String, dynamic>? json, List<T> models, {int? unreadCount}) {
+  factory PaginationModel.fromJsonList(
+    Map<String, dynamic>? json,
+    List<T> models, {
+    int? unreadCount,
+    int? countMember,
+    int? countRequest,
+  }) {
     return PaginationModel(
       models: models,
       total: parseToInt(json?['total']) ?? models.length,
       unreadCount: unreadCount,
+      countMember: countMember,
+      countRequest: countRequest,
     );
   }
 
@@ -41,6 +55,8 @@ class PaginationModel<T> {
       pagination,
       models,
       unreadCount: parseToInt(map['unread_count']),
+      countMember: parseToInt(map['count_member']),
+      countRequest: parseToInt(map['count_request']),
     );
   }
 

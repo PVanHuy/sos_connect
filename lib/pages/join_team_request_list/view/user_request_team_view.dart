@@ -44,7 +44,7 @@ class UserRequestTeamView extends GetView<JoinTeamRequestListController> {
       final address = [team?.commune, team?.province].where((e) => (e ?? '').trim().isNotEmpty).join(', ');
       final createdAt = request.createdAt.toddMMyyyyNoEmpty;
       final message = request.requestMessage?.trim() ?? '';
-      final responseMessage = request.responseMessage?.trim() ?? '';
+      // final responseMessage = request.responseMessage?.trim() ?? '';
       final requestId = request.id?.trim() ?? '';
 
       return ItemBorderWidget(

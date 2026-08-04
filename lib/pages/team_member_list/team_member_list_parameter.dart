@@ -1,0 +1,3 @@
+class TeamMemberListParameter {
+  const TeamMemberListParameter();
+}

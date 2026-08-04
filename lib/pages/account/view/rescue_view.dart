@@ -45,8 +45,9 @@ class RescueView extends GetView<AccountController> {
               onTap: () => Get.toNamed(Routes.RESCUE_TEAM_LIST),
             ),
             ItemRowWidget(
-              icon: Assets.icons.userSquare,
+              icon: Assets.icons.send,
               label: isLeader ? 'join_team_request_list'.tr : 'my_join_team_request'.tr,
+              badgeCount: isLeader ? controller.dashboardController.joinRequestCount.value : 0,
               onTap: () => Get.toNamed(Routes.JOIN_TEAM_REQUEST_LIST),
             ),
             ItemRowWidget(
