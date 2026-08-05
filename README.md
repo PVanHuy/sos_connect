@@ -166,22 +166,52 @@ Các key được đọc trong `lib/utils/app_constants.dart`.
 
 ## CI/CD
 
-CI chạy bằng **GitHub Actions**: [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
+Dùng **GitHub Actions** với 2 workflow:
 
-**Trigger**
+| Workflow | File | Mục đích |
+|----------|------|----------|
+| CI | [`.github/workflows/ci.yml`](.github/workflows/ci.yml) | Analyze + build APK/AAB + upload Artifacts |
+| Release | [`.github/workflows/release.yml`](.github/workflows/release.yml) | Bump version, CHANGELOG, GitHub Release + APK/AAB |
 
-- `push` lên nhánh `dev`
-- `pull_request` vào nhánh `dev`
+### CI (`ci.yml`)
 
-**Pipeline**
+**Trigger:** `push` / `pull_request` vào nhánh `dev`
 
-1. Checkout source
-2. Setup Flutter (`3.35.0`, channel `stable`)
-3. `flutter pub get`
-4. `flutter analyze`
-5. `flutter test`
-6. `flutter build apk --release`
-7. Upload artifact `app-release.apk`
+**Pipeline:** checkout → `.env` + keystore → Flutter 3.41.4 → `pub get` → `build_runner` → `analyze` → build signed APK/AAB → upload Artifacts
+
+### Release (`release.yml`)
+
+**Trigger:** chạy tay (**Actions → Release → Run workflow**)
+
+**Input:** `bump` = `patch` | `minor` | `major` (mặc định `patch`)
+
+**Pipeline:**
+
+1. Tăng `version` trong `pubspec.yaml` (`versionName+versionCode`)
+2. Sinh release notes từ commit (kể từ tag gần nhất)
+3. Cập nhật `CHANGELOG.md`, commit + tạo tag `vX.Y.Z`
+4. Build signed APK/AAB
+5. Tạo [GitHub Release](https://github.com/PVanHuy/sos_connect/releases) và đính kèm:
+   - `sos-connect-X.Y.Z.apk`
+   - `sos-connect-X.Y.Z.aab`
+
+### Secrets cần có (Settings → Secrets and variables → Actions)
+
+| Secret | Mô tả |
+|--------|--------|
+| `ENV_FILE` | Nội dung file `.env` |
+| `KEYSTORE_BASE64` | Keystore encode base64 |
+| `KEYSTORE_PASSWORD` | Mật khẩu keystore |
+| `KEY_PASSWORD` | Mật khẩu key |
+| `KEY_ALIAS` | Alias key |
+
+### Quyền Actions
+
+**Settings → Actions → General → Workflow permissions:** chọn **Read and write permissions** (để Release commit bump version + tạo Release).
+
+### Google Play (sau này)
+
+Khi có tài khoản Play Console, thêm secret `PLAY_SERVICE_ACCOUNT_JSON` và bước upload AAB vào `release.yml` (track `internal` trước).
 
 ---
 

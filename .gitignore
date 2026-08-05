@@ -51,8 +51,6 @@ app.*.map.json
 .android.config
 .ios.config
 
-pubspec.lock
-
 # Flutter generated files
 *.g.dart
 *.gen.dart
@@ -77,10 +75,7 @@ pubspec.lock
 # FVM Version Cache
 .fvm/
 
-# Lock files
-pubspec.lock
-/pubspec.lock
-.lock
+# Node lock files (not used by Flutter)
 /package-lock.json
 .package_config.json
 *.package_config.json

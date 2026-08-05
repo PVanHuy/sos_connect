@@ -1,0 +1,244 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: Version bump type
+        required: true
+        default: patch
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Bump version
+        id: bump
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          CURRENT=$(grep -E '^version:' pubspec.yaml | head -n1 | awk '{print $2}')
+          NAME="${CURRENT%%+*}"
+          CODE="${CURRENT##*+}"
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$NAME"
+
+          case "${{ inputs.bump }}" in
+            major)
+              MAJOR=$((MAJOR + 1))
+              MINOR=0
+              PATCH=0
+              ;;
+            minor)
+              MINOR=$((MINOR + 1))
+              PATCH=0
+              ;;
+            *)
+              PATCH=$((PATCH + 1))
+              ;;
+          esac
+
+          CODE=$((CODE + 1))
+          VERSION_NAME="${MAJOR}.${MINOR}.${PATCH}"
+          NEW_VERSION="${VERSION_NAME}+${CODE}"
+          TAG="v${VERSION_NAME}"
+
+          sed -i -E "s/^version: .*/version: ${NEW_VERSION}/" pubspec.yaml
+
+          echo "version=${NEW_VERSION}" >> "$GITHUB_OUTPUT"
+          echo "version_name=${VERSION_NAME}" >> "$GITHUB_OUTPUT"
+          echo "version_code=${CODE}" >> "$GITHUB_OUTPUT"
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+
+          echo "Bumped version: ${CURRENT} -> ${NEW_VERSION} (tag ${TAG})"
+
+      - name: Generate release notes
+        id: notes
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          TAG="${{ steps.bump.outputs.tag }}"
+          VERSION_NAME="${{ steps.bump.outputs.version_name }}"
+          TODAY=$(date -u +%Y-%m-%d)
+
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || true)
+
+          {
+            echo "## What's Changed"
+            echo ""
+            if [ -n "$LAST_TAG" ]; then
+              git log "${LAST_TAG}..HEAD" --pretty=format:'- %s (%h)' --no-merges
+            else
+              git log --pretty=format:'- %s (%h)' --no-merges -30
+            fi
+            echo ""
+            echo ""
+            echo "**Version:** ${VERSION_NAME} (\`${{ steps.bump.outputs.version }}\`)"
+            echo "**Build:** APK + AAB (signed)"
+          } > release_notes.md
+
+          # Prepend section into CHANGELOG.md
+          {
+            echo "## [${VERSION_NAME}] - ${TODAY}"
+            echo ""
+            echo "### Changes"
+            echo ""
+            if [ -n "$LAST_TAG" ]; then
+              git log "${LAST_TAG}..HEAD" --pretty=format:'- %s' --no-merges
+            else
+              git log --pretty=format:'- %s' --no-merges -30
+            fi
+            echo ""
+            echo ""
+          } > changelog_section.md
+
+          # Insert new version section after [Unreleased]
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+
+          changelog = Path("CHANGELOG.md")
+          section = Path("changelog_section.md").read_text(encoding="utf-8").strip() + "\n\n"
+          text = changelog.read_text(encoding="utf-8") if changelog.exists() else "# Changelog\n\n"
+
+          pattern = r"(## \[Unreleased\][^\n]*\n+)"
+          if re.search(pattern, text):
+              text = re.sub(pattern, r"\1" + section, text, count=1)
+          elif text.lstrip().startswith("#"):
+              lines = text.splitlines(keepends=True)
+              text = "".join(lines[:1]) + "\n" + section + "".join(lines[1:])
+          else:
+              text = "# Changelog\n\n" + section + text
+
+          changelog.write_text(text, encoding="utf-8")
+          PY
+
+          echo "----- Release notes -----"
+          cat release_notes.md
+
+      - name: Commit version bump & changelog
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add pubspec.yaml CHANGELOG.md
+          if git diff --cached --quiet; then
+            echo "No version changes to commit"
+          else
+            git commit -m "chore(release): ${{ steps.bump.outputs.version }}"
+            git push
+          fi
+
+          git tag -a "${{ steps.bump.outputs.tag }}" -m "Release ${{ steps.bump.outputs.tag }}"
+          git push origin "${{ steps.bump.outputs.tag }}"
+
+      - name: Create .env
+        shell: bash
+        run: printf '%s\n' "${{ secrets.ENV_FILE }}" > .env
+
+      - name: Decode Android Keystore
+        shell: bash
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/upload-keystore.jks
+
+      - name: Create key.properties
+        shell: bash
+        run: |
+          {
+            echo "storePassword=${{ secrets.KEYSTORE_PASSWORD }}"
+            echo "keyPassword=${{ secrets.KEY_PASSWORD }}"
+            echo "keyAlias=${{ secrets.KEY_ALIAS }}"
+            echo "storeFile=../upload-keystore.jks"
+          } > android/key.properties
+
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.41.4"
+          channel: stable
+          cache: true
+
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate source code
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: Build Release APK
+        run: flutter build apk --release
+
+      - name: Build Release App Bundle
+        run: flutter build appbundle --release
+
+      - name: Rename artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION_NAME="${{ steps.bump.outputs.version_name }}"
+          mkdir -p dist
+          cp build/app/outputs/flutter-apk/app-release.apk "dist/sos-connect-${VERSION_NAME}.apk"
+          cp build/app/outputs/bundle/release/app-release.aab "dist/sos-connect-${VERSION_NAME}.aab"
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sos-connect-${{ steps.bump.outputs.version_name }}-apk
+          path: dist/sos-connect-${{ steps.bump.outputs.version_name }}.apk
+
+      - name: Upload AAB artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sos-connect-${{ steps.bump.outputs.version_name }}-aab
+          path: dist/sos-connect-${{ steps.bump.outputs.version_name }}.aab
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.bump.outputs.tag }}
+          name: SOS Connect ${{ steps.bump.outputs.tag }}
+          body_path: release_notes.md
+          files: |
+            dist/sos-connect-${{ steps.bump.outputs.version_name }}.apk
+            dist/sos-connect-${{ steps.bump.outputs.version_name }}.aab
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
