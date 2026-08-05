@@ -80,7 +80,7 @@ class ScrollNumber extends StatefulWidget {
        assert(value <= maxValue);
 
   @override
-  _NumberPickerState createState() => _NumberPickerState();
+  State<ScrollNumber> createState() => _NumberPickerState();
 }
 
 class _NumberPickerState extends State<ScrollNumber> {

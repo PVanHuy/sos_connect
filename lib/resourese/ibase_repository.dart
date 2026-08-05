@@ -18,7 +18,7 @@ import 'package:sos_connect/widget/dialog/show_network_error_dialog.dart';
 class IBaseRepository {
   final int timeoutInSeconds = 60;
 
-  void handleError(error) {
+  void handleError(dynamic error) {
     loggerHelper.error(error);
     if (error.osError != null) {
       final osError = error.osError;
@@ -28,7 +28,7 @@ class IBaseRepository {
     }
   }
 
-  getAuthorizationHeader() {
+  Map<String, String> getAuthorizationHeader() {
     final token = LocalStorage.getString(SharedKey.token);
 
     log(token, name: 'accesstoken-token');

@@ -68,7 +68,7 @@ class ItemRowWidget extends StatelessWidget {
                 ],
               ),
               Expanded(child: Text(label, style: StyleThemeData.size14Weight400())),
-              if (trailing != null) trailing!,
+              ?trailing,
             ],
           ),
         ),

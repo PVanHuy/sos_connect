@@ -109,7 +109,7 @@ class InfiniteListView extends StatefulWidget {
   final Clip clipBehavior;
 
   @override
-  _InfiniteListViewState createState() => _InfiniteListViewState();
+  State<InfiniteListView> createState() => _InfiniteListViewState();
 }
 
 class _InfiniteListViewState extends State<InfiniteListView> {
@@ -268,8 +268,11 @@ class _InfiniteListViewState extends State<InfiniteListView> {
 /// Same as a [ScrollController] except it provides [ScrollPosition] objects with infinite bounds.
 class InfiniteScrollController extends ScrollController {
   /// Creates a new [InfiniteScrollController]
-  InfiniteScrollController({double initialScrollOffset = 0.0, bool keepScrollOffset = true, String? debugLabel})
-    : super(initialScrollOffset: initialScrollOffset, keepScrollOffset: keepScrollOffset, debugLabel: debugLabel);
+  InfiniteScrollController({
+    super.initialScrollOffset = 0.0,
+    super.keepScrollOffset = true,
+    super.debugLabel,
+  });
 
   @override
   ScrollPosition createScrollPosition(ScrollPhysics physics, ScrollContext context, ScrollPosition? oldPosition) {
@@ -286,21 +289,14 @@ class InfiniteScrollController extends ScrollController {
 
 class _InfiniteScrollPosition extends ScrollPositionWithSingleContext {
   _InfiniteScrollPosition({
-    required ScrollPhysics physics,
-    required ScrollContext context,
-    double? initialPixels = 0.0,
-    bool keepScrollOffset = true,
-    ScrollPosition? oldPosition,
-    String? debugLabel,
+    required super.physics,
+    required super.context,
+    super.initialPixels = 0.0,
+    super.keepScrollOffset = true,
+    super.oldPosition,
+    super.debugLabel,
     this.negativeScroll = false,
-  }) : super(
-         physics: physics,
-         context: context,
-         initialPixels: initialPixels,
-         keepScrollOffset: keepScrollOffset,
-         oldPosition: oldPosition,
-         debugLabel: debugLabel,
-       );
+  });
 
   final bool negativeScroll;
 

@@ -34,7 +34,8 @@ class FullPhotoViewer extends StatefulWidget {
       PageRouteBuilder(
         opaque: false,
         barrierColor: Colors.black.withValues(alpha: 0.92),
-        pageBuilder: (_, __, ___) => FullPhotoViewer(assets: assets, initialIndex: initialIndex),
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            FullPhotoViewer(assets: assets, initialIndex: initialIndex),
       ),
     );
   }
@@ -140,7 +141,7 @@ class _FullPhotoViewerState extends State<FullPhotoViewer> {
               right: 30,
               child: ValueListenableBuilder(
                 valueListenable: indexNotifier,
-                builder: (_, index, __) {
+                builder: (context, index, child) {
                   return Text(
                     '${index + 1}/${widget.assets.length}',
                     style: StyleThemeData.size14Weight400(color: appTheme.whiteColor, height: 1),
