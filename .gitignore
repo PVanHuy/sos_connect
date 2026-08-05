@@ -33,9 +33,6 @@ migrate_working_dir/
 .pub/
 /build/
 
-# Do not commit AndroidManifest.xml
-**/android/app/src/main/AndroidManifest.xml
-
 # Symbolication related
 app.*.symbols
 
