@@ -70,9 +70,7 @@ jobs:
         run: flutter analyze
 
       - name: Build Release APK
-        run: |
-          cd android
-          ./gradlew assembleRelease --stacktrace --info
+        run: flutter build apk --release
 
       - name: Build Release App Bundle
         run: flutter build appbundle --release
