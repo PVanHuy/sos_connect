@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:get/get_connect/http/src/response/response.dart';
 import 'package:sos_connect/model/media/post_media.dart';
-import 'package:sos_connect/model/user/user_model.dart';
 import 'package:sos_connect/resourese/ibase_repository.dart';
 import 'package:sos_connect/resourese/profile/iprofile_repository.dart';
 import 'package:sos_connect/utils/app_constants.dart';
@@ -15,29 +14,6 @@ class ProfileRepository extends IProfileRepository {
     try {
       final result = await clientGetData(AppConstants.userProfileUri);
       return result;
-    } catch (error) {
-      handleError(error);
-      rethrow;
-    }
-  }
-
-  @override
-  Future<UserModel?> getUserById(String userId) async {
-    try {
-      final id = userId.trim();
-      if (id.isEmpty) return null;
-
-      final result = await clientGetData(AppConstants.userDetailUri(id));
-      if (!result.isOk) return null;
-
-      final body = result.body;
-      final raw = body is Map && body['data'] != null
-          ? body['data']
-          : body is Map && body['user'] != null
-          ? body['user']
-          : body;
-      if (raw is! Map) return null;
-      return UserModel.fromJson(Map<String, dynamic>.from(raw));
     } catch (error) {
       handleError(error);
       rethrow;

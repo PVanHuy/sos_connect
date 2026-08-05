@@ -115,6 +115,7 @@ const Map<String, String> en = {
   'submit': 'Submit registration',
   'close': 'Close',
   'desc_change_password': 'Please enter your current password and a new password to change it',
+  'change_password_success': 'Password changed successfully',
   'current_password': 'Current password',
   'enter_current_password': 'Enter current password',
   'new_password': 'New password',

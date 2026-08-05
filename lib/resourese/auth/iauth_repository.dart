@@ -11,4 +11,10 @@ abstract class IAuthRepository extends IBaseRepository {
   Future<Response> verifyOtp(Map<String, String> params);
 
   Future<Response> forgotPassword(Map<String, String> params);
+
+  Future<Response> changePassword({
+    required String oldPassword,
+    required String newPassword,
+    required String confirmNewPassword,
+  });
 }

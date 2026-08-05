@@ -51,4 +51,6 @@ class LocationUtil {
       return const LocationResult.failure('location_get_failed');
     }
   }
+
+  static String latLngFallback(LatLng point) => '${point.latitude}, ${point.longitude}';
 }

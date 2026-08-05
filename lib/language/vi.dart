@@ -117,6 +117,7 @@ const Map<String, String> vi = {
   'submit': 'Gửi đăng ký',
   'close': 'Đóng',
   'desc_change_password': 'Vui lòng nhập mật khẩu hiện tại và mật khẩu mới để thay đổi',
+  'change_password_success': 'Đổi mật khẩu thành công',
   'current_password': 'Mật khẩu hiện tại',
   'enter_current_password': 'Nhập mật khẩu hiện tại',
   'new_password': 'Mật khẩu mới',

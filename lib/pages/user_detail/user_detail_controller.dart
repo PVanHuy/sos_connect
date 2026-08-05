@@ -3,17 +3,17 @@ import 'package:get/get.dart';
 import 'package:sos_connect/extension/date_time_extension.dart';
 import 'package:sos_connect/model/user/user_model.dart';
 import 'package:sos_connect/pages/user_detail/user_detail_parameter.dart';
-import 'package:sos_connect/resourese/profile/iprofile_repository.dart';
+import 'package:sos_connect/resourese/team/iteam_repository.dart';
 import 'package:sos_connect/utils/logger_helper.dart';
 import 'package:sos_connect/utils/role_user.utils.dart';
 
 class UserDetailController extends GetxController {
   UserDetailController({
-    required this.profileRepository,
+    required this.teamRepository,
     required this.parameter,
   });
 
-  final IProfileRepository profileRepository;
+  final ITeamRepository teamRepository;
   final UserDetailParameter parameter;
 
   final isLoading = false.obs;
@@ -38,7 +38,7 @@ class UserDetailController extends GetxController {
   Future<void> fetchUserDetail() async {
     try {
       isLoading.value = true;
-      final user = await profileRepository.getUserById(parameter.userId);
+      final user = await teamRepository.getTeamUserInfo(userId: parameter.userId);
       if (isClosed) return;
 
       userModel.value = user;

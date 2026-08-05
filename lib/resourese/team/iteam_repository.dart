@@ -5,6 +5,7 @@ import 'package:sos_connect/model/team/current_join_team_request_model.dart';
 import 'package:sos_connect/model/team/join_team_request_model.dart';
 import 'package:sos_connect/model/team/rescue_team_model.dart';
 import 'package:sos_connect/model/team/team_member_model.dart';
+import 'package:sos_connect/model/user/user_model.dart';
 import 'package:sos_connect/resourese/ibase_repository.dart';
 
 abstract class ITeamRepository extends IBaseRepository {
@@ -29,4 +30,6 @@ abstract class ITeamRepository extends IBaseRepository {
   Future<PaginationModel<TeamMemberModel>> getTeamMembers({int page = 1});
 
   Future<Response> kickTeamMember({required String memberId, required String reasonKicked});
+
+  Future<UserModel?> getTeamUserInfo({String? userId});
 }

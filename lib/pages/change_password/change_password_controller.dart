@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:sos_connect/resourese/auth/iauth_repository.dart';
 import 'package:sos_connect/utils/custom_validator.dart';
+import 'package:sos_connect/utils/dialog_utils.dart';
+import 'package:sos_connect/utils/logger_helper.dart';
 
 class ChangePasswordController extends GetxController {
+  ChangePasswordController({required this.authRepository});
+
+  final IAuthRepository authRepository;
+
   final currentPasswordController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
@@ -36,7 +43,7 @@ class ChangePasswordController extends GetxController {
     if (!isPasswordTouched.value && passwordController.text.trim().isNotEmpty) {
       isPasswordTouched.value = true;
     }
-    
+
     isPasswordRuleValid.value = passwordValid;
 
     isFormValid.value = currentPasswordValid && passwordValid && confirmRequired && confirmMatched;
@@ -46,9 +53,22 @@ class ChangePasswordController extends GetxController {
     if (!isFormValid.value || isLoading.value) return;
     try {
       isLoading.value = true;
-      // TODO: Call change password API.
-      await Future<void>.delayed(const Duration(milliseconds: 800));
-      Get.back();
+      final response = await authRepository.changePassword(
+        oldPassword: currentPasswordController.text,
+        newPassword: passwordController.text.trim(),
+        confirmNewPassword: confirmPasswordController.text.trim(),
+      );
+
+      if (isClosed) return;
+
+      if (response.isOk) {
+        DialogUtils.showSuccessDialog(response.body['message'] ?? 'change_password_success'.tr);
+        Get.back();
+      } else {
+        DialogUtils.showErrorDialog(response.body['message'] ?? '');
+      }
+    } catch (e) {
+      loggerHelper.error('Change password error: $e');
     } finally {
       if (!isClosed) isLoading.value = false;
     }

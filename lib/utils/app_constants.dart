@@ -25,9 +25,11 @@ class AppConstants {
   static const String otpUri = '/auth/otp';
   static const String verifyOtpUri = '/auth/otp/verify';
   static const String forgotPasswordUri = '/auth/forgot-password';
+  static const String changePasswordUri = '/auth/change-password';
   static const String userProfileUri = '/user/profile';
 
   static String userDetailUri(String userId) => '/user/$userId';
+  static const String teamUserInfoUri = '/team/user-info';
   static const String teamRegisterInformationsUri = '/team/register/informations';
   static const String teamMyTeamUri = '/team/my-team';
   static const String teamDetailUri = '/team/detail';
@@ -39,6 +41,7 @@ class AppConstants {
   static const String updateFcmTokenUri = '/user/fcm-token';
   static const String logOutUri = '/auth/logout';
   static const String notificationUri = '/notification';
+  static const String sosConvertUri = '/sos/convert';
 
   static String teamJoinRequestRespondUri(String requestId) => '/team/join-request/$requestId/respond';
 

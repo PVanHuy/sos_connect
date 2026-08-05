@@ -79,11 +79,11 @@ class DashboardController extends GetxController {
   }
 
   /// Register socket listeners here when backend events are ready.
-  void _subscribeEvents() {
-    // Example:
-    // socketIoService.off(SocketEvent.someEvent);
-    // socketIoService.on(SocketEvent.someEvent, (data) { ... });
-  }
+  // void _subscribeEvents() {
+  // Example:
+  // socketIoService.off(SocketEvent.someEvent);
+  // socketIoService.on(SocketEvent.someEvent, (data) { ... });
+  // }
 
   Future<void> fetchProfile() async {
     try {

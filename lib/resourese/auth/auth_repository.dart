@@ -57,4 +57,22 @@ class AuthRepository extends IAuthRepository {
       rethrow;
     }
   }
+
+  @override
+  Future<Response> changePassword({
+    required String oldPassword,
+    required String newPassword,
+    required String confirmNewPassword,
+  }) async {
+    try {
+      return await clientPostData(AppConstants.changePasswordUri, {
+        'old_password': oldPassword,
+        'new_password': newPassword,
+        'confirm_new_password': confirmNewPassword,
+      });
+    } catch (error) {
+      handleError(error);
+      rethrow;
+    }
+  }
 }

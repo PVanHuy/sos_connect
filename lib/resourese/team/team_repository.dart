@@ -5,6 +5,7 @@ import 'package:sos_connect/model/team/current_join_team_request_model.dart';
 import 'package:sos_connect/model/team/join_team_request_model.dart';
 import 'package:sos_connect/model/team/rescue_team_model.dart';
 import 'package:sos_connect/model/team/team_member_model.dart';
+import 'package:sos_connect/model/user/user_model.dart';
 import 'package:sos_connect/resourese/ibase_repository.dart';
 import 'package:sos_connect/resourese/team/iteam_repository.dart';
 import 'package:sos_connect/utils/app_constants.dart';
@@ -187,9 +188,29 @@ class TeamRepository extends ITeamRepository {
   @override
   Future<Response> kickTeamMember({required String memberId, required String reasonKicked}) async {
     try {
-      return await clientPostData(AppConstants.teamMemberKickUri(memberId), {
-        'reason_kicked': reasonKicked,
-      });
+      return await clientPostData(AppConstants.teamMemberKickUri(memberId), {'reason_kicked': reasonKicked});
+    } catch (error) {
+      handleError(error);
+      rethrow;
+    }
+  }
+
+  @override
+  Future<UserModel?> getTeamUserInfo({String? userId}) async {
+    try {
+      final id = userId?.trim() ?? '';
+      final query = id.isEmpty ? '' : '?${Uri(queryParameters: {'userId': id}).query}';
+      final result = await clientGetData('${AppConstants.teamUserInfoUri}$query');
+      if (!result.isOk) return null;
+
+      final body = result.body;
+      final raw = body is Map && body['data'] != null
+          ? body['data']
+          : body is Map && body['user'] != null
+          ? body['user']
+          : body;
+      if (raw is! Map) return null;
+      return UserModel.fromJson(Map<String, dynamic>.from(raw));
     } catch (error) {
       handleError(error);
       rethrow;
