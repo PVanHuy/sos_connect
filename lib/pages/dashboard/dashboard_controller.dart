@@ -19,12 +19,14 @@ class DashboardController extends GetxController {
   final IDashboardRepository dashboardRepository;
   final ITeamRepository teamRepository;
   final NotificationService notificationService;
+  // final SocketIoService socketIoService;
 
   DashboardController({
     required this.profileRepository,
     required this.dashboardRepository,
     required this.teamRepository,
     required this.notificationService,
+    // required this.socketIoService,
   });
 
   final PageController pageController = PageController();
@@ -63,6 +65,24 @@ class DashboardController extends GetxController {
     } catch (e) {
       loggerHelper.error('Dashboard notification init error: $e');
     }
+
+    // try {
+    //   await socketIoService.connect();
+    //   socketIoService.onAny((event, data) {
+    //     loggerHelper.log('SocketIO Event: $event, Data: $data', name: 'SocketIoService - ANY');
+    //   });
+    //   _subscribeEvents();
+    //   socketIoService.addReconnectedCallback(_subscribeEvents);
+    // } catch (e) {
+    //   loggerHelper.error('Dashboard socket init error: $e');
+    // }
+  }
+
+  /// Register socket listeners here when backend events are ready.
+  void _subscribeEvents() {
+    // Example:
+    // socketIoService.off(SocketEvent.someEvent);
+    // socketIoService.on(SocketEvent.someEvent, (data) { ... });
   }
 
   Future<void> fetchProfile() async {

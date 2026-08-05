@@ -19,5 +19,6 @@ class AppService {
     Get.put<IDashboardRepository>(DashboardRepository());
     Get.put<INotificationRepository>(NotificationRepository());
     Get.put(NotificationService());
+    // Get.put(SocketIoService());
   }
 }
