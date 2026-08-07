@@ -4,7 +4,11 @@ import 'package:sos_connect/model/pagination_model.dart';
 import 'package:sos_connect/resourese/ibase_repository.dart';
 
 abstract class INotificationRepository extends IBaseRepository {
-  Future<PaginationModel<NotificationModel>> getNotifications({int page = 1});
+  Future<PaginationModel<NotificationModel>> getNotifications({
+    int page = 1,
+    String? type,
+    String? excludeType,
+  });
 
   Future<NotificationModel?> getNotificationDetail(String notificationId);
 

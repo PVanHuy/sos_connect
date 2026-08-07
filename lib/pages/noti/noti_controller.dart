@@ -4,6 +4,7 @@ import 'package:sos_connect/pages/dashboard/dashboard_controller.dart';
 import 'package:sos_connect/resourese/notification/inotification_repository.dart';
 import 'package:sos_connect/resourese/service/notification/notification_service.dart';
 import 'package:sos_connect/utils/logger_helper.dart';
+import 'package:sos_connect/utils/noti_tab_type_utils.dart';
 import 'package:sos_connect/utils/noti_type_utils.dart';
 import 'package:sos_connect/widget/lazy_list/lazy_list_controller.dart';
 
@@ -12,21 +13,40 @@ class NotiController extends GetxController {
 
   final INotificationRepository notificationRepository;
 
-  late final LazyListController<NotificationModel> notificationListController;
+  final selectedTab = NotiTabType.system.obs;
+
+  late final LazyListController<NotificationModel> systemListController;
+  late final LazyListController<NotificationModel> appListController;
+
+  LazyListController<NotificationModel> listControllerOf(NotiTabType tab) {
+    return tab == NotiTabType.system ? systemListController : appListController;
+  }
+
+  LazyListController<NotificationModel> get currentListController => listControllerOf(selectedTab.value);
 
   @override
   void onInit() {
     super.onInit();
-    notificationListController = LazyListController<NotificationModel>(
+    systemListController = _createListController(NotiTabType.system);
+    appListController = _createListController(NotiTabType.app);
+    syncUnreadCount();
+  }
+
+  LazyListController<NotificationModel> _createListController(NotiTabType tab) {
+    return LazyListController<NotificationModel>(
       onLoad: (page) async {
-        final result = await notificationRepository.getNotifications(page: page);
-        if (page == 1 && result.unreadCount != null) {
-          _setUnreadCount(result.unreadCount!);
-        }
-        return result;
+        return notificationRepository.getNotifications(
+          page: page,
+          type: tab.apiType,
+          excludeType: tab.apiExcludeType,
+        );
       },
     );
-    syncUnreadCount();
+  }
+
+  void selectTab(NotiTabType tab) {
+    if (selectedTab.value == tab) return;
+    selectedTab.value = tab;
   }
 
   Future<void> syncUnreadCount() async {
@@ -42,9 +62,12 @@ class NotiController extends GetxController {
 
   void addNotification(NotificationModel model) {
     final id = model.id?.trim() ?? '';
-    if (id.isNotEmpty && notificationListController.list.any((item) => item.id == id)) return;
+    final tab = NotiTabTypeExtension.fromNotificationType(model.type);
+    final listController = listControllerOf(tab);
 
-    notificationListController.addNewData(0, model);
+    if (id.isNotEmpty && listController.list.any((item) => item.id == id)) return;
+
+    listController.addNewData(0, model);
 
     if (!(model.isRead)) {
       _increaseUnreadCount();
@@ -52,14 +75,22 @@ class NotiController extends GetxController {
   }
 
   void updateNotificationAsReadLocally(String notificationId) {
-    final index = notificationListController.list.indexWhere((item) => item.id == notificationId);
-    if (index == -1) return;
+    final updated = _markLocalAsRead(systemListController, notificationId) ||
+        _markLocalAsRead(appListController, notificationId);
+    if (updated) {
+      _decreaseUnreadCount();
+    }
+  }
 
-    final oldItem = notificationListController.list[index];
-    if (oldItem.isRead) return;
+  bool _markLocalAsRead(LazyListController<NotificationModel> listController, String notificationId) {
+    final index = listController.list.indexWhere((item) => item.id == notificationId);
+    if (index == -1) return false;
 
-    notificationListController.updateNewData(index, oldItem.copyWith(isRead: true));
-    _decreaseUnreadCount();
+    final oldItem = listController.list[index];
+    if (oldItem.isRead) return false;
+
+    listController.updateNewData(index, oldItem.copyWith(isRead: true));
+    return true;
   }
 
   void handleNotificationTap(NotificationModel notification) {
@@ -86,20 +117,33 @@ class NotiController extends GetxController {
       final id = notificationId.trim();
       if (id.isEmpty) return;
 
-      final index = notificationListController.list.indexWhere((item) => item.id == id);
+      final listController = _listControllerContaining(id);
+      if (listController == null) return;
+
+      final index = listController.list.indexWhere((item) => item.id == id);
       if (index == -1) return;
 
-      final oldItem = notificationListController.list[index];
+      final oldItem = listController.list[index];
       if (oldItem.isRead) return;
 
       final response = await notificationRepository.markNotificationAsRead(id: id);
       if (!response.isOk) return;
 
-      notificationListController.updateNewData(index, oldItem.copyWith(isRead: true));
+      listController.updateNewData(index, oldItem.copyWith(isRead: true));
       _decreaseUnreadCount();
     } catch (e) {
       loggerHelper.error('Error updating notification as read: $e');
     }
+  }
+
+  LazyListController<NotificationModel>? _listControllerContaining(String notificationId) {
+    if (systemListController.list.any((item) => item.id == notificationId)) {
+      return systemListController;
+    }
+    if (appListController.list.any((item) => item.id == notificationId)) {
+      return appListController;
+    }
+    return null;
   }
 
   void _setUnreadCount(int count) {
@@ -122,7 +166,8 @@ class NotiController extends GetxController {
 
   @override
   void onClose() {
-    notificationListController.dispose();
+    systemListController.dispose();
+    appListController.dispose();
     super.onClose();
   }
 }

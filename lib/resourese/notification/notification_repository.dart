@@ -6,9 +6,14 @@ import 'package:sos_connect/utils/app_constants.dart';
 
 class NotificationRepository extends INotificationRepository {
   @override
-  Future<PaginationModel<NotificationModel>> getNotifications({int page = 1}) async {
+  Future<PaginationModel<NotificationModel>> getNotifications({int page = 1, String? type, String? excludeType}) async {
     try {
-      final query = <String, String>{'page': page.toString(), 'limit': AppConstants.LIMIT.toString()};
+      final query = <String, String>{
+        'page': page.toString(),
+        'limit': AppConstants.LIMIT.toString(),
+        if (type != null && type.isNotEmpty) 'type': type,
+        if (excludeType != null && excludeType.isNotEmpty) 'exclude_type': excludeType,
+      };
       final response = await clientGetData('${AppConstants.notificationUri}?${Uri(queryParameters: query).query}');
 
       if (response.isOk) {

@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:sos_connect/extension/date_time_extension.dart';
 import 'package:sos_connect/main.dart';
-import 'package:sos_connect/model/notification/notification_model.dart';
 import 'package:sos_connect/pages/noti/noti_controller.dart';
-import 'package:sos_connect/pages/noti/widget/item_noti_widget.dart';
+import 'package:sos_connect/pages/noti/view/app_noti_view.dart';
+import 'package:sos_connect/pages/noti/view/system_noti_view.dart';
+import 'package:sos_connect/pages/noti/widget/noti_tab_bar_widget.dart';
+import 'package:sos_connect/utils/noti_tab_type_utils.dart';
 import 'package:sos_connect/widget/default_app_bar.dart';
-import 'package:sos_connect/widget/lazy_list/lazy_list.dart';
-import 'package:sos_connect/widget/no_data_widget.dart';
-import 'package:sos_connect/widget/skeleton/noti_skeleton.dart';
 
 class NotiPage extends GetWidget<NotiController> {
   @override
@@ -16,28 +14,23 @@ class NotiPage extends GetWidget<NotiController> {
     return Scaffold(
       backgroundColor: appTheme.whiteColor,
       appBar: DefaultAppBar(title: 'notifications'.tr, backButton: false),
-      body: LazyListView<NotificationModel>(
-        controller: controller.notificationListController,
-        hasRefresh: true,
-        shrinkWrap: false,
-        callInit: true,
-        listPadding: EdgeInsets.zero,
-        physics: const AlwaysScrollableScrollPhysics(),
-        emptyView: NoDataWidget(
-          isScroll: true,
-          title: 'notifications_empty_title'.tr,
-          description: 'notifications_empty_subtitle'.tr,
-        ),
-        skeletonView: () => const NotiSkeletonView(),
-        itemBuilder: (index, notification) {
-          return ItemNotiWidget(
-            title: notification.title ?? '',
-            time: notification.createdAt.toddMMyyyyHHmm,
-            content: notification.content ?? '',
-            isRead: notification.isRead,
-            onTap: () => controller.handleNotificationTap(notification),
-          );
-        },
+      body: Column(
+        children: [
+          Obx(
+            () => NotiTabBarWidget(
+              selectedTab: controller.selectedTab.value,
+              onSelect: controller.selectTab,
+            ),
+          ),
+          Expanded(
+            child: Obx(() {
+              return switch (controller.selectedTab.value) {
+                NotiTabType.system => const SystemNotiView(),
+                NotiTabType.app => const AppNotiView(),
+              };
+            }),
+          ),
+        ],
       ),
     );
   }
