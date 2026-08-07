@@ -5,7 +5,11 @@ import 'package:sos_connect/model/map/map_sos_item_model.dart';
 import 'package:sos_connect/pages/support/widget/item_support_sos_widget.dart';
 import 'package:sos_connect/widget/reponsive/extension.dart';
 
-Future<void> showMapSosDetailDialog({required MapSosItemModel item, VoidCallback? onAccept}) async {
+Future<void> showMapSosDetailDialog({
+  required MapSosItemModel item,
+  VoidCallback? onAccept,
+  bool showAcceptButton = false,
+}) async {
   await Get.dialog(
     Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -20,10 +24,13 @@ Future<void> showMapSosDetailDialog({required MapSosItemModel item, VoidCallback
         address: item.address,
         imageUrl: item.imageUrl,
         acceptButtonText: item.acceptButtonTextKey.tr,
-        onAccept: () {
-          Get.back();
-          onAccept?.call();
-        },
+        showAcceptButton: showAcceptButton,
+        onAccept: showAcceptButton
+            ? () {
+                Get.back();
+                onAccept?.call();
+              }
+            : null,
       ),
     ),
     barrierColor: appTheme.blackColor.withValues(alpha: 0.45),

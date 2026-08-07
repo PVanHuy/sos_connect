@@ -25,7 +25,13 @@ class DashboardBinding implements Bindings {
         socketIoService: Get.find<SocketIoService>(),
       ),
     );
-    Get.lazyPut(() => MapController(sosRepository: Get.find<ISosRepository>()), fenix: true);
+    Get.lazyPut(
+      () => MapController(
+        sosRepository: Get.find<ISosRepository>(),
+        teamRepository: Get.find<ITeamRepository>(),
+      ),
+      fenix: true,
+    );
     Get.lazyPut(() => SurvivalController(), fenix: true);
     Get.lazyPut(
       () => SupportController(

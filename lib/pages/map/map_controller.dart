@@ -7,18 +7,25 @@ import 'package:sos_connect/model/map/events_viewport_model.dart';
 import 'package:sos_connect/model/map/map_cluster_model.dart';
 import 'package:sos_connect/model/map/map_sos_item_model.dart';
 import 'package:sos_connect/model/sos/sos_event_model.dart';
+import 'package:sos_connect/pages/dashboard/dashboard_controller.dart';
+import 'package:sos_connect/pages/support/support_controller.dart';
 import 'package:sos_connect/resourese/sos/isos_repository.dart';
+import 'package:sos_connect/resourese/team/iteam_repository.dart';
 import 'package:sos_connect/utils/dialog_utils.dart';
 import 'package:sos_connect/utils/location_util.dart';
 import 'package:sos_connect/utils/logger_helper.dart';
+import 'package:sos_connect/utils/role_user.utils.dart';
 import 'package:sos_connect/utils/sos_status_utils.dart';
 import 'package:sos_connect/utils/weather_util.dart';
+import 'package:sos_connect/widget/dialog/show_alert_dialog.dart';
+import 'package:sos_connect/widget/dialog/show_confirm_dialog.dart';
 import 'package:sos_connect/widget/dialog/show_map_sos_detail_dialog.dart';
 
 class MapController extends GetxController {
-  MapController({required this.sosRepository});
+  MapController({required this.sosRepository, required this.teamRepository});
 
   final ISosRepository sosRepository;
+  final ITeamRepository teamRepository;
   final fmap.MapController mapController = fmap.MapController();
 
   final selectedId = RxnString();
@@ -31,6 +38,8 @@ class MapController extends GetxController {
   final viewportType = EventsViewportType.markers.obs;
   final items = <MapSosItemModel>[].obs;
   final clusters = <MapClusterModel>[].obs;
+  final acceptingId = RxnString();
+  final hasActiveSupport = false.obs;
 
   static const LatLng initialCenter = LatLng(10.7769, 106.7009);
   static const double initialZoom = 12;
@@ -42,6 +51,15 @@ class MapController extends GetxController {
   int _viewportRequestId = 0;
 
   bool get isClusterMode => viewportType.value == EventsViewportType.clusters;
+
+  bool get _isLeader {
+    if (!Get.isRegistered<DashboardController>()) return false;
+    final user = Get.find<DashboardController>().userModel.value;
+    if (user == null) return false;
+    return (user.roles ?? '').toLowerCase() == UserRoleUtils.leader;
+  }
+
+  bool get canAcceptSos => _isLeader && !hasActiveSupport.value;
 
   MapSosItemModel? get selectedItem {
     final id = selectedId.value;
@@ -59,11 +77,29 @@ class MapController extends GetxController {
   }
 
   Future<void> _bootstrap() async {
-    await goToMyLocation(showError: false, moveCamera: false);
+    await Future.wait([
+      goToMyLocation(showError: false, moveCamera: false),
+      fetchActiveSupportStatus(),
+    ]);
     final pos = currentPosition.value ?? initialCenter;
     await loadWeather(pos);
     if (_mapReady) {
       await loadViewport();
+    }
+  }
+
+  Future<void> fetchActiveSupportStatus() async {
+    if (!_isLeader) {
+      hasActiveSupport.value = false;
+      return;
+    }
+
+    try {
+      final result = await teamRepository.getAllSupport(status: SosStatusUtils.inProgress);
+      if (isClosed) return;
+      hasActiveSupport.value = result.models.isNotEmpty;
+    } catch (e) {
+      loggerHelper.error('Fetch active support status (map) error: $e');
     }
   }
 
@@ -151,7 +187,58 @@ class MapController extends GetxController {
   void selectItem(MapSosItemModel item) {
     selectedId.value = item.id;
     mapController.move(item.point, 15);
-    showMapSosDetailDialog(item: item).then((_) => clearSelection());
+    showMapSosDetailDialog(
+      item: item,
+      showAcceptButton: canAcceptSos,
+      onAccept: () => onAcceptSos(item),
+    ).then((_) => clearSelection());
+  }
+
+  void onAcceptSos(MapSosItemModel item) {
+    final sosId = item.id.trim();
+    if (sosId.isEmpty || acceptingId.value != null) return;
+
+    if (!_isLeader) return;
+
+    if (hasActiveSupport.value) {
+      showAlertDialog(title: 'accept_rescue'.tr, content: 'accept_rescue_limit_content'.tr);
+      return;
+    }
+
+    showConfirmDialog(
+      title: 'accept_rescue_confirm_title'.tr,
+      content: 'accept_rescue_confirm_content'.tr,
+      titleBtn: item.acceptButtonTextKey.tr,
+      onConfirm: () => _acceptSos(sosId),
+    );
+  }
+
+  Future<void> _acceptSos(String sosId) async {
+    if (acceptingId.value != null || hasActiveSupport.value) return;
+
+    try {
+      acceptingId.value = sosId;
+      final response = await teamRepository.acceptSupport(sosId);
+      if (response.isOk) {
+        hasActiveSupport.value = true;
+        final message = response.body is Map ? response.body['message'] : null;
+        DialogUtils.showSuccessDialog(message ?? 'accept_rescue_success'.tr);
+        removeSos(sosId);
+        if (Get.isRegistered<SupportController>()) {
+          final supportController = Get.find<SupportController>();
+          supportController.hasActiveSupport.value = true;
+          supportController.sosListController.removeWhere((item) => item.id == sosId);
+        }
+      } else {
+        final message = response.body is Map ? response.body['message'] : null;
+        DialogUtils.showErrorDialog(message ?? '');
+        await fetchActiveSupportStatus();
+      }
+    } catch (e) {
+      loggerHelper.error('Accept SOS from map error: $e');
+    } finally {
+      acceptingId.value = null;
+    }
   }
 
   void onClusterTap(MapClusterModel cluster) {

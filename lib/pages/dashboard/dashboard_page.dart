@@ -27,7 +27,7 @@ class DashboardPage extends GetWidget<DashboardController> {
       padding: padding(top: 12, bottom: 16),
       decoration: BoxDecoration(
         color: appTheme.whiteColor,
-        border: Border(top: BorderSide(color: appTheme.grayE5Color)),
+        border: Border(top: BorderSide(color: appTheme.sliverColor)),
       ),
       child: SafeArea(
         top: false,

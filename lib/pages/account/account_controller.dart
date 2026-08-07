@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import 'package:sos_connect/pages/dashboard/dashboard_controller.dart';
 import 'package:sos_connect/resourese/profile/iprofile_repository.dart';
 import 'package:sos_connect/resourese/service/localization_service.dart';
+import 'package:sos_connect/resourese/service/socket/team_live_mode_service.dart';
 import 'package:sos_connect/routes/pages.dart';
 import 'package:sos_connect/utils/app_enums.dart';
 import 'package:sos_connect/utils/dialog_utils.dart';
@@ -27,6 +28,10 @@ class AccountController extends GetxController {
   Future<void> logout() async {
     try {
       showEasyLoading();
+
+      if (Get.isRegistered<TeamLiveModeService>()) {
+        await Get.find<TeamLiveModeService>().stopLiveMode();
+      }
 
       final response = await profileRepository.logOut();
 

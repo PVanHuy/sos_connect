@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:sos_connect/extension/date_time_extension.dart';
 import 'package:sos_connect/model/sos/sos_event_model.dart';
 import 'package:sos_connect/pages/dashboard/dashboard_controller.dart';
@@ -17,7 +18,6 @@ import 'package:sos_connect/widget/dialog/show_alert_dialog.dart';
 import 'package:sos_connect/widget/dialog/show_confirm_dialog.dart';
 import 'package:sos_connect/widget/dialog/show_sos_list_filter_dialog.dart';
 import 'package:sos_connect/widget/lazy_list/lazy_list_controller.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:vietnam_provinces/vietnam_provinces.dart';
 
 class SupportController extends GetxController {
@@ -72,19 +72,23 @@ class SupportController extends GetxController {
         );
       },
     );
+    // Show skeleton immediately; don't wait for location / active-support first.
+    sosListController.updateLoading(true);
     _bootstrap();
   }
 
   Future<void> _bootstrap() async {
-    await _prefillLocation();
-    if (isClosed) return;
-    await fetchActiveSupportStatus();
+    await Future.wait([_prefillLocation(), fetchActiveSupportStatus()]);
     if (isClosed) return;
     await sosListController.onRefresh();
   }
 
   Future<void> refreshList() async {
+    if (sosListController.list.isEmpty) {
+      sosListController.updateLoading(true);
+    }
     await fetchActiveSupportStatus();
+    if (isClosed) return;
     await sosListController.onRefresh();
   }
 
@@ -176,7 +180,9 @@ class SupportController extends GetxController {
         DialogUtils.showSuccessDialog(message ?? 'accept_rescue_success'.tr);
         sosListController.removeWhere((item) => item.id == sosId);
         if (Get.isRegistered<MapController>()) {
-          Get.find<MapController>().removeSos(sosId);
+          final mapController = Get.find<MapController>();
+          mapController.hasActiveSupport.value = true;
+          mapController.removeSos(sosId);
         }
       } else {
         final message = response.body is Map ? response.body['message'] : null;

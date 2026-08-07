@@ -35,11 +35,7 @@ class NotiController extends GetxController {
   LazyListController<NotificationModel> _createListController(NotiTabType tab) {
     return LazyListController<NotificationModel>(
       onLoad: (page) async {
-        return notificationRepository.getNotifications(
-          page: page,
-          type: tab.apiType,
-          excludeType: tab.apiExcludeType,
-        );
+        return notificationRepository.getNotifications(page: page, type: tab.apiType, excludeType: tab.apiExcludeType);
       },
     );
   }
@@ -75,8 +71,8 @@ class NotiController extends GetxController {
   }
 
   void updateNotificationAsReadLocally(String notificationId) {
-    final updated = _markLocalAsRead(systemListController, notificationId) ||
-        _markLocalAsRead(appListController, notificationId);
+    final updated =
+        _markLocalAsRead(systemListController, notificationId) || _markLocalAsRead(appListController, notificationId);
     if (updated) {
       _decreaseUnreadCount();
     }
@@ -97,8 +93,9 @@ class NotiController extends GetxController {
     final notificationId = notification.id?.trim() ?? '';
     if (notificationId.isEmpty) return;
 
-    if (notification.type == NotiTypeUtils.joinRequest &&
-        (notification.action == NotiActionUtils.created || notification.action == null)) {
+    if ((notification.type == NotiTypeUtils.joinRequest &&
+            (notification.action == NotiActionUtils.created || notification.action == null)) ||
+        notification.type == NotiTypeUtils.sosRequest) {
       markNotificationAsRead(notificationId);
     }
 

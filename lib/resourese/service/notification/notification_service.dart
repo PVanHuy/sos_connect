@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import 'package:sos_connect/model/notification/fcm_notification_model.dart';
+import 'package:sos_connect/pages/map/map_controller.dart';
+import 'package:sos_connect/pages/support/support_controller.dart';
 import 'package:sos_connect/pages/dashboard/dashboard_controller.dart';
 import 'package:sos_connect/pages/join_request_detail/join_request_detail_parameter.dart';
 import 'package:sos_connect/pages/join_team_request_list/join_team_request_list_controller.dart';
@@ -307,6 +309,14 @@ class NotificationService {
           Get.toNamed(Routes.NOTIFICATION_DETAIL, arguments: NotificationDetailParameter(notificationId: id));
         }
         break;
+      case NotiTypeUtils.sosRequest:
+        if (Get.isRegistered<DashboardController>()) {
+          Get.until((route) => route.settings.name == Routes.DASHBOARD || route.isFirst);
+          Get.find<DashboardController>().goToTab(2);
+        } else if (id.isNotEmpty) {
+          Get.toNamed(Routes.NOTIFICATION_DETAIL, arguments: NotificationDetailParameter(notificationId: id));
+        }
+        break;
       default:
         if (id.isNotEmpty) {
           Get.toNamed(Routes.NOTIFICATION_DETAIL, arguments: NotificationDetailParameter(notificationId: id));
@@ -332,8 +342,21 @@ class NotificationService {
         _addIncomingNotification(data);
         _handleTeamMembershipRealtime(FcmNotificationModel.fromJson(data));
         break;
+      case NotiTypeUtils.sosRequest:
+        _addIncomingNotification(data);
+        _handleSosRequestRealtime(FcmNotificationModel.fromJson(data));
+        break;
       default:
         break;
+    }
+  }
+
+  void _handleSosRequestRealtime(FcmNotificationModel fcm) {
+    if (Get.isRegistered<SupportController>()) {
+      Get.find<SupportController>().refreshList();
+    }
+    if (Get.isRegistered<MapController>()) {
+      Get.find<MapController>().scheduleViewportReload();
     }
   }
 
