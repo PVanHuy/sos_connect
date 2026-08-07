@@ -24,10 +24,11 @@ class ItemRescuePostWidget extends StatelessWidget {
     required this.description,
     required this.address,
     required this.phone,
-    required this.teamName,
-    required this.managerName,
-    required this.managerPhone,
+    this.teamName = '',
+    this.managerName = '',
+    this.managerPhone = '',
     this.showSafeButton = false,
+    this.isMarkingSafe = false,
     this.onMarkAsSafe,
   });
 
@@ -44,7 +45,10 @@ class ItemRescuePostWidget extends StatelessWidget {
   final String managerName;
   final String managerPhone;
   final bool showSafeButton;
+  final bool isMarkingSafe;
   final VoidCallback? onMarkAsSafe;
+
+  bool get _hasTeamInfo => teamName.trim().isNotEmpty;
 
   @override
   Widget build(BuildContext context) {
@@ -100,11 +104,16 @@ class ItemRescuePostWidget extends StatelessWidget {
               children: [
                 Text(time, style: StyleThemeData.size12Weight400(color: appTheme.gray83Color)),
                 SizedBox(height: 8.h),
-                Text(
-                  description,
-                  style: StyleThemeData.size14Weight400(),
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
+                Container(
+                  width: double.infinity,
+                  padding: padding(all: 12),
+                  decoration: BoxDecoration(color: appTheme.grayF6Color, borderRadius: BorderRadius.circular(12)),
+                  child: Text(
+                    description.isNotEmpty ? description : 'no_data'.tr,
+                    style: StyleThemeData.size14Weight400(),
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
                 SizedBox(height: 12.h),
                 RescueInfoRowWidget(
@@ -119,30 +128,40 @@ class ItemRescuePostWidget extends StatelessWidget {
                   onTap: () => RouteLauncherUtil.openPhoneCall(phone),
                 ),
                 SizedBox(height: 12.h),
-                Container(
-                  width: double.infinity,
-                  padding: padding(all: 12),
-                  decoration: BoxDecoration(color: appTheme.grayF6Color, borderRadius: .circular(10)),
-                  child: Column(
-                    crossAxisAlignment: .start,
-                    children: [
-                      Text('rescue_team_info'.tr, style: StyleThemeData.size12Weight700(color: appTheme.gray83Color)),
-                      SizedBox(height: 6.h),
-                      Text(teamName, style: StyleThemeData.size14Weight700()),
-                      SizedBox(height: 4.h),
-                      Text('${'manager'.tr}: $managerName', style: StyleThemeData.size12Weight400()),
-                      SizedBox(height: 6.h),
-                      RescueInfoRowWidget(
-                        icon: Assets.icons.callBold.path,
-                        text: managerPhone,
-                        onTap: () => RouteLauncherUtil.openPhoneCall(managerPhone),
-                      ),
-                    ],
+                if (_hasTeamInfo)
+                  Container(
+                    width: double.infinity,
+                    padding: padding(all: 12),
+                    decoration: BoxDecoration(color: appTheme.grayF6Color, borderRadius: .circular(10)),
+                    child: Column(
+                      crossAxisAlignment: .start,
+                      children: [
+                        Text('rescue_team_info'.tr, style: StyleThemeData.size12Weight700(color: appTheme.gray83Color)),
+                        SizedBox(height: 6.h),
+                        Text(teamName, style: StyleThemeData.size14Weight700()),
+                        if (managerName.trim().isNotEmpty) ...[
+                          SizedBox(height: 4.h),
+                          Text('${'manager'.tr}: $managerName', style: StyleThemeData.size12Weight400()),
+                        ],
+                        if (managerPhone.trim().isNotEmpty) ...[
+                          SizedBox(height: 6.h),
+                          RescueInfoRowWidget(
+                            icon: Assets.icons.callBold.path,
+                            text: managerPhone,
+                            onTap: () => RouteLauncherUtil.openPhoneCall(managerPhone),
+                          ),
+                        ],
+                      ],
+                    ),
                   ),
-                ),
                 if (showSafeButton) ...[
                   SizedBox(height: 12.h),
-                  CustomButton(buttonText: 'mark_as_safe'.tr, hasSafeArea: false, onPressed: onMarkAsSafe),
+                  CustomButton(
+                    buttonText: 'mark_as_safe'.tr,
+                    hasSafeArea: false,
+                    isLoading: isMarkingSafe,
+                    onPressed: onMarkAsSafe,
+                  ),
                 ],
               ],
             ),

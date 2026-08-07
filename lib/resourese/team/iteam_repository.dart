@@ -1,6 +1,7 @@
 import 'package:get/get_connect/http/src/response/response.dart';
 import 'package:sos_connect/model/media/post_media.dart';
 import 'package:sos_connect/model/pagination_model.dart';
+import 'package:sos_connect/model/sos/sos_event_model.dart';
 import 'package:sos_connect/model/team/current_join_team_request_model.dart';
 import 'package:sos_connect/model/team/join_team_request_model.dart';
 import 'package:sos_connect/model/team/rescue_team_model.dart';
@@ -32,4 +33,8 @@ abstract class ITeamRepository extends IBaseRepository {
   Future<Response> kickTeamMember({required String memberId, required String reasonKicked});
 
   Future<UserModel?> getTeamUserInfo({String? userId});
+
+  Future<Response> acceptSupport(String sosId);
+
+  Future<PaginationModel<SosEventModel>> getAllSupport({String? status});
 }

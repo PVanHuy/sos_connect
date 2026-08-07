@@ -299,11 +299,7 @@ class NotificationService {
       case NotiTypeUtils.teamMembership:
         if (action == NotiActionUtils.kicked) {
           final wasOnTeamPage = _isOnTeamRelatedPage();
-          _handleKickedFromTeam(
-            showDialogIfNeeded: true,
-            reasonKicked: reasonKicked,
-            content: content,
-          );
+          _handleKickedFromTeam(showDialogIfNeeded: true, reasonKicked: reasonKicked, content: content);
           if (!wasOnTeamPage && id.isNotEmpty) {
             Get.toNamed(Routes.NOTIFICATION_DETAIL, arguments: NotificationDetailParameter(notificationId: id));
           }
@@ -414,7 +410,21 @@ class NotificationService {
 
   void _addIncomingNotification(Map<String, dynamic> data) {
     if (!Get.isRegistered<NotiController>()) return;
-    final fcmNotification = FcmNotificationModel.fromJson(data);
+
+    final payload = Map<String, dynamic>.from(data);
+    // Normalize id field so list item has a stable key for dedupe/update.
+    final notificationId = payload['notification_id']?.toString().trim() ?? '';
+    final id = payload['id']?.toString().trim() ?? '';
+    if (notificationId.isEmpty && id.isNotEmpty) {
+      payload['notification_id'] = id;
+    }
+    if ((payload['created_at']?.toString().trim() ?? '').isNotEmpty &&
+        (payload['time']?.toString().trim() ?? '').isEmpty) {
+      payload['time'] = payload['created_at'];
+    }
+
+    final fcmNotification = FcmNotificationModel.fromJson(payload);
+    // Routes into system/app list based on notification type (announcement vs others).
     Get.find<NotiController>().addNotification(fcmNotification.toNotificationModel());
   }
 }

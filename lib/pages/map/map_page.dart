@@ -25,8 +25,9 @@ class MapPage extends GetWidget<MapController> {
                 maxZoom: 18,
                 backgroundColor: appTheme.grayF1Color,
                 interactionOptions: const InteractionOptions(flags: InteractiveFlag.all & ~InteractiveFlag.rotate),
+                onMapReady: controller.onMapReady,
                 onTap: (tapPosition, point) => controller.clearSelection(),
-                onPositionChanged: (camera, hasGesture) => controller.updateMapZoom(camera.zoom),
+                onPositionChanged: controller.onMapPositionChanged,
               ),
               children: [
                 TileLayer(
@@ -37,13 +38,34 @@ class MapPage extends GetWidget<MapController> {
                   panBuffer: 1,
                 ),
                 Obx(() {
+                  if (controller.isClusterMode) {
+                    final clusters = controller.clusters.toList();
+                    return MarkerLayer(
+                      markers: [
+                        for (final cluster in clusters)
+                          Marker(
+                            point: cluster.point,
+                            width: cluster.count >= 10 ? 56 : 48,
+                            height: cluster.count >= 10 ? 56 : 48,
+                            alignment: Alignment.center,
+                            child: GestureDetector(
+                              onTap: () => controller.onClusterTap(cluster),
+                              child: MapMarkerClusterUtil.buildClusterBubble(cluster.count),
+                            ),
+                          ),
+                      ],
+                    );
+                  }
+
                   final selectedId = controller.selectedId.value;
-                  final markers = MapMarkerClusterUtil.buildSosMarkers(
-                    items: controller.items,
-                    selectedId: selectedId,
-                    onTap: controller.selectItem,
+                  final items = controller.items.toList();
+                  return MarkerLayer(
+                    markers: MapMarkerClusterUtil.buildSosMarkers(
+                      items: items,
+                      selectedId: selectedId,
+                      onTap: controller.selectItem,
+                    ),
                   );
-                  return MapMarkerClusterUtil.buildClusterLayer(markers: markers);
                 }),
                 Obx(() {
                   final myPos = controller.currentPosition.value;

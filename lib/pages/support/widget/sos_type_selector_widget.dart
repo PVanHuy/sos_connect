@@ -15,8 +15,8 @@ class SosTypeSelectorWidget extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          for (final type in SosEmergencyType.values) ...[
-            if (type != SosEmergencyType.values.first) SizedBox(width: 8.w),
+          for (final type in SosEmergencyTypeExtension.selectableTypes) ...[
+            if (type != SosEmergencyTypeExtension.selectableTypes.first) SizedBox(width: 8.w),
             Expanded(
               child: SosTypeCardWidget(
                 title: type.title,

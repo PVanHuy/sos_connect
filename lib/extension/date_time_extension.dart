@@ -105,6 +105,26 @@ extension DateTimeFormatter on DateTime {
 }
 
 extension DateFormatter on String? {
+  String get toRelativeTime {
+    if (this == null || this!.isEmpty) return '';
+
+    try {
+      final dateTime = DateTime.parse(this!).toLocal();
+      final diff = DateTime.now().difference(dateTime);
+
+      if (diff.inSeconds < 60) return 'just_now'.tr;
+      if (diff.inMinutes < 60) {
+        return 'minutes_ago'.trParams({'count': '${diff.inMinutes}'});
+      }
+      if (diff.inHours < 24) {
+        return 'hours_ago'.trParams({'count': '${diff.inHours}'});
+      }
+      return 'days_ago'.trParams({'count': '${diff.inDays}'});
+    } catch (_) {
+      return '';
+    }
+  }
+
   String get toHHmmddMMyyyy {
     if (this == null || this!.isEmpty) return 'undefined'.tr;
 

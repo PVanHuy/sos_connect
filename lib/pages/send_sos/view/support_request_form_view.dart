@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sos_connect/gen/assets.gen.dart';
 import 'package:sos_connect/main.dart';
-import 'package:sos_connect/pages/support/support_controller.dart';
+import 'package:sos_connect/pages/send_sos/send_sos_controller.dart';
 import 'package:sos_connect/theme/style/style_theme.dart';
 import 'package:sos_connect/utils/custom_validator.dart';
 import 'package:sos_connect/utils/formatter_util.dart';
@@ -12,15 +12,15 @@ import 'package:sos_connect/widget/dash_border_painter.dart';
 import 'package:sos_connect/widget/full_photo_viewer.dart';
 import 'package:sos_connect/widget/reponsive/extension.dart';
 
-class SupportRequestFormView extends GetView<SupportController> {
+class SupportRequestFormView extends GetView<SendSosController> {
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
       padding: padding(all: 12),
-      decoration: BoxDecoration(color: appTheme.grayF6Color, borderRadius: .circular(16)),
+      decoration: BoxDecoration(color: appTheme.grayF6Color, borderRadius: BorderRadius.circular(16)),
       child: Column(
-        crossAxisAlignment: .start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         spacing: 12.h,
         children: [
           CustomTextField(
@@ -29,7 +29,7 @@ class SupportRequestFormView extends GetView<SupportController> {
             hintText: 'enter_situation_description'.tr,
             maxLines: 4,
             borderRadius: 12,
-            isRequired: false,
+            onValidate: (value) => CustomValidator.validateRequiredField(value, 'situation_description'.tr),
           ),
           CustomTextField(
             controller: controller.locationController,
@@ -43,22 +43,41 @@ class SupportRequestFormView extends GetView<SupportController> {
             titleText: 'contact_info'.tr,
             hintText: 'phone_number'.tr,
             inputType: TextInputType.phone,
+            inputAction: TextInputAction.done,
             isPhone: true,
             borderRadius: 12,
             formatter: FormatterUtil.phoneFormatter,
             onValidateAsync: (value) => CustomValidator.validatePhone(value),
           ),
-          Text('images'.tr, style: StyleThemeData.size14Weight700()),
+          Text.rich(
+            TextSpan(
+              children: [
+                TextSpan(text: 'images'.tr, style: StyleThemeData.size14Weight700()),
+                TextSpan(
+                  text: ' *',
+                  style: StyleThemeData.size14Weight700(color: appTheme.red38Color),
+                ),
+              ],
+            ),
+          ),
           Obx(() => _buildUploadCard(context)),
           SizedBox(height: 16.h),
           Obx(() {
             final isValid = controller.isFormValid.value;
+            final isSending = controller.isSendingSos.value;
+            final canSubmit = isValid && !isSending;
             return CustomButton(
               buttonText: 'send_sos'.tr,
               hasSafeArea: false,
-              color: isValid ? null : appTheme.whiteColor,
-              textColor: isValid ? null : appTheme.gray86Color,
-              onPressed: isValid ? controller.sendSos : () {},
+              isLoading: isSending,
+              color: isValid ? appTheme.red1AColor : appTheme.pinkE5Color,
+              textColor: isValid ? appTheme.whiteColor : appTheme.red1AColor,
+              onPressed: canSubmit
+                  ? () {
+                      FocusScope.of(context).unfocus();
+                      controller.sendSos();
+                    }
+                  : () {},
             );
           }),
         ],
@@ -71,7 +90,7 @@ class SupportRequestFormView extends GetView<SupportController> {
     return CustomPaint(
       painter: DashBorderPainter(color: appTheme.appColor, strokeWidth: 1.w, radius: 16, dashWidth: 4, dashGap: 4),
       child: ClipRRect(
-        borderRadius: .circular(16),
+        borderRadius: BorderRadius.circular(16),
         child: file != null
             ? AspectRatio(
                 aspectRatio: 16 / 10,
@@ -86,13 +105,16 @@ class SupportRequestFormView extends GetView<SupportController> {
                       right: 8.w,
                       bottom: 8.h,
                       child: InkWell(
-                        onTap: controller.pickImage,
-                        borderRadius: .circular(20),
+                        onTap: () {
+                          FocusScope.of(context).unfocus();
+                          controller.pickImage();
+                        },
+                        borderRadius: BorderRadius.circular(20),
                         child: Container(
                           padding: padding(horizontal: 12, vertical: 8),
                           decoration: BoxDecoration(
                             color: appTheme.whiteColor.withValues(alpha: 0.92),
-                            borderRadius: .circular(20),
+                            borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
                             'change_image'.tr,
@@ -105,7 +127,10 @@ class SupportRequestFormView extends GetView<SupportController> {
                 ),
               )
             : InkWell(
-                onTap: controller.pickImage,
+                onTap: () {
+                  FocusScope.of(context).unfocus();
+                  controller.pickImage();
+                },
                 child: Container(
                   width: double.infinity,
                   padding: padding(vertical: 16),

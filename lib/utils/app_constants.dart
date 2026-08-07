@@ -42,6 +42,15 @@ class AppConstants {
   static const String logOutUri = '/auth/logout';
   static const String notificationUri = '/notification';
   static const String sosConvertUri = '/sos/convert';
+  static const String sosRequestUri = '/sos/request';
+  static const String eventsUri = '/events';
+  static const String eventsViewportUri = '/events/viewport';
+  static const String teamAllSupportUri = '/team/all-support';
+  static const String userProfileSosUri = '/user/profile/sos';
+
+  static String teamSupportUri(String sosId) => '/team/support/$sosId';
+
+  static String userProfileSosCancelUri(String sosId) => '/user/profile/sos/cancel/$sosId';
 
   static String teamJoinRequestRespondUri(String requestId) => '/team/join-request/$requestId/respond';
 
@@ -50,4 +59,5 @@ class AppConstants {
   static String notificationDetailUri(String notificationId) => '/notification/$notificationId';
 
   static String markNotificationAsReadUri(String notificationId) => '/notification/$notificationId/read';
+  
 }

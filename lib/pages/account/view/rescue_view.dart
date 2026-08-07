@@ -40,18 +40,18 @@ class RescueView extends GetView<AccountController> {
               onTap: () => Get.toNamed(Routes.REGISTER_RESCUE_TEAM),
             ),
             ItemRowWidget(
-              icon: Assets.icons.listData,
+              icon: Assets.icons.mindmapList,
               label: 'approved_rescue_teams'.tr,
               onTap: () => Get.toNamed(Routes.RESCUE_TEAM_LIST),
             ),
             ItemRowWidget(
-              icon: Assets.icons.send,
+              icon: Assets.icons.sendOther,
               label: isLeader ? 'join_team_request_list'.tr : 'my_join_team_request'.tr,
               badgeCount: isLeader ? controller.dashboardController.joinRequestCount.value : 0,
               onTap: () => Get.toNamed(Routes.JOIN_TEAM_REQUEST_LIST),
             ),
             ItemRowWidget(
-              icon: Assets.icons.task,
+              icon: Assets.icons.clipboardText,
               label: 'rescue_receiving'.tr,
               onTap: () => Get.toNamed(
                 Routes.RESCUE_POSTS,
@@ -59,8 +59,8 @@ class RescueView extends GetView<AccountController> {
               ),
             ),
             ItemRowWidget(
-              icon: Assets.icons.clipboardText,
-              label: 'rescue_received'.tr,
+              icon: Assets.icons.task,
+              label: 'rescue_completed'.tr,
               isLast: true,
               onTap: () => Get.toNamed(
                 Routes.RESCUE_POSTS,

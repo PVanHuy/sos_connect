@@ -12,6 +12,7 @@
 - [Hướng dẫn cài đặt](#hướng-dẫn-cài-đặt)
 - [Cấu hình môi trường (.env)](#cấu-hình-môi-trường-env)
 - [CI/CD](#cicd)
+- [Tài liệu CI/CD chi tiết](docs/CI_CD.md)
 - [Build Android](#build-android)
 - [Build iOS](#build-ios)
 - [Đóng góp](#đóng-góp)
@@ -166,7 +167,7 @@ Các key được đọc trong `lib/utils/app_constants.dart`.
 
 ## CI/CD
 
-Dùng **GitHub Actions** với 2 workflow:
+Dùng **GitHub Actions** với 2 workflow. Chi tiết đầy đủ (secrets, versioning, troubleshooting, sơ đồ luồng): xem **[docs/CI_CD.md](docs/CI_CD.md)**.
 
 | Workflow | File | Mục đích |
 |----------|------|----------|

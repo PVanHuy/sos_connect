@@ -42,8 +42,8 @@ class DashboardPage extends GetWidget<DashboardController> {
             ),
             _buildNavItem(
               index: 1,
-              iconInactivePath: Assets.icons.flash.path,
-              iconActivePath: Assets.icons.flash.path,
+              iconInactivePath: Assets.icons.conceptSharing.path,
+              iconActivePath: Assets.icons.conceptSharingBold.path,
               label: 'survival'.tr,
             ),
             _buildNavItem(

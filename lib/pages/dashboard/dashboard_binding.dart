@@ -9,6 +9,7 @@ import 'package:sos_connect/resourese/dashboard/idashboard_repository.dart';
 import 'package:sos_connect/resourese/notification/inotification_repository.dart';
 import 'package:sos_connect/resourese/profile/iprofile_repository.dart';
 import 'package:sos_connect/resourese/service/notification/notification_service.dart';
+import 'package:sos_connect/resourese/service/socket/socket_io_service.dart';
 import 'package:sos_connect/resourese/sos/isos_repository.dart';
 import 'package:sos_connect/resourese/team/iteam_repository.dart';
 
@@ -21,12 +22,18 @@ class DashboardBinding implements Bindings {
         dashboardRepository: Get.find<IDashboardRepository>(),
         teamRepository: Get.find<ITeamRepository>(),
         notificationService: Get.find<NotificationService>(),
-        // socketIoService: Get.find<SocketIoService>(),
+        socketIoService: Get.find<SocketIoService>(),
       ),
     );
-    Get.lazyPut(() => MapController(), fenix: true);
+    Get.lazyPut(() => MapController(sosRepository: Get.find<ISosRepository>()), fenix: true);
     Get.lazyPut(() => SurvivalController(), fenix: true);
-    Get.lazyPut(() => SupportController(sosRepository: Get.find<ISosRepository>()), fenix: true);
+    Get.lazyPut(
+      () => SupportController(
+        sosRepository: Get.find<ISosRepository>(),
+        teamRepository: Get.find<ITeamRepository>(),
+      ),
+      fenix: true,
+    );
     Get.lazyPut(() => NotiController(notificationRepository: Get.find<INotificationRepository>()), fenix: true);
     Get.lazyPut(() => AccountController(profileRepository: Get.find<IProfileRepository>()), fenix: true);
   }

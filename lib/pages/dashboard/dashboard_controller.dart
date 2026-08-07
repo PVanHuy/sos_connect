@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:sos_connect/model/sos/sos_event_model.dart';
 import 'package:sos_connect/model/user/user_model.dart';
 import 'package:sos_connect/pages/account/account_page.dart';
+import 'package:sos_connect/pages/map/map_controller.dart';
 import 'package:sos_connect/pages/map/map_page.dart';
 import 'package:sos_connect/pages/noti/noti_controller.dart';
 import 'package:sos_connect/pages/noti/noti_page.dart';
+import 'package:sos_connect/pages/support/support_controller.dart';
 import 'package:sos_connect/pages/support/support_page.dart';
 import 'package:sos_connect/pages/survival/survival_page.dart';
 import 'package:sos_connect/resourese/dashboard/idashboard_repository.dart';
 import 'package:sos_connect/resourese/profile/iprofile_repository.dart';
 import 'package:sos_connect/resourese/service/notification/notification_service.dart';
+import 'package:sos_connect/resourese/service/socket/socket_event.dart';
+import 'package:sos_connect/resourese/service/socket/socket_io_service.dart';
 import 'package:sos_connect/resourese/team/iteam_repository.dart';
 import 'package:sos_connect/utils/logger_helper.dart';
 import 'package:sos_connect/utils/role_user.utils.dart';
@@ -19,14 +24,14 @@ class DashboardController extends GetxController {
   final IDashboardRepository dashboardRepository;
   final ITeamRepository teamRepository;
   final NotificationService notificationService;
-  // final SocketIoService socketIoService;
+  final SocketIoService socketIoService;
 
   DashboardController({
     required this.profileRepository,
     required this.dashboardRepository,
     required this.teamRepository,
     required this.notificationService,
-    // required this.socketIoService,
+    required this.socketIoService,
   });
 
   final PageController pageController = PageController();
@@ -66,24 +71,64 @@ class DashboardController extends GetxController {
       loggerHelper.error('Dashboard notification init error: $e');
     }
 
-    // try {
-    //   await socketIoService.connect();
-    //   socketIoService.onAny((event, data) {
-    //     loggerHelper.log('SocketIO Event: $event, Data: $data', name: 'SocketIoService - ANY');
-    //   });
-    //   _subscribeEvents();
-    //   socketIoService.addReconnectedCallback(_subscribeEvents);
-    // } catch (e) {
-    //   loggerHelper.error('Dashboard socket init error: $e');
-    // }
+    try {
+      socketIoService.onAny(_onSocketAnyEvent);
+      socketIoService.on(SocketEvent.sosNewRequest, _onSosNewRequest);
+      socketIoService.on(SocketEvent.sosMapUpdated, _onSosMapUpdated);
+      socketIoService.addReconnectedCallback(_subscribeChannels);
+      await socketIoService.connect();
+    } catch (e) {
+      loggerHelper.error('Dashboard socket init error: $e');
+    }
   }
 
-  /// Register socket listeners here when backend events are ready.
-  // void _subscribeEvents() {
-  // Example:
-  // socketIoService.off(SocketEvent.someEvent);
-  // socketIoService.on(SocketEvent.someEvent, (data) { ... });
-  // }
+  void _onSocketAnyEvent(String event, dynamic data) {
+    loggerHelper.log('event=$event data=$data', name: 'SocketIoService - ANY');
+  }
+
+  void _subscribeChannels() {
+    socketIoService.subscribe(SocketEvent.channelSosFeed);
+    socketIoService.subscribe(SocketEvent.channelSosMap);
+  }
+
+  Map<String, dynamic>? _asSocketMap(dynamic data) {
+    if (data is Map<String, dynamic>) return data;
+    if (data is Map) return Map<String, dynamic>.from(data);
+    return null;
+  }
+
+  void _onSosNewRequest(dynamic data) {
+    final map = _asSocketMap(data);
+    if (map == null) return;
+
+    try {
+      final event = SosEventModel.fromJson(map);
+      if (Get.isRegistered<SupportController>()) {
+        Get.find<SupportController>().handleNewSosEvent(event);
+      }
+      if (Get.isRegistered<MapController>()) {
+        Get.find<MapController>().handleNewSosEvent(event);
+      }
+    } catch (e) {
+      loggerHelper.error('Handle sos:new_request error: $e');
+    }
+  }
+
+  void _onSosMapUpdated(dynamic data) {
+    final map = _asSocketMap(data);
+    if (map == null) return;
+
+    final lat = (map['lat'] as num?)?.toDouble();
+    final lon = (map['lon'] as num?)?.toDouble();
+    if (lat == null || lon == null) return;
+
+    if (!Get.isRegistered<MapController>()) return;
+    Get.find<MapController>().handleMapUpdated(
+      id: map['id']?.toString(),
+      lat: lat,
+      lon: lon,
+    );
+  }
 
   Future<void> fetchProfile() async {
     try {
@@ -126,9 +171,17 @@ class DashboardController extends GetxController {
   }
 
   void goToTab(int index) {
-    if (currentPage.value == index) return;
+    if (currentPage.value == index) {
+      if (index == 2 && Get.isRegistered<SupportController>()) {
+        Get.find<SupportController>().refreshList();
+      }
+      return;
+    }
     currentPage.value = index;
     pageController.jumpToPage(index);
+    if (index == 2 && Get.isRegistered<SupportController>()) {
+      Get.find<SupportController>().refreshList();
+    }
   }
 
   void animateToTab(int index) {
@@ -137,6 +190,10 @@ class DashboardController extends GetxController {
 
   @override
   void onClose() {
+    socketIoService.off(SocketEvent.sosNewRequest, _onSosNewRequest);
+    socketIoService.off(SocketEvent.sosMapUpdated, _onSosMapUpdated);
+    socketIoService.offAny(_onSocketAnyEvent);
+    socketIoService.disconnect();
     pageController.dispose();
     notificationService.onClose();
     super.onClose();

@@ -8,6 +8,7 @@ import 'package:sos_connect/resourese/notification/notification_repository.dart'
 import 'package:sos_connect/resourese/profile/iprofile_repository.dart';
 import 'package:sos_connect/resourese/profile/profile_repository.dart';
 import 'package:sos_connect/resourese/service/notification/notification_service.dart';
+import 'package:sos_connect/resourese/service/socket/socket_io_service.dart';
 import 'package:sos_connect/resourese/sos/isos_repository.dart';
 import 'package:sos_connect/resourese/sos/sos_repository.dart';
 import 'package:sos_connect/resourese/team/iteam_repository.dart';
@@ -22,5 +23,6 @@ class AppService {
     Get.put<IDashboardRepository>(DashboardRepository());
     Get.put<INotificationRepository>(NotificationRepository());
     Get.put(NotificationService());
+    Get.put(SocketIoService());
   }
 }

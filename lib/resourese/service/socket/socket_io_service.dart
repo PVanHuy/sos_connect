@@ -19,7 +19,6 @@ class SocketIoService extends GetxService {
   bool get isConnected =>
       _socket != null && _socket!.connected && connectionState.value == SocketIoConnectionState.connected;
 
-  bool _hasConnectedOnce = false;
   String? _lastServerUri;
 
   static String resolveSocketServerUri(String? staffRole) {
@@ -109,6 +108,7 @@ class SocketIoService extends GetxService {
     });
 
     _socket!.onAny((String event, dynamic data) {
+      loggerHelper.log('raw event=$event data=$data', name: 'SocketIoService - RAW');
       _handleIncomingEvent(event, data);
     });
 
@@ -116,16 +116,13 @@ class SocketIoService extends GetxService {
       connectionState.value = SocketIoConnectionState.connected;
       loggerHelper.log('[WS CONNECTED] id=${_socket?.id}', name: 'SocketIoService - CONNECTED');
 
-      if (_hasConnectedOnce) {
-        for (final cb in List<Function()>.from(_reconnectedCallbacks)) {
-          try {
-            cb();
-          } catch (e) {
-            loggerHelper.log('[WS RECONNECTED CALLBACK ERROR] $e');
-          }
+      for (final cb in List<Function()>.from(_reconnectedCallbacks)) {
+        try {
+          cb();
+        } catch (e) {
+          loggerHelper.log('[WS RECONNECTED CALLBACK ERROR] $e');
         }
       }
-      _hasConnectedOnce = true;
     });
 
     _socket!.onDisconnect((reason) {

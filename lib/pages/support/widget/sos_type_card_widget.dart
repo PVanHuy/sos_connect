@@ -29,17 +29,17 @@ class SosTypeCardWidget extends StatelessWidget {
       borderRadius: .circular(12),
       child: Container(
         width: double.infinity,
-        padding: padding(vertical: 12, horizontal: 6),
+        padding: padding(vertical: 8, horizontal: 6),
         decoration: BoxDecoration(
           color: background,
           borderRadius: .circular(12),
-          border: Border.all(color: isSelected ? color : appTheme.transparentColor, width: 1.5),
+          border: Border.all(color: isSelected ? color : appTheme.transparentColor, width: 1),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SvgPicture.asset(iconPath, width: 28.w, height: 28.w, colorFilter: .mode(color, BlendMode.srcIn)),
-            SizedBox(height: 8.h),
+            SizedBox(height: 4.h),
             Text(
               title,
               textAlign: TextAlign.center,

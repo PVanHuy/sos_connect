@@ -26,7 +26,7 @@ class AppGradient {
     colors: [appTheme.pinkEBColor, appTheme.whiteColor],
   );
 
-  static LinearGradient redGradient = LinearGradient(colors: [appTheme.red61Color, appTheme.appColor]);
+  static LinearGradient redGradient = LinearGradient(colors: [appTheme.red61Color, appTheme.red25Color]);
 
   static LinearGradient redEBAndFFGradient = LinearGradient(
     begin: Alignment.topLeft,

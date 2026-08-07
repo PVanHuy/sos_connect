@@ -1,6 +1,7 @@
 import 'package:get/get_connect/http/src/response/response.dart';
 import 'package:sos_connect/model/media/post_media.dart';
 import 'package:sos_connect/model/pagination_model.dart';
+import 'package:sos_connect/model/sos/sos_event_model.dart';
 import 'package:sos_connect/model/team/current_join_team_request_model.dart';
 import 'package:sos_connect/model/team/join_team_request_model.dart';
 import 'package:sos_connect/model/team/rescue_team_model.dart';
@@ -211,6 +212,45 @@ class TeamRepository extends ITeamRepository {
           : body;
       if (raw is! Map) return null;
       return UserModel.fromJson(Map<String, dynamic>.from(raw));
+    } catch (error) {
+      handleError(error);
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Response> acceptSupport(String sosId) async {
+    try {
+      return await clientPostData(AppConstants.teamSupportUri(sosId), {});
+    } catch (error) {
+      handleError(error);
+      rethrow;
+    }
+  }
+
+  @override
+  Future<PaginationModel<SosEventModel>> getAllSupport({String? status}) async {
+    try {
+      final query = <String, String>{
+        if (status != null && status.isNotEmpty) 'status': status,
+      };
+      final uri = query.isEmpty
+          ? AppConstants.teamAllSupportUri
+          : '${AppConstants.teamAllSupportUri}?${Uri(queryParameters: query).query}';
+      final response = await clientGetData(uri);
+
+      if (!response.isOk) return PaginationModel();
+
+      final body = response.body;
+      if (body is List) {
+        final models = body
+            .whereType<Map>()
+            .map((e) => SosEventModel.fromJson(Map<String, dynamic>.from(e)))
+            .toList();
+        return PaginationModel.fromJsonListToMeta(models.length, models);
+      }
+
+      return PaginationModel.fromApi(body, SosEventModel.fromJson);
     } catch (error) {
       handleError(error);
       rethrow;

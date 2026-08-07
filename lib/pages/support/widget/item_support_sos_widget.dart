@@ -21,6 +21,8 @@ class ItemSupportSosWidget extends StatelessWidget {
     required this.address,
     required this.acceptButtonText,
     this.imageUrl = '',
+    this.showAcceptButton = true,
+    this.isAccepting = false,
     this.onAccept,
   });
 
@@ -31,6 +33,8 @@ class ItemSupportSosWidget extends StatelessWidget {
   final String address;
   final String acceptButtonText;
   final String imageUrl;
+  final bool showAcceptButton;
+  final bool isAccepting;
   final VoidCallback? onAccept;
 
   @override
@@ -49,41 +53,40 @@ class ItemSupportSosWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Expanded(
-                child: Text(type.title, style: StyleThemeData.size14Weight700(color: style.text)),
+                child: Text('${type.title} - $time', style: StyleThemeData.size14Weight700(color: style.text)),
               ),
-              Column(
-                children: [
-                  Container(
-                    padding: padding(all: 12),
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(color: style.text, shape: BoxShape.circle),
-                    child: Text(urgencyScore, style: StyleThemeData.size10Weight700(color: appTheme.whiteColor)),
-                  ),
-                  SizedBox(height: 4.h),
-                  Text(time, style: StyleThemeData.size10Weight400(color: appTheme.gray83Color)),
-                ],
+              Container(
+                padding: padding(all: 8),
+                alignment: Alignment.center,
+                decoration: BoxDecoration(color: style.text, shape: BoxShape.circle),
+                child: Text(urgencyScore, style: StyleThemeData.size10Weight700(color: appTheme.whiteColor)),
               ),
             ],
           ),
           if (imageUrl.isNotEmpty) ...[
-            SizedBox(height: 8.h),
+            SizedBox(height: 12.h),
             InkWell(
               onTap: () => FullPhotoViewer.open(context, assets: [imageUrl]),
               child: CustomImageWidget(
                 imageUrl: imageUrl,
                 width: double.infinity,
-                height: 140.h,
+                height: 180.h,
                 borderRadius: 10,
                 fit: BoxFit.cover,
               ),
             ),
           ],
-          SizedBox(height: 8.h),
-          Text(description, style: StyleThemeData.size14Weight400()),
-          SizedBox(height: 8.h),
+          SizedBox(height: 12.h),
+          Container(
+            width: double.infinity,
+            padding: padding(all: 12),
+            decoration: BoxDecoration(color: appTheme.grayF6Color, borderRadius: BorderRadius.circular(8)),
+            child: Text(description.isNotEmpty ? description : 'no_data'.tr, style: StyleThemeData.size14Weight400()),
+          ),
+          SizedBox(height: 12.h),
           InkWell(
             onTap: () => RouteLauncherUtil.openGoogleMapByAddress(address),
             child: Row(
@@ -113,10 +116,17 @@ class ItemSupportSosWidget extends StatelessWidget {
                   onPressed: () => RouteLauncherUtil.openGoogleMapByAddress(address),
                 ),
               ),
-              SizedBox(width: 8.w),
-              Expanded(
-                child: CustomButton(buttonText: acceptButtonText, hasSafeArea: false, onPressed: onAccept),
-              ),
+              if (showAcceptButton) ...[
+                SizedBox(width: 8.w),
+                Expanded(
+                  child: CustomButton(
+                    buttonText: acceptButtonText,
+                    hasSafeArea: false,
+                    isLoading: isAccepting,
+                    onPressed: isAccepting ? null : onAccept,
+                  ),
+                ),
+              ],
             ],
           ),
         ],

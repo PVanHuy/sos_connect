@@ -29,6 +29,8 @@ import 'package:sos_connect/pages/rescue_team_detail/rescue_team_detail_binding.
 import 'package:sos_connect/pages/rescue_team_detail/rescue_team_detail_page.dart';
 import 'package:sos_connect/pages/rescue_team_list/rescue_team_list_binding.dart';
 import 'package:sos_connect/pages/rescue_team_list/rescue_team_list_page.dart';
+import 'package:sos_connect/pages/send_sos/send_sos_binding.dart';
+import 'package:sos_connect/pages/send_sos/send_sos_page.dart';
 import 'package:sos_connect/pages/sign_in/sign_in_binding.dart';
 import 'package:sos_connect/pages/sign_in/sign_in_page.dart';
 import 'package:sos_connect/pages/sign_up/sign_up_binding.dart';
@@ -103,5 +105,6 @@ abstract class AppPages {
       page: () => CreateNewPasswordPage(),
       binding: CreateNewPasswordBinding(),
     ),
+    GetPage(name: Routes.SEND_SOS, page: () => SendSosPage(), binding: SendSosBinding()),
   ];
 }

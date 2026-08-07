@@ -13,6 +13,7 @@ void showConfirmDialog({
   String cancelBtnTitle = '',
   VoidCallback? onConfirm,
   Color? colorBtn,
+  Color? titleColor,
   Gradient? gradientBtn,
   Color? bgColorBtnBorder,
   Color? textColorBtnBorder,
@@ -31,7 +32,11 @@ void showConfirmDialog({
         child: Column(
           mainAxisSize: .min,
           children: [
-            Text(title, style: StyleThemeData.size20Weight700(), textAlign: .center),
+            Text(
+              title,
+              style: StyleThemeData.size20Weight700(color: titleColor),
+              textAlign: .center,
+            ),
             SizedBox(height: 8.h),
             if (content.isNotEmpty)
               Center(
