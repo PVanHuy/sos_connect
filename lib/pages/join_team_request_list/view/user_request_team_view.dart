@@ -24,7 +24,7 @@ class UserRequestTeamView extends GetView<JoinTeamRequestListController> {
       hasRefresh: true,
       shrinkWrap: false,
       callInit: true,
-      physics: const AlwaysScrollableScrollPhysics(),
+      physics: const AlwaysScrollableScrollPhysics(parent: ClampingScrollPhysics()),
       listPadding: padding(top: 12, horizontal: 12, bottom: 24),
       emptyView: NoDataWidget(
         isScroll: true,

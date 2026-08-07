@@ -98,7 +98,7 @@ class RescueTeamListPage extends GetWidget<RescueTeamListController> {
               hasRefresh: true,
               shrinkWrap: false,
               callInit: true,
-              physics: const AlwaysScrollableScrollPhysics(),
+              physics: const AlwaysScrollableScrollPhysics(parent: ClampingScrollPhysics()),
               listPadding: padding(top: 4, horizontal: 12, bottom: 24),
               emptyView: const NoDataWidget(isScroll: true),
               skeletonView: () => const RescueTeamListSkeleton(),

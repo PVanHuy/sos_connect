@@ -21,7 +21,7 @@ class RescuePostsPage extends GetWidget<RescuePostsController> {
         callInit: true,
         hasRefresh: true,
         shrinkWrap: false,
-        physics: const AlwaysScrollableScrollPhysics(),
+        physics: const AlwaysScrollableScrollPhysics(parent: ClampingScrollPhysics()),
         listPadding: padding(horizontal: 16, top: 8, bottom: 24),
         emptyView: NoDataWidget(
           isScroll: true,

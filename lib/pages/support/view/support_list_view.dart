@@ -91,7 +91,7 @@ class SupportListView extends GetView<SupportController> {
             callInit: false,
             hasRefresh: true,
             shrinkWrap: false,
-            physics: const AlwaysScrollableScrollPhysics(),
+            physics: const AlwaysScrollableScrollPhysics(parent: ClampingScrollPhysics()),
             listPadding: EdgeInsets.zero,
             emptyView: SizedBox.expand(
               child: NoDataWidget(

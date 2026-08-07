@@ -22,18 +22,18 @@ class SupportSosListSkeleton extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Expanded(
-                child: Skeleton.replace(
-                  width: 180.w,
-                  height: 16.h,
-                  child: Container(decoration: BoxDecoration(borderRadius: BorderRadius.circular(4))),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Skeleton.replace(
+                    width: 160.w,
+                    height: 16.h,
+                    child: Container(decoration: BoxDecoration(borderRadius: BorderRadius.circular(4))),
+                  ),
                 ),
               ),
+              SizedBox(width: 12.w),
               ClipOval(
-                child: Skeleton.replace(
-                  width: 36.w,
-                  height: 36.w,
-                  child: const SizedBox.expand(),
-                ),
+                child: Skeleton.replace(width: 36.w, height: 36.w, child: const SizedBox.expand()),
               ),
             ],
           ),

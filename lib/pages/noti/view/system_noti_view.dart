@@ -20,7 +20,7 @@ class SystemNotiView extends GetView<NotiController> {
       shrinkWrap: false,
       callInit: true,
       listPadding: EdgeInsets.zero,
-      physics: const AlwaysScrollableScrollPhysics(),
+      physics: const AlwaysScrollableScrollPhysics(parent: ClampingScrollPhysics()),
       emptyView: NoDataWidget(
         isScroll: true,
         title: NotiTabType.system.emptyTitle,
