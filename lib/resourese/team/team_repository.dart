@@ -202,16 +202,9 @@ class TeamRepository extends ITeamRepository {
       final id = userId?.trim() ?? '';
       final query = id.isEmpty ? '' : '?${Uri(queryParameters: {'userId': id}).query}';
       final result = await clientGetData('${AppConstants.teamUserInfoUri}$query');
-      if (!result.isOk) return null;
+      if (!result.isOk || result.body is! Map) return null;
 
-      final body = result.body;
-      final raw = body is Map && body['data'] != null
-          ? body['data']
-          : body is Map && body['user'] != null
-          ? body['user']
-          : body;
-      if (raw is! Map) return null;
-      return UserModel.fromJson(Map<String, dynamic>.from(raw));
+      return UserModel.fromJson(Map<String, dynamic>.from(result.body as Map));
     } catch (error) {
       handleError(error);
       rethrow;
@@ -231,9 +224,7 @@ class TeamRepository extends ITeamRepository {
   @override
   Future<PaginationModel<SosEventModel>> getAllSupport({String? status}) async {
     try {
-      final query = <String, String>{
-        if (status != null && status.isNotEmpty) 'status': status,
-      };
+      final query = <String, String>{if (status != null && status.isNotEmpty) 'status': status};
       final uri = query.isEmpty
           ? AppConstants.teamAllSupportUri
           : '${AppConstants.teamAllSupportUri}?${Uri(queryParameters: query).query}';
@@ -243,10 +234,7 @@ class TeamRepository extends ITeamRepository {
 
       final body = response.body;
       if (body is List) {
-        final models = body
-            .whereType<Map>()
-            .map((e) => SosEventModel.fromJson(Map<String, dynamic>.from(e)))
-            .toList();
+        final models = body.whereType<Map>().map((e) => SosEventModel.fromJson(Map<String, dynamic>.from(e))).toList();
         return PaginationModel.fromJsonListToMeta(models.length, models);
       }
 

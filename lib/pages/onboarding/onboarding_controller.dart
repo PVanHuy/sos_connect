@@ -9,6 +9,12 @@ class OnboardingController extends GetxController {
 
   final PageController pageController = PageController();
 
+  bool get isLastStep => onboardingState.value == OnboardingState.step3;
+
+  String get titleKey => 'onboarding_title_${onboardingState.value.index + 1}';
+
+  String get descKey => 'onboarding_desc_${onboardingState.value.index + 1}';
+
   void onPageChanged(int index) {
     switch (index) {
       case 0:
@@ -21,6 +27,17 @@ class OnboardingController extends GetxController {
         onboardingState.value = OnboardingState.step3;
         break;
     }
+  }
+
+  void onContinue() {
+    if (isLastStep) {
+      skipOnboarding();
+      return;
+    }
+    pageController.nextPage(
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
   }
 
   void skipOnboarding() {

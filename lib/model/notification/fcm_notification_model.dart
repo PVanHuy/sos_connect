@@ -64,7 +64,6 @@ class FcmNotificationModel {
 
   factory FcmNotificationModel.fromJson(Map<String, dynamic> json) {
     final model = _$FcmNotificationModelFromJson(json);
-    // FCM data values are often plain strings; keep flexible fallbacks.
     model.notificationId ??= _readString(json['notification_id']);
     model.type ??= _readString(json['type']);
     model.action ??= _readString(json['action']);
@@ -79,7 +78,6 @@ class FcmNotificationModel {
 
   String? get teamId => payload?['team_id']?.toString();
 
-  /// Prefer top-level `sos_id`, then payload, then `request_id`.
   String? get resolvedSosId {
     final direct = sosId?.trim() ?? '';
     if (direct.isNotEmpty) return direct;
@@ -96,12 +94,10 @@ class FcmNotificationModel {
     return fromMessage.isNotEmpty ? fromMessage : null;
   }
 
-  /// Prefer payload.type (FOOD/HELP/...) for SOS emergency category.
   String? get resolvedSosEmergencyApiType {
     final fromPayload = payload?['type']?.toString().trim() ?? '';
     if (fromPayload.isEmpty) return null;
     final upper = fromPayload.toUpperCase();
-    // Ignore notification category values accidentally nested in payload.
     if (upper == 'SOS_REQUEST' || upper == 'CHAT' || upper == 'JOIN_REQUEST') return null;
     return fromPayload;
   }

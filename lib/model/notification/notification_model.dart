@@ -1,52 +1,8 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:sos_connect/model/notification/notification_extra_data_model.dart';
 import 'package:sos_connect/utils/json_utils.dart';
 
 part 'notification_model.g.dart';
-
-@JsonSerializable()
-class NotificationUserData {
-  String? id;
-  String? time;
-  String? phone;
-  String? reason;
-  String? username;
-
-  NotificationUserData({this.id, this.time, this.phone, this.reason, this.username});
-
-  factory NotificationUserData.fromJson(Map<String, dynamic> json) => _$NotificationUserDataFromJson(json);
-
-  Map<String, dynamic> toJson() => _$NotificationUserDataToJson(this);
-}
-
-@JsonSerializable()
-class NotificationExtraData {
-  NotificationUserData? user;
-  @JsonKey(name: 'team_id')
-  String? teamId;
-  @JsonKey(name: 'team_name')
-  String? teamName;
-  String? province;
-  @JsonKey(name: 'leader_name')
-  String? leaderName;
-  @JsonKey(name: 'leader_phone')
-  String? leaderPhone;
-  @JsonKey(name: 'sent_at')
-  String? sentAt;
-
-  NotificationExtraData({
-    this.user,
-    this.teamId,
-    this.teamName,
-    this.province,
-    this.leaderName,
-    this.leaderPhone,
-    this.sentAt,
-  });
-
-  factory NotificationExtraData.fromJson(Map<String, dynamic> json) => _$NotificationExtraDataFromJson(json);
-
-  Map<String, dynamic> toJson() => _$NotificationExtraDataToJson(this);
-}
 
 @JsonSerializable()
 class NotificationModel {

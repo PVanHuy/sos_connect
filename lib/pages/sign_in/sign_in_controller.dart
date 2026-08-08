@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:sos_connect/model/auth/login_response_model.dart';
+import 'package:sos_connect/model/auth/auth_model.dart';
 import 'package:sos_connect/resourese/auth/iauth_repository.dart';
 import 'package:sos_connect/routes/pages.dart';
 import 'package:sos_connect/utils/custom_validator.dart';
@@ -49,7 +49,7 @@ class SignInController extends GetxController {
       if (isClosed) return;
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        final loginData = LoginResponseModel.fromJson(response.body);
+        final loginData = AuthModel.fromJson(response.body);
         final token = loginData.accessToken ?? '';
 
         if (token.isNotEmpty) {

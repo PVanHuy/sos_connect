@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:sos_connect/model/chat/sos_chat_history_model.dart';
+import 'package:sos_connect/model/chat/pagination_chat_model.dart';
 import 'package:sos_connect/model/chat/sos_chat_message_model.dart';
 import 'package:sos_connect/model/chat/sos_chat_other_party_model.dart';
 import 'package:sos_connect/pages/dashboard/dashboard_controller.dart';
@@ -25,7 +25,7 @@ class SosChatController extends GetxController {
 
   final messages = <SosChatMessageModel>[].obs;
   final otherParty = Rxn<SosChatOtherPartyModel>();
-  final pagination = Rxn<SosChatPaginationModel>();
+  final pagination = Rxn<PaginationChatModel>();
 
   final isLoading = false.obs;
   final isLoadingMore = false.obs;
