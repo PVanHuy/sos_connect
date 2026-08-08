@@ -62,12 +62,7 @@ class Step2RegisterRescueTeamView extends GetView<RegisterRescueTeamController> 
             controller: controller.roleController,
             borderRadius: 12,
             readOnly: true,
-            onTap: controller.selectRole,
             prefixIcon: _prefixIcon(Assets.icons.tagUser.path),
-            suffixIcon: IconButton(
-              onPressed: controller.selectRole,
-              icon: Assets.icons.arrowDown.svg(width: 18.w, height: 18.w),
-            ),
             onValidate: (value) => CustomValidator.validateRequiredField(value.trim(), 'role'.tr),
           ),
         ],

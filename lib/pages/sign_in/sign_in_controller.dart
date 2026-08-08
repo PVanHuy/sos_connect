@@ -18,6 +18,7 @@ class SignInController extends GetxController {
 
   var isLoading = false.obs;
   var isFormValid = false.obs;
+  int _validateToken = 0;
 
   @override
   void onInit() {
@@ -28,10 +29,13 @@ class SignInController extends GetxController {
   }
 
   Future<void> _validateForm() async {
+    final token = ++_validateToken;
     if (isClosed) return;
+
     final phoneValid = await CustomValidator.validatePhone(phoneController.text.trim());
+    if (isClosed || token != _validateToken) return;
+
     final passwordValid = CustomValidator.validateRequiredField(passwordController.text, 'password'.tr);
-    if (isClosed) return;
     isFormValid.value = phoneValid.isEmpty && passwordValid.isEmpty;
   }
 

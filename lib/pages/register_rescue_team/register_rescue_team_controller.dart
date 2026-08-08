@@ -11,7 +11,6 @@ import 'package:sos_connect/utils/image_utils.dart';
 import 'package:sos_connect/utils/logger_helper.dart';
 import 'package:sos_connect/utils/role_user.utils.dart';
 import 'package:sos_connect/utils/vietnam_address_utils.dart';
-import 'package:sos_connect/widget/dialog/show_select_bottom_sheet.dart';
 import 'package:vietnam_provinces/vietnam_provinces.dart';
 
 enum RegisterRescueTeamStep { step1, step2 }
@@ -76,9 +75,15 @@ class RegisterRescueTeamController extends GetxController {
     contactEmailController.addListener(_validateStep2);
     roleController.addListener(_validateStep2);
 
+    _setDefaultLeaderRole();
     _validateStep1();
     _validateStep2();
     _initTeamState();
+  }
+
+  void _setDefaultLeaderRole() {
+    selectedRole.value = RescueTeamRoleUtils.leader;
+    roleController.text = RescueTeamRoleUtils.leader.rescueTeamRoleName;
   }
 
   Future<void> _initTeamState() async {
@@ -118,14 +123,7 @@ class RegisterRescueTeamController extends GetxController {
     contactPhoneController.text = team.phone ?? '';
     contactEmailController.text = team.email ?? '';
 
-    final position = (team.position ?? '').toLowerCase();
-    if (position == RescueTeamRoleUtils.leader || position == RescueTeamRoleUtils.volunteer) {
-      selectedRole.value = position;
-      roleController.text = position.rescueTeamRoleName;
-    } else {
-      roleController.text = (team.position ?? '').rescueTeamRoleName;
-    }
-
+    _setDefaultLeaderRole();
     _syncAddressSelection(team);
   }
 
@@ -204,20 +202,6 @@ class RegisterRescueTeamController extends GetxController {
     selectedWard.value = selected;
     wardController.text = selected.name;
     _validateStep1();
-  }
-
-  Future<void> selectRole() async {
-    final selected = await showSelectBottomSheet<String>(
-      title: 'role'.tr,
-      items: [RescueTeamRoleUtils.volunteer, RescueTeamRoleUtils.leader],
-      labelBuilder: (item) => item.rescueTeamRoleName,
-      fitContent: true,
-    );
-    if (selected == null) return;
-
-    selectedRole.value = selected;
-    roleController.text = selected.rescueTeamRoleName;
-    _validateStep2();
   }
 
   void onEditTeam() {
