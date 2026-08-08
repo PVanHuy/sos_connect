@@ -58,7 +58,7 @@ class OnboardingPage extends GetWidget<OnboardingController> {
                                 style: StyleThemeData.size20Weight700(color: appTheme.whiteColor),
                               ),
                               Padding(
-                                padding: padding(top: 4, bottom: 60),
+                                padding: padding(top: 4, bottom: 20),
                                 child: Text(
                                   controller.descKey.tr,
                                   style: StyleThemeData.size14Weight400(color: appTheme.whiteColor),
@@ -71,7 +71,7 @@ class OnboardingPage extends GetWidget<OnboardingController> {
                               SlideActionButton(
                                 text: isLastStep ? 'btn_start'.tr : 'btn_continue'.tr,
                                 hasSafeArea: false,
-                                margin: padding(top: 24, bottom: 32),
+                                margin: padding(top: 20, bottom: 24),
                                 onCompleted: controller.onContinue,
                               ),
                             ],
