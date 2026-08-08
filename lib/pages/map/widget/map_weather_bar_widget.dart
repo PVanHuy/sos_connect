@@ -43,12 +43,14 @@ class MapWeatherBarWidget extends StatelessWidget {
                 SizedBox(width: 10.w),
                 Expanded(
                   child: Column(
-                    mainAxisSize: .min,
+                    mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        WeatherUtil.weatherDescriptionKey(weather!.weatherCode).tr,
+                        _weatherTitle(weather!),
                         style: StyleThemeData.size14Weight700(),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                       SizedBox(height: 2.h),
                       Text(
@@ -75,5 +77,12 @@ class MapWeatherBarWidget extends StatelessWidget {
     if (code >= 85 && code <= 86) return Icons.ac_unit_rounded;
     if (code >= 95) return Icons.thunderstorm_rounded;
     return Icons.cloud_rounded;
+  }
+
+  String _weatherTitle(WeatherInfo weather) {
+    final description = WeatherUtil.weatherDescriptionKey(weather.weatherCode).tr;
+    final location = weather.locationName?.trim() ?? '';
+    if (location.isEmpty) return description;
+    return '$location - $description';
   }
 }

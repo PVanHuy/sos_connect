@@ -43,6 +43,11 @@ class NotiController extends GetxController {
   void selectTab(NotiTabType tab) {
     if (selectedTab.value == tab) return;
     selectedTab.value = tab;
+    final listController = listControllerOf(tab);
+    if (!listController.hasRefresh) {
+      listController.updateLoading(true);
+      listController.onRefresh();
+    }
   }
 
   Future<void> syncUnreadCount() async {
@@ -61,13 +66,15 @@ class NotiController extends GetxController {
     final tab = NotiTabTypeExtension.fromNotificationType(model.type);
     final listController = listControllerOf(tab);
 
+    if (!listController.hasRefresh) {
+      if (!(model.isRead)) _increaseUnreadCount();
+      return;
+    }
+
     if (id.isNotEmpty && listController.list.any((item) => item.id == id)) return;
 
     listController.addNewData(0, model);
-
-    if (!(model.isRead)) {
-      _increaseUnreadCount();
-    }
+    if (!(model.isRead)) _increaseUnreadCount();
   }
 
   void updateNotificationAsReadLocally(String notificationId) {
@@ -91,6 +98,21 @@ class NotiController extends GetxController {
 
   void handleNotificationTap(NotificationModel notification) {
     final notificationId = notification.id?.trim() ?? '';
+    final sosId = notification.requestId?.trim() ?? '';
+
+    if (notification.type == NotiTypeUtils.chat) {
+      if (notificationId.isNotEmpty) markNotificationAsRead(notificationId);
+      if (!Get.isRegistered<NotificationService>()) return;
+      Get.find<NotificationService>().navigateByNotification(
+        type: notification.type,
+        action: notification.action,
+        notificationId: notificationId.isNotEmpty ? notificationId : null,
+        requestId: sosId,
+        sosId: sosId,
+      );
+      return;
+    }
+
     if (notificationId.isEmpty) return;
 
     if ((notification.type == NotiTypeUtils.joinRequest &&
@@ -106,6 +128,7 @@ class NotiController extends GetxController {
       notificationId: notificationId,
       teamId: notification.data?.teamId,
       requestId: notification.requestId,
+      sosId: notification.requestId,
     );
   }
 

@@ -3,6 +3,7 @@ class NotiTypeUtils {
   static const String announcement = 'announcement';
   static const String teamMembership = 'team_membership';
   static const String sosRequest = 'sos_request';
+  static const String chat = 'chat';
 }
 
 class NotiActionUtils {
@@ -12,4 +13,5 @@ class NotiActionUtils {
   static const String broadcast = 'broadcast';
   static const String kicked = 'kicked';
   static const String nearby = 'nearby';
+  static const String newMessage = 'new_message';
 }

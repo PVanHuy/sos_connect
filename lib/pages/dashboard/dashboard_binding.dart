@@ -1,10 +1,10 @@
 import 'package:get/get.dart';
 import 'package:sos_connect/pages/account/account_controller.dart';
+import 'package:sos_connect/pages/activity/activity_controller.dart';
 import 'package:sos_connect/pages/dashboard/dashboard_controller.dart';
 import 'package:sos_connect/pages/map/map_controller.dart';
 import 'package:sos_connect/pages/noti/noti_controller.dart';
 import 'package:sos_connect/pages/support/support_controller.dart';
-import 'package:sos_connect/pages/survival/survival_controller.dart';
 import 'package:sos_connect/resourese/dashboard/idashboard_repository.dart';
 import 'package:sos_connect/resourese/notification/inotification_repository.dart';
 import 'package:sos_connect/resourese/profile/iprofile_repository.dart';
@@ -32,11 +32,17 @@ class DashboardBinding implements Bindings {
       ),
       fenix: true,
     );
-    Get.lazyPut(() => SurvivalController(), fenix: true);
     Get.lazyPut(
       () => SupportController(
         sosRepository: Get.find<ISosRepository>(),
         teamRepository: Get.find<ITeamRepository>(),
+      ),
+      fenix: true,
+    );
+    Get.lazyPut(
+      () => ActivityController(
+        teamRepository: Get.find<ITeamRepository>(),
+        sosRepository: Get.find<ISosRepository>(),
       ),
       fenix: true,
     );

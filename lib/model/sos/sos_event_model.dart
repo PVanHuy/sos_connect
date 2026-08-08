@@ -1,4 +1,6 @@
+import 'package:get/get.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:sos_connect/extension/date_time_extension.dart';
 import 'package:sos_connect/model/team/rescue_team_model.dart';
 import 'package:sos_connect/utils/json_utils.dart';
 import 'package:sos_connect/utils/sos_emergency_type_utils.dart';
@@ -81,6 +83,25 @@ class SosEventModel {
         value == SosStatusUtils.pending ||
         value == SosStatusUtils.inProgress ||
         value == SosStatusUtils.requested;
+  }
+
+  String get postedTimeText {
+    final relative = createdAt.toRelativeTime;
+    if (relative.isEmpty) return '';
+    return 'posted_time'.trParams({'time': relative});
+  }
+
+  String get completedTimeText {
+    final source = (updatedAt?.trim().isNotEmpty == true) ? updatedAt : createdAt;
+    final relative = source.toRelativeTime;
+    if (relative.isEmpty) return '';
+    return 'completed_time'.trParams({'time': relative});
+  }
+
+  String get statusLabel {
+    final value = status ?? '';
+    if (value.isNotEmpty) return value.sosStatusName;
+    return SosStatusUtils.inProgress.sosStatusName;
   }
 }
 

@@ -6,10 +6,8 @@ import 'package:sos_connect/main.dart';
 import 'package:sos_connect/pages/account/account_controller.dart';
 import 'package:sos_connect/pages/account/widget/item_row_widget.dart';
 import 'package:sos_connect/pages/personal_information/personal_information_parameter.dart';
-import 'package:sos_connect/pages/rescue_posts/rescue_posts_parameter.dart';
 import 'package:sos_connect/routes/pages.dart';
 import 'package:sos_connect/theme/style/style_theme.dart';
-import 'package:sos_connect/utils/rescue_support_type_utils.dart';
 import 'package:sos_connect/widget/reponsive/extension.dart';
 
 class AccountSectionView extends GetView<AccountController> {
@@ -19,11 +17,11 @@ class AccountSectionView extends GetView<AccountController> {
       margin: padding(horizontal: 16, top: 12),
       decoration: BoxDecoration(
         color: appTheme.whiteColor,
-        borderRadius: .circular(12),
+        borderRadius: BorderRadius.circular(12),
         boxShadow: [BoxShadow(color: appTheme.blackColor.withSafeOpacity(.1), blurRadius: 24, offset: Offset.zero)],
       ),
       child: Column(
-        crossAxisAlignment: .start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
             padding: padding(all: 12),
@@ -38,13 +36,10 @@ class AccountSectionView extends GetView<AccountController> {
             ),
           ),
           ItemRowWidget(
-            icon: Assets.icons.message,
-            label: 'your_support_requests'.tr,
+            icon: Assets.icons.conceptSharing,
+            label: 'survival_skills'.tr,
             isLast: true,
-            onTap: () => Get.toNamed(
-              Routes.RESCUE_POSTS,
-              arguments: const RescuePostsParameter(type: RescueListType.yourRequests),
-            ),
+            onTap: () => Get.toNamed(Routes.SURVIVAL),
           ),
         ],
       ),

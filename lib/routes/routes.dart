@@ -13,7 +13,7 @@ abstract class Routes {
   static const PERSONAL_INFORMATION = '/personal_information';
   static const REGISTER_RESCUE_TEAM = '/register_rescue_team';
   static const CHANGE_PASSWORD = '/change_password';
-  static const RESCUE_POSTS = '/rescue_posts';
+  static const RESCUE_COMPLETED = '/rescue_completed';
   static const RESCUE_TEAM_LIST = '/rescue_team_list';
   static const RESCUE_TEAM_DETAIL = '/rescue_team_detail';
   static const JOIN_TEAM_REQUEST_LIST = '/join_team_request_list';
@@ -23,6 +23,8 @@ abstract class Routes {
   static const NOTIFICATION_DETAIL = '/notification_detail';
   static const SURVIVAL_GUIDE_DETAIL = '/survival_guide_detail';
   static const CHAT = '/chat';
+  static const SOS_CHAT = '/sos_chat';
+  static const SURVIVAL = '/survival';
   static const CREATE_NEW_PASSWORD = '/create_new_password';
   static const SEND_SOS = '/send_sos';
 }

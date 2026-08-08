@@ -11,4 +11,11 @@ class SocketEvent {
   static const String teamToggleLiveMode = 'team:toggle_live_mode';
   static const String teamUpdateLocation = 'team:update_location';
   static const String sosNearbyAlert = 'sos:nearby_alert';
+
+  /// Namespace: /chat
+  static const String chatJoin = 'chat:join';
+  static const String chatJoined = 'chat:joined';
+  static const String chatSendMessage = 'chat:send_message';
+  static const String chatNewMessage = 'chat:new_message';
+  static const String chatRoomReady = 'chat:room_ready';
 }

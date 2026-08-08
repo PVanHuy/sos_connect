@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sos_connect/main.dart';
-import 'package:sos_connect/pages/rescue_posts/rescue_posts_controller.dart';
-import 'package:sos_connect/pages/rescue_posts/widget/item_rescue_post_widget.dart';
+import 'package:sos_connect/pages/activity/widget/item_activity_sos_widget.dart';
+import 'package:sos_connect/pages/rescue_completed/rescue_completed_controller.dart';
 import 'package:sos_connect/utils/sos_emergency_type_utils.dart';
+import 'package:sos_connect/utils/sos_status_utils.dart';
 import 'package:sos_connect/widget/default_app_bar.dart';
 import 'package:sos_connect/widget/lazy_list/lazy_list.dart';
 import 'package:sos_connect/widget/no_data_widget.dart';
 import 'package:sos_connect/widget/reponsive/extension.dart';
 import 'package:sos_connect/widget/skeleton/rescue_posts_list_skeleton.dart';
 
-class RescuePostsPage extends GetWidget<RescuePostsController> {
+class RescueCompletedPage extends GetWidget<RescueCompletedController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,28 +34,23 @@ class RescuePostsPage extends GetWidget<RescuePostsController> {
         itemBuilder: (index, item) {
           final type = item.emergencyType;
           final team = item.teamRescue;
-          final showSafeButton = controller.listType.showSafeButton && item.canMarkAsSafe;
+          final statusStyle = (item.status ?? SosStatusUtils.complete).sosStatusStyle;
 
-          return Obx(() {
-            final isMarking = controller.markingSafeId.value == item.id;
-            return ItemRescuePostWidget(
-              imageUrl: item.image ?? '',
-              supportType: type.title,
-              supportTypeColor: type.style.text,
-              supportTypeBgColor: type.style.background,
-              time: controller.formatTime(item.createdAt),
-              remainingTime: controller.statusLabel(item),
-              description: item.description ?? '',
-              address: item.addressText ?? '',
-              phone: item.phone ?? '',
-              teamName: team?.name ?? '',
-              managerName: team?.leader ?? '',
-              managerPhone: team?.phone ?? '',
-              showSafeButton: showSafeButton,
-              isMarkingSafe: isMarking,
-              onMarkAsSafe: showSafeButton ? () => controller.markAsSafe(item) : null,
-            );
-          });
+          return ItemActivitySosWidget(
+            imageUrl: item.image ?? '',
+            supportType: type.title,
+            supportTypeColor: type.style.text,
+            supportTypeBgColor: type.style.background,
+            remainingTime: item.completedTimeText.isNotEmpty ? item.completedTimeText : 'completed'.tr,
+            statusTextColor: statusStyle.text,
+            statusBgColor: statusStyle.background,
+            description: item.description ?? '',
+            address: item.addressText ?? '',
+            phone: item.phone ?? '',
+            teamName: team?.name ?? '',
+            managerName: team?.leader ?? '',
+            managerPhone: team?.phone ?? '',
+          );
         },
       ),
     );

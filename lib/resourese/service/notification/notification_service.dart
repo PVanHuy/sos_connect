@@ -7,15 +7,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import 'package:sos_connect/model/notification/fcm_notification_model.dart';
-import 'package:sos_connect/pages/map/map_controller.dart';
-import 'package:sos_connect/pages/support/support_controller.dart';
 import 'package:sos_connect/pages/dashboard/dashboard_controller.dart';
 import 'package:sos_connect/pages/join_request_detail/join_request_detail_parameter.dart';
 import 'package:sos_connect/pages/join_team_request_list/join_team_request_list_controller.dart';
+import 'package:sos_connect/pages/map/map_controller.dart';
 import 'package:sos_connect/pages/noti/noti_controller.dart';
 import 'package:sos_connect/pages/notification_detail/notification_detail_parameter.dart';
 import 'package:sos_connect/pages/rescue_team_detail/rescue_team_detail_parameter.dart';
 import 'package:sos_connect/pages/rescue_team_list/rescue_team_list_controller.dart';
+import 'package:sos_connect/pages/sos_chat/sos_chat_parameter.dart';
+import 'package:sos_connect/pages/support/support_controller.dart';
 import 'package:sos_connect/resourese/dashboard/idashboard_repository.dart';
 import 'package:sos_connect/routes/pages.dart';
 import 'package:sos_connect/utils/app_constants.dart';
@@ -24,6 +25,7 @@ import 'package:sos_connect/utils/local_storage.dart';
 import 'package:sos_connect/utils/logger_helper.dart';
 import 'package:sos_connect/utils/noti_type_utils.dart';
 import 'package:sos_connect/utils/shared_key.dart';
+import 'package:sos_connect/utils/sos_emergency_type_utils.dart';
 import 'package:sos_connect/widget/dialog/show_alert_dialog.dart';
 
 class NotificationService {
@@ -243,9 +245,11 @@ class NotificationService {
       navigateByNotification(
         type: fcmNotification.type,
         action: fcmNotification.action,
-        notificationId: fcmNotification.notificationId,
+        notificationId: fcmNotification.resolvedNotificationId,
         teamId: fcmNotification.teamId,
         requestId: fcmNotification.requestId,
+        sosId: fcmNotification.resolvedSosId,
+        sosEmergencyType: fcmNotification.resolvedSosEmergencyApiType,
         reasonKicked: fcmNotification.resolvedReasonKicked,
         content: fcmNotification.content,
       );
@@ -260,12 +264,15 @@ class NotificationService {
     String? notificationId,
     String? teamId,
     String? requestId,
+    String? sosId,
+    String? sosEmergencyType,
     String? reasonKicked,
     String? content,
   }) {
     final id = notificationId?.trim() ?? '';
     final targetTeamId = teamId?.trim() ?? '';
     final targetRequestId = requestId?.trim() ?? '';
+    final targetSosId = (sosId?.trim().isNotEmpty == true ? sosId!.trim() : targetRequestId);
 
     switch (type) {
       case NotiTypeUtils.joinRequest:
@@ -310,12 +317,21 @@ class NotificationService {
         }
         break;
       case NotiTypeUtils.sosRequest:
+        // Support tab = index 2 (Map=0, Activity=1, Support=2).
         if (Get.isRegistered<DashboardController>()) {
           Get.until((route) => route.settings.name == Routes.DASHBOARD || route.isFirst);
           Get.find<DashboardController>().goToTab(2);
+          if (Get.isRegistered<SupportController>()) {
+            final tab = SosEmergencyTypeExtension.fromApi(sosEmergencyType).supportTabType;
+            Get.find<SupportController>().openWithType(tab, forceRefresh: true);
+          }
         } else if (id.isNotEmpty) {
           Get.toNamed(Routes.NOTIFICATION_DETAIL, arguments: NotificationDetailParameter(notificationId: id));
         }
+        break;
+      case NotiTypeUtils.chat:
+        if (targetSosId.isEmpty) return;
+        Get.toNamed(Routes.SOS_CHAT, arguments: SosChatParameter(sosId: targetSosId));
         break;
       default:
         if (id.isNotEmpty) {
@@ -345,6 +361,8 @@ class NotificationService {
       case NotiTypeUtils.sosRequest:
         _addIncomingNotification(data);
         _handleSosRequestRealtime(FcmNotificationModel.fromJson(data));
+        break;
+      case NotiTypeUtils.chat:
         break;
       default:
         break;

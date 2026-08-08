@@ -23,8 +23,8 @@ import 'package:sos_connect/pages/join_team_request_list/join_team_request_list_
 import 'package:sos_connect/pages/join_team_request_list/join_team_request_list_page.dart';
 import 'package:sos_connect/pages/notification_detail/notification_detail_binding.dart';
 import 'package:sos_connect/pages/notification_detail/notification_detail_page.dart';
-import 'package:sos_connect/pages/rescue_posts/rescue_posts_binding.dart';
-import 'package:sos_connect/pages/rescue_posts/rescue_posts_page.dart';
+import 'package:sos_connect/pages/rescue_completed/rescue_completed_binding.dart';
+import 'package:sos_connect/pages/rescue_completed/rescue_completed_page.dart';
 import 'package:sos_connect/pages/rescue_team_detail/rescue_team_detail_binding.dart';
 import 'package:sos_connect/pages/rescue_team_detail/rescue_team_detail_page.dart';
 import 'package:sos_connect/pages/rescue_team_list/rescue_team_list_binding.dart';
@@ -35,8 +35,12 @@ import 'package:sos_connect/pages/sign_in/sign_in_binding.dart';
 import 'package:sos_connect/pages/sign_in/sign_in_page.dart';
 import 'package:sos_connect/pages/sign_up/sign_up_binding.dart';
 import 'package:sos_connect/pages/sign_up/sign_up_page.dart';
+import 'package:sos_connect/pages/sos_chat/sos_chat_binding.dart';
+import 'package:sos_connect/pages/sos_chat/sos_chat_page.dart';
 import 'package:sos_connect/pages/splash/splash_binding.dart';
 import 'package:sos_connect/pages/splash/splash_page.dart';
+import 'package:sos_connect/pages/survival/survival_binding.dart';
+import 'package:sos_connect/pages/survival/survival_page.dart';
 import 'package:sos_connect/pages/survival_guide_detail/survival_guide_detail_binding.dart';
 import 'package:sos_connect/pages/survival_guide_detail/survival_guide_detail_page.dart';
 import 'package:sos_connect/pages/team_member_list/team_member_list_binding.dart';
@@ -66,7 +70,7 @@ abstract class AppPages {
       binding: RegisterRescueTeamBinding(),
     ),
     GetPage(name: Routes.CHANGE_PASSWORD, page: () => ChangePasswordPage(), binding: ChangePasswordBinding()),
-    GetPage(name: Routes.RESCUE_POSTS, page: () => RescuePostsPage(), binding: RescuePostsBinding()),
+    GetPage(name: Routes.RESCUE_COMPLETED, page: () => RescueCompletedPage(), binding: RescueCompletedBinding()),
     GetPage(name: Routes.RESCUE_TEAM_LIST, page: () => RescueTeamListPage(), binding: RescueTeamListBinding()),
     GetPage(name: Routes.RESCUE_TEAM_DETAIL, page: () => RescueTeamDetailPage(), binding: RescueTeamDetailBinding()),
     GetPage(
@@ -99,7 +103,9 @@ abstract class AppPages {
       page: () => SurvivalGuideDetailPage(),
       binding: SurvivalGuideDetailBinding(),
     ),
+    GetPage(name: Routes.SURVIVAL, page: () => SurvivalPage(), binding: SurvivalBinding()),
     GetPage(name: Routes.CHAT, page: () => ChatPage(), binding: ChatBinding()),
+    GetPage(name: Routes.SOS_CHAT, page: () => SosChatPage(), binding: SosChatBinding()),
     GetPage(
       name: Routes.CREATE_NEW_PASSWORD,
       page: () => CreateNewPasswordPage(),

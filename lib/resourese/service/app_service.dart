@@ -9,9 +9,12 @@ import 'package:sos_connect/resourese/profile/iprofile_repository.dart';
 import 'package:sos_connect/resourese/profile/profile_repository.dart';
 import 'package:sos_connect/resourese/service/notification/notification_service.dart';
 import 'package:sos_connect/resourese/service/socket/socket_io_service.dart';
+import 'package:sos_connect/resourese/service/socket/sos_chat_socket_service.dart';
 import 'package:sos_connect/resourese/service/socket/team_live_mode_service.dart';
 import 'package:sos_connect/resourese/sos/isos_repository.dart';
 import 'package:sos_connect/resourese/sos/sos_repository.dart';
+import 'package:sos_connect/resourese/sos_chat/isos_chat_repository.dart';
+import 'package:sos_connect/resourese/sos_chat/sos_chat_repository.dart';
 import 'package:sos_connect/resourese/team/iteam_repository.dart';
 import 'package:sos_connect/resourese/team/team_repository.dart';
 
@@ -21,10 +24,12 @@ class AppService {
     Get.put<IProfileRepository>(ProfileRepository());
     Get.put<ITeamRepository>(TeamRepository());
     Get.put<ISosRepository>(SosRepository());
+    Get.put<ISosChatRepository>(SosChatRepository());
     Get.put<IDashboardRepository>(DashboardRepository());
     Get.put<INotificationRepository>(NotificationRepository());
     Get.put(NotificationService());
     Get.put(SocketIoService());
     Get.put(TeamLiveModeService());
+    Get.put(SosChatSocketService());
   }
 }

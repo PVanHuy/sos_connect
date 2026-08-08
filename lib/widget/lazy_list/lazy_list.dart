@@ -1,10 +1,10 @@
+import 'package:flutter/material.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import 'package:sos_connect/main.dart';
 import 'package:sos_connect/utils/app_constants.dart';
 import 'package:sos_connect/widget/lazy_list/lazy_list_controller.dart';
 import 'package:sos_connect/widget/lazy_list/list_vertical_item.dart';
 import 'package:sos_connect/widget/reponsive/extension.dart';
-import 'package:flutter/material.dart';
-import 'package:skeletonizer/skeletonizer.dart';
 
 class LazyListView<T> extends StatefulWidget {
   const LazyListView({
@@ -70,7 +70,7 @@ class LazyListViewState<T> extends State<LazyListView<T>> with AutomaticKeepAliv
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (controller.data.value.isEmpty && widget.callInit) {
+      if (!controller.hasRefresh && widget.callInit) {
         controller.onRefresh();
       }
     });

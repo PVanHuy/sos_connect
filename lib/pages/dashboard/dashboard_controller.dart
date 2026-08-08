@@ -3,13 +3,13 @@ import 'package:get/get.dart';
 import 'package:sos_connect/model/sos/sos_event_model.dart';
 import 'package:sos_connect/model/user/user_model.dart';
 import 'package:sos_connect/pages/account/account_page.dart';
+import 'package:sos_connect/pages/activity/activity_page.dart';
 import 'package:sos_connect/pages/map/map_controller.dart';
 import 'package:sos_connect/pages/map/map_page.dart';
 import 'package:sos_connect/pages/noti/noti_controller.dart';
 import 'package:sos_connect/pages/noti/noti_page.dart';
 import 'package:sos_connect/pages/support/support_controller.dart';
 import 'package:sos_connect/pages/support/support_page.dart';
-import 'package:sos_connect/pages/survival/survival_page.dart';
 import 'package:sos_connect/resourese/dashboard/idashboard_repository.dart';
 import 'package:sos_connect/resourese/profile/iprofile_repository.dart';
 import 'package:sos_connect/resourese/service/notification/notification_service.dart';
@@ -40,7 +40,7 @@ class DashboardController extends GetxController {
   final RxInt notificationCount = 0.obs;
   final RxInt joinRequestCount = 0.obs;
 
-  late final List<Widget> pages = [MapPage(), SurvivalPage(), SupportPage(), NotiPage(), AccountPage()];
+  late final List<Widget> pages = [MapPage(), ActivityPage(), SupportPage(), NotiPage(), AccountPage()];
 
   bool get isLeader {
     final roles = userModel.value?.roles ?? '';
@@ -50,11 +50,15 @@ class DashboardController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    // Create tab controllers under Dashboard route so GetX doesn't
-    // bind/delete them when child routes (e.g. notification deep-link) close.
-    Get.find<NotiController>();
     fetchProfile();
     _init();
+  }
+
+  @override
+  void onReady() {
+    super.onReady();
+    Get.find<NotiController>();
+    Get.find<SupportController>();
   }
 
   Future<void> _init() async {
@@ -123,11 +127,7 @@ class DashboardController extends GetxController {
     if (lat == null || lon == null) return;
 
     if (!Get.isRegistered<MapController>()) return;
-    Get.find<MapController>().handleMapUpdated(
-      id: map['id']?.toString(),
-      lat: lat,
-      lon: lon,
-    );
+    Get.find<MapController>().handleMapUpdated(id: map['id']?.toString(), lat: lat, lon: lon);
   }
 
   Future<void> fetchProfile() async {

@@ -10,6 +10,7 @@ class AppConstants {
   static const int timeOtp = 120;
   static const int secondsTimeBannerSlide = 5;
   static const int maxOtpLength = 4;
+  static const int maxSosChatMessageLength = 500;
 
   static const int LIMIT = 10;
 
@@ -50,6 +51,8 @@ class AppConstants {
 
   static String teamSupportUri(String sosId) => '/team/support/$sosId';
 
+  static String chatHistoryUri(String sosId) => '/chatbot/$sosId/history';
+
   static String userProfileSosCancelUri(String sosId) => '/user/profile/sos/cancel/$sosId';
 
   static String teamJoinRequestRespondUri(String requestId) => '/team/join-request/$requestId/respond';
@@ -59,5 +62,4 @@ class AppConstants {
   static String notificationDetailUri(String notificationId) => '/notification/$notificationId';
 
   static String markNotificationAsReadUri(String notificationId) => '/notification/$notificationId/read';
-  
 }

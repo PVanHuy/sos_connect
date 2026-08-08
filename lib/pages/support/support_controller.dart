@@ -72,24 +72,31 @@ class SupportController extends GetxController {
         );
       },
     );
-    // Show skeleton immediately; don't wait for location / active-support first.
     sosListController.updateLoading(true);
     _bootstrap();
   }
 
+  @override
+  void onReady() {
+    super.onReady();
+    fetchActiveSupportStatus();
+  }
+
   Future<void> _bootstrap() async {
-    await Future.wait([_prefillLocation(), fetchActiveSupportStatus()]);
-    if (isClosed) return;
+    final locationFuture = _prefillLocation();
     await sosListController.onRefresh();
+    if (isClosed) return;
+    await locationFuture;
   }
 
   Future<void> refreshList() async {
     if (sosListController.list.isEmpty) {
       sosListController.updateLoading(true);
     }
-    await fetchActiveSupportStatus();
-    if (isClosed) return;
+    final supportFuture = fetchActiveSupportStatus();
     await sosListController.onRefresh();
+    if (isClosed) return;
+    await supportFuture;
   }
 
   Future<void> fetchActiveSupportStatus() async {
@@ -127,8 +134,20 @@ class SupportController extends GetxController {
   }
 
   void selectType(SosEmergencyType type) {
-    if (selectedType.value == type) return;
-    selectedType.value = type;
+    openWithType(type);
+  }
+
+  void openWithType(SosEmergencyType type, {bool forceRefresh = false}) {
+    final tab = type.supportTabType;
+    if (selectedType.value == tab) {
+      if (forceRefresh) {
+        sosListController.updateLoading(sosListController.list.isEmpty);
+        sosListController.onRefresh();
+      }
+      return;
+    }
+    selectedType.value = tab;
+    sosListController.updateLoading(true);
     sosListController.onRefresh();
   }
 
@@ -203,7 +222,11 @@ class SupportController extends GetxController {
     final status = event.status?.trim().toUpperCase() ?? '';
     if (status.isNotEmpty && !status.isSosPending) return;
 
-    if (event.emergencyType != selectedType.value) return;
+    final tab = event.emergencyType.supportTabType;
+    if (selectedType.value != tab) {
+      openWithType(tab);
+      return;
+    }
 
     final provinceFilter = selectedProvince.value?.name;
     if (provinceFilter != null && provinceFilter.isNotEmpty) {

@@ -109,4 +109,9 @@ extension SosEmergencyTypeExtension on SosEmergencyType {
         return SosEmergencyType.other;
     }
   }
+
+  SosEmergencyType get supportTabType {
+    if (selectableTypes.contains(this)) return this;
+    return SosEmergencyType.needRescue;
+  }
 }

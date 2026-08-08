@@ -5,7 +5,7 @@ import 'package:sos_connect/gen/assets.gen.dart';
 import 'package:sos_connect/main.dart';
 import 'package:sos_connect/pages/account/account_controller.dart';
 import 'package:sos_connect/pages/account/widget/item_row_widget.dart';
-import 'package:sos_connect/pages/rescue_posts/rescue_posts_parameter.dart';
+import 'package:sos_connect/pages/rescue_completed/rescue_completed_parameter.dart';
 import 'package:sos_connect/routes/pages.dart';
 import 'package:sos_connect/theme/style/style_theme.dart';
 import 'package:sos_connect/utils/rescue_support_type_utils.dart';
@@ -19,7 +19,7 @@ class RescueView extends GetView<AccountController> {
       margin: padding(horizontal: 16, top: 12),
       decoration: BoxDecoration(
         color: appTheme.whiteColor,
-        borderRadius: .circular(12),
+        borderRadius: BorderRadius.circular(12),
         boxShadow: [BoxShadow(color: appTheme.blackColor.withSafeOpacity(.1), blurRadius: 24, offset: Offset.zero)],
       ),
       child: Obx(() {
@@ -28,7 +28,7 @@ class RescueView extends GetView<AccountController> {
         final isLeader = (user?.roles ?? '').toLowerCase() == UserRoleUtils.leader;
 
         return Column(
-          crossAxisAlignment: .start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
               padding: padding(all: 12),
@@ -51,20 +51,12 @@ class RescueView extends GetView<AccountController> {
               onTap: () => Get.toNamed(Routes.JOIN_TEAM_REQUEST_LIST),
             ),
             ItemRowWidget(
-              icon: Assets.icons.clipboardText,
-              label: 'rescue_receiving'.tr,
-              onTap: () => Get.toNamed(
-                Routes.RESCUE_POSTS,
-                arguments: const RescuePostsParameter(type: RescueListType.receiving),
-              ),
-            ),
-            ItemRowWidget(
               icon: Assets.icons.task,
               label: 'rescue_completed'.tr,
               isLast: true,
               onTap: () => Get.toNamed(
-                Routes.RESCUE_POSTS,
-                arguments: const RescuePostsParameter(type: RescueListType.received),
+                Routes.RESCUE_COMPLETED,
+                arguments: const RescueCompletedParameter(type: RescueListType.received),
               ),
             ),
           ],

@@ -73,7 +73,7 @@ class LazyListGridViewState<T> extends State<LazyListGridView<T>> with Automatic
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (controller.data.value.isEmpty && widget.callInit) {
+      if (!controller.hasRefresh && widget.callInit) {
         controller.onRefresh();
       }
     });

@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sos_connect/main.dart';
 import 'package:sos_connect/utils/team_status_utils.dart';
@@ -39,7 +38,7 @@ extension JoinTeamRequestStatusExtension on String? {
         return TeamStatusStyle(background: appTheme.redF4Color, text: appTheme.red55Color, border: appTheme.red55Color);
       case JoinTeamRequestStatusUtils.pending:
         return TeamStatusStyle(
-          background: const Color(0xFFFFF7E6),
+          background: appTheme.yellowE6Color,
           text: appTheme.yellow22Color,
           border: appTheme.yellow22Color,
         );

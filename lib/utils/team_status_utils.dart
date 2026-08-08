@@ -70,7 +70,7 @@ extension TeamStatusExtension on String? {
     switch ((this ?? '').toLowerCase()) {
       case TeamStatusUtils.pending:
         return TeamStatusStyle(
-          background: const Color(0xFFFFF7E6),
+          background: appTheme.yellowE6Color,
           text: appTheme.yellow22Color,
           border: appTheme.yellow22Color,
         );
