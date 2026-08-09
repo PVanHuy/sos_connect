@@ -281,6 +281,9 @@ const Map<String, String> en = {
   'location_service_disabled': 'Location service is disabled. Please enable it in settings.',
   'location_permission_denied': 'Location permission denied.',
   'location_permission_denied_forever': 'Location permission permanently denied. Please enable it in settings.',
+  'location_required_title': 'Location permission required',
+  'location_required_content':
+      'SOS Connect needs location access to send SOS and connect rescue teams. Please allow it to continue using the app.',
   'location_get_failed': 'Unable to get current location. Please try again.',
   'loading_weather': 'Loading weather...',
   'weather_unavailable': 'Weather data unavailable',

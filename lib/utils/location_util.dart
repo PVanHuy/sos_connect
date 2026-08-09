@@ -15,8 +15,38 @@ class LocationResult {
   bool get isSuccess => position != null;
 }
 
+enum LocationPermissionGateStatus { granted, serviceDisabled, denied, deniedForever }
+
 class LocationUtil {
   LocationUtil._();
+
+  /// Xin / kiểm tra quyền vị trí. Không lấy toạ độ.
+  static Future<LocationPermissionGateStatus> ensurePermission() async {
+    try {
+      final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) return LocationPermissionGateStatus.serviceDisabled;
+
+      var permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+
+      if (permission == LocationPermission.denied) {
+        return LocationPermissionGateStatus.denied;
+      }
+      if (permission == LocationPermission.deniedForever) {
+        return LocationPermissionGateStatus.deniedForever;
+      }
+      return LocationPermissionGateStatus.granted;
+    } catch (e) {
+      loggerHelper.error('ensurePermission error: $e');
+      return LocationPermissionGateStatus.denied;
+    }
+  }
+
+  static Future<bool> openAppSettings() => Geolocator.openAppSettings();
+
+  static Future<bool> openLocationSettings() => Geolocator.openLocationSettings();
 
   /// Lấy vị trí hiện tại (LatLng). Tự kiểm tra GPS + xin quyền nếu cần.
   static Future<LocationResult> getCurrentLatLng({

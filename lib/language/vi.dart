@@ -283,6 +283,9 @@ const Map<String, String> vi = {
   'location_service_disabled': 'Dịch vụ định vị chưa được bật. Vui lòng bật định vị trong cài đặt.',
   'location_permission_denied': 'Quyền truy cập vị trí bị từ chối.',
   'location_permission_denied_forever': 'Quyền truy cập vị trí bị từ chối vĩnh viễn. Vui lòng cấp quyền trong cài đặt.',
+  'location_required_title': 'Cần quyền truy cập vị trí',
+  'location_required_content':
+      'SOS Connect cần quyền vị trí để gửi SOS và kết nối đội cứu hộ. Vui lòng cho phép để tiếp tục sử dụng ứng dụng.',
   'location_get_failed': 'Không lấy được vị trí hiện tại. Vui lòng thử lại.',
   'loading_weather': 'Đang tải thời tiết...',
   'weather_unavailable': 'Không có dữ liệu thời tiết',
