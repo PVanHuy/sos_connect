@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:sos_connect/model/sos/sos_event_model.dart';
 import 'package:sos_connect/model/user/user_model.dart';
 import 'package:sos_connect/pages/account/account_page.dart';
+import 'package:sos_connect/pages/activity/activity_controller.dart';
 import 'package:sos_connect/pages/activity/activity_page.dart';
 import 'package:sos_connect/pages/map/map_controller.dart';
 import 'package:sos_connect/pages/map/map_page.dart';
@@ -172,13 +173,18 @@ class DashboardController extends GetxController {
 
   void goToTab(int index) {
     if (currentPage.value == index) {
-      if (index == 2 && Get.isRegistered<SupportController>()) {
-        Get.find<SupportController>().refreshList();
-      }
+      _refreshTab(index);
       return;
     }
     currentPage.value = index;
     pageController.jumpToPage(index);
+    _refreshTab(index);
+  }
+
+  void _refreshTab(int index) {
+    if (index == 1 && Get.isRegistered<ActivityController>()) {
+      Get.find<ActivityController>().refreshList();
+    }
     if (index == 2 && Get.isRegistered<SupportController>()) {
       Get.find<SupportController>().refreshList();
     }

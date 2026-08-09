@@ -7,6 +7,7 @@
 ## Mục lục
 
 - [Giới thiệu dự án](#giới-thiệu-dự-án)
+- [Mục tiêu & chức năng (chi tiết)](docs/PRODUCT.md)
 - [Công nghệ sử dụng](#công-nghệ-sử-dụng)
 - [Cấu trúc thư mục](#cấu-trúc-thư-mục)
 - [Hướng dẫn cài đặt](#hướng-dẫn-cài-đặt)
