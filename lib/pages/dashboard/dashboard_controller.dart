@@ -16,9 +16,11 @@ import 'package:sos_connect/resourese/profile/iprofile_repository.dart';
 import 'package:sos_connect/resourese/service/notification/notification_service.dart';
 import 'package:sos_connect/resourese/service/socket/socket_event.dart';
 import 'package:sos_connect/resourese/service/socket/socket_io_service.dart';
+import 'package:sos_connect/resourese/service/socket/team_live_mode_service.dart';
 import 'package:sos_connect/resourese/team/iteam_repository.dart';
 import 'package:sos_connect/utils/logger_helper.dart';
 import 'package:sos_connect/utils/role_user.utils.dart';
+import 'package:sos_connect/widget/dialog/show_confirm_dialog.dart';
 
 class DashboardController extends GetxController {
   final IProfileRepository profileRepository;
@@ -43,9 +45,16 @@ class DashboardController extends GetxController {
 
   late final List<Widget> pages = [MapPage(), ActivityPage(), SupportPage(), NotiPage(), AccountPage()];
 
+  bool _didPromptLiveMode = false;
+
   bool get isLeader {
     final roles = userModel.value?.roles ?? '';
     return roles.toLowerCase() == UserRoleUtils.leader;
+  }
+
+  bool get hasTeam {
+    final teamId = userModel.value?.teamId?.trim() ?? '';
+    return teamId.isNotEmpty;
   }
 
   @override
@@ -138,9 +147,37 @@ class DashboardController extends GetxController {
 
       userModel.value = UserModel.fromJson(response.body);
       await fetchJoinRequestCount();
+      _maybePromptLiveMode();
     } catch (e) {
       debugPrint(e.toString());
     }
+  }
+
+  void _maybePromptLiveMode() {
+    if (_didPromptLiveMode || isClosed) return;
+    if (!isLeader || !hasTeam) return;
+    if (!Get.isRegistered<TeamLiveModeService>()) return;
+
+    final liveService = Get.find<TeamLiveModeService>();
+    if (liveService.isLive.value) return;
+
+    _didPromptLiveMode = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (isClosed) return;
+      if (Get.isDialogOpen == true) return;
+      if (liveService.isLive.value) return;
+
+      showConfirmDialog(
+        title: 'team_live_mode_prompt_title'.tr,
+        content: 'team_live_mode_prompt_content'.tr,
+        titleBtn: 'yes'.tr,
+        cancelBtnTitle: 'cancel'.tr,
+        onConfirm: () {
+          if (!Get.isRegistered<TeamLiveModeService>()) return;
+          Get.find<TeamLiveModeService>().toggleLiveMode(active: true);
+        },
+      );
+    });
   }
 
   Future<void> fetchJoinRequestCount() async {

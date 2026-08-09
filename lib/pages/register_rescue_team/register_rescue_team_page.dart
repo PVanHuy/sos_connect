@@ -40,6 +40,9 @@ class RegisterRescueTeamPage extends GetWidget<RegisterRescueTeamController> {
                   actions: showTeamInfo && controller.isLeader
                       ? [
                           Obx(() {
+                            if (!Get.isRegistered<TeamLiveModeService>()) {
+                              return const SizedBox.shrink();
+                            }
                             final liveService = Get.find<TeamLiveModeService>();
                             final isLive = liveService.isLive.value;
                             final isToggling = liveService.isToggling.value;

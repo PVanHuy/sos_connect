@@ -72,6 +72,10 @@ const Map<String, String> en = {
   'team_live_mode_connect_failed': 'Could not connect live mode',
   'team_live_mode_location_failed': 'Could not get location to enable live mode',
   'team_live_mode_toggle_failed': 'Could not toggle live mode',
+  'team_live_mode_prompt_title': 'Receive rescue requests now?',
+  'team_live_mode_prompt_content':
+      'Do you want to turn on live mode to receive nearby SOS requests for your team? Live mode turns off when you leave the app, so you may need to enable it again.',
+  'yes': 'Yes',
   'approved_rescue_teams': 'Approved rescue teams',
   'search_team_name': 'Search by team name',
   'team_status_pending': 'Pending',

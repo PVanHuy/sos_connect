@@ -90,6 +90,25 @@ class ActivityController extends GetxController {
     selectedTab.value = tab;
   }
 
+  bool hasSosRequest(String sosId) {
+    final id = sosId.trim();
+    if (id.isEmpty) return false;
+    return yourRequestsListController.list.any((e) => (e.id?.trim() ?? '') == id);
+  }
+
+  Future<void> openYourRequests({bool forceRefresh = true}) async {
+    selectedTab.value = RescueListType.yourRequests;
+    if (!forceRefresh && yourRequestsListController.list.isNotEmpty) return;
+    await refreshYourRequests();
+  }
+
+  Future<void> refreshYourRequests() async {
+    if (yourRequestsListController.list.isEmpty) {
+      yourRequestsListController.updateLoading(true);
+    }
+    await yourRequestsListController.onRefresh();
+  }
+
   void toggleTab() {
     if (!canSwitch) return;
     selectTab(selectedTab.value == RescueListType.receiving ? RescueListType.yourRequests : RescueListType.receiving);

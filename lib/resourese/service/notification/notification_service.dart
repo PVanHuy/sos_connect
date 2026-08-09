@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import 'package:sos_connect/model/notification/fcm_notification_model.dart';
+import 'package:sos_connect/pages/activity/activity_controller.dart';
 import 'package:sos_connect/pages/dashboard/dashboard_controller.dart';
 import 'package:sos_connect/pages/join_request_detail/join_request_detail_parameter.dart';
 import 'package:sos_connect/pages/join_team_request_list/join_team_request_list_controller.dart';
@@ -317,17 +318,14 @@ class NotificationService {
         }
         break;
       case NotiTypeUtils.sosRequest:
-        // Support tab = index 2 (Map=0, Activity=1, Support=2).
-        if (Get.isRegistered<DashboardController>()) {
-          Get.until((route) => route.settings.name == Routes.DASHBOARD || route.isFirst);
-          Get.find<DashboardController>().goToTab(2);
-          if (Get.isRegistered<SupportController>()) {
-            final tab = SosEmergencyTypeExtension.fromApi(sosEmergencyType).supportTabType;
-            Get.find<SupportController>().openWithType(tab, forceRefresh: true);
-          }
-        } else if (id.isNotEmpty) {
-          Get.toNamed(Routes.NOTIFICATION_DETAIL, arguments: NotificationDetailParameter(notificationId: id));
-        }
+        unawaited(
+          _navigateSosRequest(
+            notificationId: id,
+            action: action,
+            sosId: targetSosId,
+            sosEmergencyType: sosEmergencyType,
+          ),
+        );
         break;
       case NotiTypeUtils.chat:
         if (targetSosId.isEmpty) return;
@@ -339,6 +337,49 @@ class NotificationService {
         }
         break;
     }
+  }
+
+  Future<void> _navigateSosRequest({
+    required String notificationId,
+    required String? action,
+    required String sosId,
+    String? sosEmergencyType,
+  }) async {
+    if (!Get.isRegistered<DashboardController>()) {
+      if (notificationId.isNotEmpty) {
+        Get.toNamed(Routes.NOTIFICATION_DETAIL, arguments: NotificationDetailParameter(notificationId: notificationId));
+      }
+      return;
+    }
+
+    Get.until((route) => route.settings.name == Routes.DASHBOARD || route.isFirst);
+    final dashboard = Get.find<DashboardController>();
+
+    final openMyActivity =
+        NotiActionUtils.isSosRequesterUpdate(action) ||
+        (NotiActionUtils.isSosNearby(action) && await _isOwnSosRequest(sosId));
+
+    if (openMyActivity) {
+      dashboard.goToTab(1);
+      if (Get.isRegistered<ActivityController>()) {
+        await Get.find<ActivityController>().openYourRequests(forceRefresh: true);
+      }
+      return;
+    }
+
+    dashboard.goToTab(2);
+    if (Get.isRegistered<SupportController>()) {
+      final tab = SosEmergencyTypeExtension.fromApi(sosEmergencyType).supportTabType;
+      Get.find<SupportController>().openWithType(tab, forceRefresh: true);
+    }
+  }
+
+  Future<bool> _isOwnSosRequest(String sosId) async {
+    if (sosId.isEmpty || !Get.isRegistered<ActivityController>()) return false;
+    final activity = Get.find<ActivityController>();
+    if (activity.hasSosRequest(sosId)) return true;
+    await activity.refreshYourRequests();
+    return activity.hasSosRequest(sosId);
   }
 
   void _hardReloadService(Map<String, dynamic> payload) {
@@ -370,8 +411,39 @@ class NotificationService {
   }
 
   void _handleSosRequestRealtime(FcmNotificationModel fcm) {
+    final sosId = fcm.resolvedSosId?.trim() ?? '';
+
+    if (NotiActionUtils.isSosRequesterUpdate(fcm.action)) {
+      if (Get.isRegistered<ActivityController>()) {
+        Get.find<ActivityController>().refreshYourRequests();
+      }
+      return;
+    }
+
+    if (NotiActionUtils.isSosNearby(fcm.action)) {
+      unawaited(_handleNearbyRealtime(sosId));
+      return;
+    }
+
     if (Get.isRegistered<SupportController>()) {
       Get.find<SupportController>().refreshList();
+    }
+    if (Get.isRegistered<MapController>()) {
+      Get.find<MapController>().scheduleViewportReload();
+    }
+  }
+
+  Future<void> _handleNearbyRealtime(String sosId) async {
+    // Leader vừa đăng SOS vừa bật trực → nearby của chính SOS mình: refresh Hoạt động.
+    if (await _isOwnSosRequest(sosId)) {
+      if (Get.isRegistered<ActivityController>()) {
+        await Get.find<ActivityController>().refreshYourRequests();
+      }
+      return;
+    }
+
+    if (Get.isRegistered<SupportController>()) {
+      await Get.find<SupportController>().refreshList();
     }
     if (Get.isRegistered<MapController>()) {
       Get.find<MapController>().scheduleViewportReload();

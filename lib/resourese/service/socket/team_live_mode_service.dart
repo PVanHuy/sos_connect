@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 import 'package:socket_io_client/socket_io_client.dart' as socket_io_client;
+import 'package:sos_connect/pages/activity/activity_controller.dart';
 import 'package:sos_connect/pages/map/map_controller.dart';
 import 'package:sos_connect/pages/support/support_controller.dart';
 import 'package:sos_connect/resourese/service/socket/socket_event.dart';
@@ -60,9 +61,6 @@ class TeamLiveModeService extends GetxService {
         return true;
       }
 
-      if (_socket != null && _socket!.connected) {
-        _emitToggle(active: false, radiusMeters: nextRadius);
-      }
       await stopLiveMode(showMessage: true);
       return false;
     } catch (e) {
@@ -198,12 +196,30 @@ class TeamLiveModeService extends GetxService {
 
   void _onNearbyAlert(dynamic data) {
     loggerHelper.log('[LIVE] ${SocketEvent.sosNearbyAlert} data=$data', name: 'TeamLiveModeService');
+
+    final sosId = _readSosId(data);
+    if (sosId.isNotEmpty && Get.isRegistered<ActivityController>()) {
+      final activity = Get.find<ActivityController>();
+      if (activity.hasSosRequest(sosId)) {
+        activity.refreshYourRequests();
+        return;
+      }
+    }
+
     if (Get.isRegistered<SupportController>()) {
       Get.find<SupportController>().refreshList();
     }
     if (Get.isRegistered<MapController>()) {
       Get.find<MapController>().scheduleViewportReload();
     }
+  }
+
+  String _readSosId(dynamic data) {
+    if (data is! Map) return '';
+    final map = Map<String, dynamic>.from(data);
+    final direct = map['sos_id']?.toString().trim() ?? '';
+    if (direct.isNotEmpty) return direct;
+    return map['id']?.toString().trim() ?? '';
   }
 
   Future<void> _disconnectSocket() async {

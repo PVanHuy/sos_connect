@@ -74,6 +74,10 @@ const Map<String, String> vi = {
   'team_live_mode_connect_failed': 'Không kết nối được chế độ trực',
   'team_live_mode_location_failed': 'Không lấy được vị trí để bật chế độ trực',
   'team_live_mode_toggle_failed': 'Không thể đổi trạng thái chế độ trực',
+  'team_live_mode_prompt_title': 'Nhận cứu hộ ngay?',
+  'team_live_mode_prompt_content':
+      'Bạn có muốn bật chế độ trực để nhận yêu cầu SOS gần khu vực đội không? Nếu thoát app, chế độ trực sẽ tắt và bạn cần bật lại.',
+  'yes': 'Có',
   'approved_rescue_teams': 'Danh sách đội cứu hộ',
   'search_team_name': 'Tìm theo tên đội',
   'team_status_pending': 'Chờ duyệt',
