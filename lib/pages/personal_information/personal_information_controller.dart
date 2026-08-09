@@ -67,7 +67,7 @@ class PersonalInformationController extends GetxController {
   Future<void> _updateFormValid() async {
     if (isClosed) return;
     final fullNameValid = CustomValidator.validateFullName(fullNameController.text.trim()).isEmpty;
-    final phoneValid = await CustomValidator.validatePhone(phoneController.text.trim());
+    final phoneValid = CustomValidator.validatePhone(phoneController.text.trim());
     final emailValid = CustomValidator.validateEmail(emailController.text.trim(), isRequired: false).isEmpty;
     final cccdValid = CustomValidator.validateCCCD(cccdController.text.trim(), isRequired: false).isEmpty;
     final provinceValid = CustomValidator.validateRequiredField(

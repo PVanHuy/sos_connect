@@ -18,7 +18,6 @@ class SignInController extends GetxController {
 
   var isLoading = false.obs;
   var isFormValid = false.obs;
-  int _validateToken = 0;
 
   @override
   void onInit() {
@@ -28,18 +27,22 @@ class SignInController extends GetxController {
     _validateForm();
   }
 
-  Future<void> _validateForm() async {
-    final token = ++_validateToken;
+  void _validateForm() {
     if (isClosed) return;
 
-    final phoneValid = await CustomValidator.validatePhone(phoneController.text.trim());
-    if (isClosed || token != _validateToken) return;
-
+    final phoneValid = CustomValidator.validatePhone(phoneController.text.trim());
     final passwordValid = CustomValidator.validateRequiredField(passwordController.text, 'password'.tr);
     isFormValid.value = phoneValid.isEmpty && passwordValid.isEmpty;
   }
 
+  void resetForm() {
+    phoneController.clear();
+    passwordController.clear();
+    _validateForm();
+  }
+
   Future<void> signIn() async {
+    _validateForm();
     if (!isFormValid.value || isLoading.value) return;
 
     try {
@@ -79,8 +82,12 @@ class SignInController extends GetxController {
 
   @override
   void onClose() {
-    phoneController.removeListener(_validateForm);
-    passwordController.removeListener(_validateForm);
+    phoneController
+      ..removeListener(_validateForm)
+      ..dispose();
+    passwordController
+      ..removeListener(_validateForm)
+      ..dispose();
     super.onClose();
   }
 }

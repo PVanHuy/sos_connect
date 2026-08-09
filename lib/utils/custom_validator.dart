@@ -121,7 +121,7 @@ class CustomValidator {
     return '';
   }
 
-  static Future<PhoneValid> isPhoneValid(String number) async {
+  static PhoneValid isPhoneValid(String number) {
     String phone = number;
     try {
       PhoneNumber phoneNumber = PhoneNumber.parse(number);
@@ -137,20 +137,19 @@ class CustomValidator {
     }
   }
 
-  static Future<String> validatePhone(String phone, {bool isRequired = true}) async {
+  static String validatePhone(String phone, {bool isRequired = true}) {
     if (isRequired && phone.trim().isEmpty) {
       return 'field_is_required'.trParams({'field': 'phone_number'.tr});
     }
 
     if (phone.isNotEmpty) {
       final number = phone.replaceFirst(RegExp(r'^\+84'), '0').replaceFirst(RegExp(r'^0'), '');
-      PhoneValid phoneValid = await isPhoneValid(PhoneCodeModel().getCodeAsString() + number);
+      final phoneValid = isPhoneValid(PhoneCodeModel().getCodeAsString() + number);
 
       if (!phoneValid.isValid && phone.isNotEmpty) {
         return 'field_is_invalid'.trParams({'field': 'phone_number'.tr});
-      } else {
-        return '';
       }
+      return '';
     }
     return '';
   }

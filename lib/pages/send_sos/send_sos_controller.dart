@@ -6,6 +6,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:sos_connect/main.dart';
 import 'package:sos_connect/model/media/post_media.dart';
 import 'package:sos_connect/pages/map/map_controller.dart';
+import 'package:sos_connect/pages/support/support_controller.dart';
 import 'package:sos_connect/resourese/sos/isos_repository.dart';
 import 'package:sos_connect/utils/custom_validator.dart';
 import 'package:sos_connect/utils/dialog_utils.dart';
@@ -82,7 +83,7 @@ class SendSosController extends GetxController {
       'situation_description'.tr,
     ).isEmpty;
     final locationValid = CustomValidator.validateRequiredField(locationController.text.trim(), 'location'.tr).isEmpty;
-    final phoneValid = (await CustomValidator.validatePhone(phoneController.text.trim())).isEmpty;
+    final phoneValid = CustomValidator.validatePhone(phoneController.text.trim()).isEmpty;
     final imageValid = selectedImage.value != null;
     isFormValid.value = descriptionValid && locationValid && phoneValid && imageValid;
   }
@@ -148,8 +149,10 @@ class SendSosController extends GetxController {
       if (response.isOk) {
         final message = response.body is Map ? response.body['message'] : null;
         DialogUtils.showSuccessDialog(message ?? 'send_sos_success'.tr);
-        _resetRequestForm();
-        _unfocusAfterFrame();
+        if (Get.isRegistered<SupportController>()) {
+          Get.find<SupportController>().refreshList();
+        }
+        Get.back();
       } else {
         final message = response.body is Map ? response.body['message'] : null;
         DialogUtils.showErrorDialog(message ?? '');
@@ -160,12 +163,6 @@ class SendSosController extends GetxController {
     } finally {
       isSendingSos.value = false;
     }
-  }
-
-  void _resetRequestForm() {
-    descriptionController.clear();
-    selectedImage.value = null;
-    _validateForm();
   }
 
   @override

@@ -22,10 +22,9 @@ class ForgotPasswordController extends GetxController {
     _validateForm();
   }
 
-  void _validateForm() async {
+  void _validateForm() {
     if (isClosed) return;
-    final phoneValid = await CustomValidator.validatePhone(phoneController.text.trim());
-    if (isClosed) return;
+    final phoneValid = CustomValidator.validatePhone(phoneController.text.trim());
     isFormValid.value = phoneValid.isEmpty;
   }
 

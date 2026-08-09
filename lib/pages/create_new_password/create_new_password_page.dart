@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:sos_connect/gen/assets.gen.dart';
 import 'package:sos_connect/main.dart';
 import 'package:sos_connect/pages/create_new_password/create_new_password_controller.dart';
-import 'package:sos_connect/routes/pages.dart';
 import 'package:sos_connect/theme/style/style_theme.dart';
 import 'package:sos_connect/utils/custom_validator.dart';
 import 'package:sos_connect/utils/formatter_util.dart';
@@ -129,7 +128,7 @@ class CreateNewPasswordPage extends GetWidget<CreateNewPasswordController> {
                               Text('already_have_account'.tr, style: StyleThemeData.size12Weight400()),
                               SizedBox(width: 4.w),
                               InkWell(
-                                onTap: () => Get.offNamed(Routes.SIGN_IN),
+                                onTap: controller.goToSignIn,
                                 child: Text(
                                   'sign_in'.tr,
                                   style: StyleThemeData.size12Weight400(color: appTheme.appColor),

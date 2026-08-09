@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sos_connect/pages/create_new_password/create_new_password_parameter.dart';
+import 'package:sos_connect/pages/sign_in/sign_in_controller.dart';
 import 'package:sos_connect/resourese/auth/iauth_repository.dart';
 import 'package:sos_connect/routes/pages.dart';
 import 'package:sos_connect/utils/custom_validator.dart';
@@ -68,7 +69,7 @@ class CreateNewPasswordController extends GetxController {
 
       if (response.isOk) {
         DialogUtils.showSuccessDialog(response.body['message'] ?? 'create_new_password_success'.tr);
-        Get.offAllNamed(Routes.SIGN_IN);
+        goToSignIn();
       } else {
         DialogUtils.showErrorDialog(response.body['message'] ?? '');
       }
@@ -76,6 +77,18 @@ class CreateNewPasswordController extends GetxController {
       debugPrint(e.toString());
     } finally {
       if (!isClosed) isLoading.value = false;
+    }
+  }
+
+  void goToSignIn() {
+    // Giữ SignInController trên stack thay vì offAllNamed (tránh GetWidget/fenix lệch instance).
+    Get.until((route) => route.settings.name == Routes.SIGN_IN || route.isFirst);
+    if (Get.currentRoute != Routes.SIGN_IN) {
+      Get.offAllNamed(Routes.SIGN_IN);
+      return;
+    }
+    if (Get.isRegistered<SignInController>()) {
+      Get.find<SignInController>().resetForm();
     }
   }
 

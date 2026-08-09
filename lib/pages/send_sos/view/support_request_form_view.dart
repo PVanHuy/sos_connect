@@ -47,7 +47,7 @@ class SupportRequestFormView extends GetView<SendSosController> {
             isPhone: true,
             borderRadius: 12,
             formatter: FormatterUtil.phoneFormatter,
-            onValidateAsync: (value) => CustomValidator.validatePhone(value),
+            onValidateAsync: (value) async => CustomValidator.validatePhone(value),
           ),
           Text.rich(
             TextSpan(

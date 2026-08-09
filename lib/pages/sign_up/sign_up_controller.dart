@@ -36,7 +36,7 @@ class SignUpController extends GetxController {
   void _validateForm() async {
     if (isClosed) return;
     var userNameValid = CustomValidator.validateUserName(userNameController.text.trim()).isEmpty;
-    var phoneValid = (await CustomValidator.validatePhone(phoneController.text.trim())).isEmpty;
+    var phoneValid = CustomValidator.validatePhone(phoneController.text.trim()).isEmpty;
     var passwordValid = CustomValidator.validatePassword(passwordController.text.trim()).isEmpty;
     var provinceValid = CustomValidator.validateRequiredField(
       provinceController.text.trim(),

@@ -12,7 +12,7 @@ import 'package:sos_connect/widget/custom_text_field.dart';
 import 'package:sos_connect/widget/image_background_widget.dart';
 import 'package:sos_connect/widget/reponsive/extension.dart';
 
-class SignInPage extends GetWidget<SignInController> {
+class SignInPage extends GetView<SignInController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(

@@ -163,7 +163,7 @@ class RegisterRescueTeamController extends GetxController {
 
   Future<void> _validateStep2() async {
     if (isClosed || showTeamInfo) return;
-    final phoneValid = await CustomValidator.validatePhone(contactPhoneController.text.trim());
+    final phoneValid = CustomValidator.validatePhone(contactPhoneController.text.trim());
     if (isClosed) return;
     final emailValid = CustomValidator.validateEmail(contactEmailController.text.trim(), isRequired: false).isEmpty;
 

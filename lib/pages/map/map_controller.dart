@@ -49,6 +49,7 @@ class MapController extends GetxController {
   Timer? _viewportDebounceTimer;
   bool _mapReady = false;
   int _viewportRequestId = 0;
+  int _weatherRequestId = 0;
 
   bool get isClusterMode => viewportType.value == EventsViewportType.clusters;
 
@@ -78,9 +79,11 @@ class MapController extends GetxController {
 
   Future<void> _bootstrap() async {
     await Future.wait([
-      goToMyLocation(showError: false, moveCamera: false),
+      goToMyLocation(showError: false, moveCamera: false, fetchWeather: false),
       fetchActiveSupportStatus(),
     ]);
+    if (isClosed) return;
+
     final pos = currentPosition.value ?? initialCenter;
     await loadWeather(pos);
     if (_mapReady) {
@@ -256,7 +259,11 @@ class MapController extends GetxController {
     mapZoom.value = zoom;
   }
 
-  Future<void> goToMyLocation({bool showError = true, bool moveCamera = true}) async {
+  Future<void> goToMyLocation({
+    bool showError = true,
+    bool moveCamera = true,
+    bool fetchWeather = true,
+  }) async {
     if (isLocating.value) return;
     isLocating.value = true;
 
@@ -274,18 +281,28 @@ class MapController extends GetxController {
         mapController.move(result.position!, myLocationZoom);
         scheduleViewportReload();
       }
-      await loadWeather(result.position!);
+      if (fetchWeather) {
+        await loadWeather(result.position!);
+      }
     } finally {
       isLocating.value = false;
     }
   }
 
   Future<void> loadWeather(LatLng point) async {
+    final requestId = ++_weatherRequestId;
     isWeatherLoading.value = true;
     try {
-      weather.value = await WeatherUtil.fetchCurrentWeather(latitude: point.latitude, longitude: point.longitude);
+      final result = await WeatherUtil.fetchCurrentWeather(
+        latitude: point.latitude,
+        longitude: point.longitude,
+      );
+      if (isClosed || requestId != _weatherRequestId) return;
+      weather.value = result;
     } finally {
-      isWeatherLoading.value = false;
+      if (requestId == _weatherRequestId) {
+        isWeatherLoading.value = false;
+      }
     }
   }
 

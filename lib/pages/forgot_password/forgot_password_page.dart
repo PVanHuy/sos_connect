@@ -35,7 +35,7 @@ class ForgotPasswordPage extends GetWidget<ForgotPasswordController> {
                 isPhone: true,
                 inputType: TextInputType.phone,
                 formatter: FormatterUtil.phoneFormatter,
-                onValidateAsync: (value) async => await CustomValidator.validatePhone(value),
+                onValidateAsync: (value) async => CustomValidator.validatePhone(value),
               ),
               Obx(
                 () => CustomButton(
