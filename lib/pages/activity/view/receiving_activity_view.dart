@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sos_connect/pages/activity/activity_controller.dart';
 import 'package:sos_connect/pages/activity/widget/item_activity_sos_widget.dart';
+import 'package:sos_connect/pages/map/map_controller.dart';
 import 'package:sos_connect/pages/sos_chat/sos_chat_parameter.dart';
 import 'package:sos_connect/routes/pages.dart';
 import 'package:sos_connect/utils/sos_emergency_type_utils.dart';
@@ -55,6 +56,7 @@ class ReceivingActivityView extends GetView<ActivityController> {
           onChat: canChat
               ? () => Get.toNamed(Routes.SOS_CHAT, arguments: SosChatParameter(sosId: sosId))
               : null,
+          onViewOnMap: () => MapController.openInAppRouteFromCoords(lat: item.lat, lon: item.lon),
         );
       },
     );

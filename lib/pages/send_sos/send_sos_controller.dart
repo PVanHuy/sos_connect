@@ -150,7 +150,9 @@ class SendSosController extends GetxController {
         final message = response.body is Map ? response.body['message'] : null;
         DialogUtils.showSuccessDialog(message ?? 'send_sos_success'.tr);
         if (Get.isRegistered<SupportController>()) {
-          Get.find<SupportController>().refreshList();
+          final support = Get.find<SupportController>();
+          support.hasActiveOwnSos.value = true;
+          support.refreshList();
         }
         Get.back();
       } else {

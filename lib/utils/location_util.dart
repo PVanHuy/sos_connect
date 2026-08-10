@@ -66,8 +66,7 @@ class LocationUtil {
         if (permission == LocationPermission.denied) {
           return const LocationResult.failure('location_permission_denied');
         }
-        justGranted =
-            permission == LocationPermission.whileInUse || permission == LocationPermission.always;
+        justGranted = permission == LocationPermission.whileInUse || permission == LocationPermission.always;
       }
 
       if (permission == LocationPermission.deniedForever) {
@@ -106,10 +105,7 @@ class LocationUtil {
       try {
         await Future<void>.delayed(const Duration(milliseconds: 500));
         final position = await Geolocator.getCurrentPosition(
-          locationSettings: LocationSettings(
-            accuracy: LocationAccuracy.medium,
-            timeLimit: timeLimit,
-          ),
+          locationSettings: LocationSettings(accuracy: LocationAccuracy.medium, timeLimit: timeLimit),
         );
         return LocationResult.success(LatLng(position.latitude, position.longitude));
       } catch (retryError) {
@@ -131,4 +127,27 @@ class LocationUtil {
   }
 
   static String latLngFallback(LatLng point) => '${point.latitude}, ${point.longitude}';
+
+  static Stream<LocationUpdate> watchPosition({
+    LocationAccuracy accuracy = LocationAccuracy.high,
+    int distanceFilterMeters = 12,
+  }) {
+    return Geolocator.getPositionStream(
+      locationSettings: LocationSettings(accuracy: accuracy, distanceFilter: distanceFilterMeters),
+    ).map(
+      (pos) => LocationUpdate(position: LatLng(pos.latitude, pos.longitude), heading: pos.heading, speedMps: pos.speed),
+    );
+  }
+}
+
+class LocationUpdate {
+  const LocationUpdate({required this.position, required this.heading, required this.speedMps});
+
+  final LatLng position;
+
+  final double heading;
+
+  final double speedMps;
+
+  bool get hasReliableHeading => speedMps >= 1.0 && heading >= 0 && heading <= 360;
 }

@@ -68,11 +68,11 @@ feature/* ──PR──► dev ──CI──► Artifacts (APK + AAB)
 
 **Commit message (khuyến nghị)**
 
-- `feat:` tính năng mới  
-- `fix:` sửa lỗi  
-- `chore:` bảo trì (bump dependency, CI, …)  
-- `docs:` tài liệu  
-- `refactor:` tái cấu trúc không đổi hành vi  
+- `feat:` tính năng mới
+- `fix:` sửa lỗi
+- `chore:` bảo trì (bump dependency, CI, …)
+- `docs:` tài liệu
+- `refactor:` tái cấu trúc không đổi hành vi
 
 Release notes và CHANGELOG được sinh từ message commit kể từ tag gần nhất.
 
@@ -80,7 +80,7 @@ Release notes và CHANGELOG được sinh từ message commit kể từ tag gầ
 
 ## Workflow CI
 
-**File:** `.github/workflows/ci.yml`  
+**File:** `.github/workflows/ci.yml`
 **Tên trên Actions:** `Flutter CI`
 
 ### Khi nào chạy
@@ -90,17 +90,17 @@ Release notes và CHANGELOG được sinh từ message commit kể từ tag gầ
 
 ### Các bước chính
 
-1. Checkout source  
-2. Tạo `.env` từ secret `ENV_FILE`  
-3. Decode keystore (`KEYSTORE_BASE64`) → `android/upload-keystore.jks`  
-4. Tạo `android/key.properties` từ secrets signing  
-5. Setup Java 17 + Flutter 3.41.4 (có cache)  
-6. Cache Gradle  
-7. `flutter pub get`  
-8. `dart run build_runner build --delete-conflicting-outputs`  
-9. `flutter analyze`  
-10. `flutter build apk --release`  
-11. `flutter build appbundle --release`  
+1. Checkout source
+2. Tạo `.env` từ secret `ENV_FILE`
+3. Decode keystore (`KEYSTORE_BASE64`) → `android/upload-keystore.jks`
+4. Tạo `android/key.properties` từ secrets signing
+5. Setup Java 17 + Flutter 3.41.4 (có cache)
+6. Cache Gradle
+7. `flutter pub get`
+8. `dart run build_runner build --delete-conflicting-outputs`
+9. `flutter analyze`
+10. `flutter build apk --release`
+11. `flutter build appbundle --release`
 12. Upload Artifacts: `app-release-apk`, `app-release-aab`
 
 ### Quyền
@@ -114,8 +114,8 @@ permissions:
 
 ## Workflow Release
 
-**File:** `.github/workflows/release.yml`  
-**Tên trên Actions:** `Release`  
+**File:** `.github/workflows/release.yml`
+**Tên trên Actions:** `Release`
 **Trigger:** chỉ chạy thủ công (`workflow_dispatch`)
 
 ### Input
@@ -126,15 +126,15 @@ permissions:
 
 ### Các bước chính
 
-1. Checkout (full history, `fetch-depth: 0`)  
-2. Bump `version:` trong `pubspec.yaml` (`versionName+buildNumber`)  
-3. Sinh `release_notes.md` từ `git log` kể từ tag gần nhất  
-4. Chèn section mới vào `CHANGELOG.md`  
-5. Commit `chore(release): X.Y.Z+N`, push, tạo annotated tag `vX.Y.Z`  
-6. Build signed APK + AAB (giống CI)  
-7. Đổi tên artifact: `sos-connect-X.Y.Z.apk` / `.aab`  
-8. Upload Actions Artifacts  
-9. Tạo **GitHub Release** và đính kèm APK + AAB  
+1. Checkout (full history, `fetch-depth: 0`)
+2. Bump `version:` trong `pubspec.yaml` (`versionName+buildNumber`)
+3. Sinh `release_notes.md` từ `git log` kể từ tag gần nhất
+4. Chèn section mới vào `CHANGELOG.md`
+5. Commit `chore(release): X.Y.Z+N`, push, tạo annotated tag `vX.Y.Z`
+6. Build signed APK + AAB (giống CI)
+7. Đổi tên artifact: `sos-connect-X.Y.Z.apk` / `.aab`
+8. Upload Actions Artifacts
+9. Tạo **GitHub Release** và đính kèm APK + AAB
 
 ### Concurrency
 
@@ -186,6 +186,7 @@ Dán nguyên chuỗi Base64 vào secret `KEYSTORE_BASE64` (một dòng, không x
 ```env
 BASE_URL=https://api.example.com
 SOCKET_URL=https://socket.example.com
+OSRM_ROUTE_URL=https://router.example.com
 ```
 
 > Không commit `.env` hay keystore vào git. Các file này chỉ tồn tại trên runner trong lúc job chạy.
@@ -209,7 +210,7 @@ Thiếu quyền write → Release sẽ fail khi commit / tạo tag / tạo GitHu
 
 Sau khi CI xanh:
 
-1. Vào **Actions** → chọn run thành công  
+1. Vào **Actions** → chọn run thành công
 2. **Artifacts** → tải `app-release-apk` / `app-release-aab`
 
 ### GitHub Release
@@ -225,8 +226,8 @@ Sau khi Release thành công:
 
 ## Cách chạy Release
 
-1. Đảm bảo nhánh làm việc đã merge vào `dev` (hoặc nhánh đang checkout khi chạy workflow — mặc định checkout default branch của repo; nên chạy từ trạng thái đã sẵn sàng release).  
-2. Vào **Actions** → **Release** → **Run workflow**  
+1. Đảm bảo nhánh làm việc đã merge vào `dev` (hoặc nhánh đang checkout khi chạy workflow — mặc định checkout default branch của repo; nên chạy từ trạng thái đã sẵn sàng release).
+2. Vào **Actions** → **Release** → **Run workflow**
 3. Chọn `bump`:
    - `patch` — `1.0.0` → `1.0.1` (sửa lỗi nhỏ)
    - `minor` — `1.0.1` → `1.1.0` (tính năng tương thích ngược)
@@ -257,11 +258,11 @@ Tag Git: `v` + version name (ví dụ `v1.0.1`).
 
 ## Checklist trước khi merge
 
-- [ ] PR vào `dev`, CI **Flutter CI** đã pass  
-- [ ] `flutter analyze` sạch (không error)  
-- [ ] Không commit `.env`, keystore, `google-services` secret thừa  
-- [ ] Message commit rõ ràng (phục vụ release notes)  
-- [ ] Secrets trên GitHub đã cấu hình đủ trước khi cần build signed  
+- [ ] PR vào `dev`, CI **Flutter CI** đã pass
+- [ ] `flutter analyze` sạch (không error)
+- [ ] Không commit `.env`, keystore, `google-services` secret thừa
+- [ ] Message commit rõ ràng (phục vụ release notes)
+- [ ] Secrets trên GitHub đã cấu hình đủ trước khi cần build signed
 
 ---
 
@@ -283,11 +284,11 @@ Tag Git: `v` + version name (ví dụ `v1.0.1`).
 
 Các bước có thể bổ sung sau khi ổn định Android release:
 
-1. **Upload Google Play** — secret `PLAY_SERVICE_ACCOUNT_JSON`, publish AAB lên track `internal` / `beta`  
-2. **iOS CI** — runner `macos-latest`, certificates + provisioning profiles qua Secrets / App Store Connect API  
-3. **Test job** — `flutter test` trước `analyze` / build  
-4. **PR checks bắt buộc** — branch protection trên `dev`: yêu cầu CI xanh mới merge  
-5. **Matrix / flavor** — tách `dev` / `staging` / `prod` env nếu có nhiều môi trường  
+1. **Upload Google Play** — secret `PLAY_SERVICE_ACCOUNT_JSON`, publish AAB lên track `internal` / `beta`
+2. **iOS CI** — runner `macos-latest`, certificates + provisioning profiles qua Secrets / App Store Connect API
+3. **Test job** — `flutter test` trước `analyze` / build
+4. **PR checks bắt buộc** — branch protection trên `dev`: yêu cầu CI xanh mới merge
+5. **Matrix / flavor** — tách `dev` / `staging` / `prod` env nếu có nhiều môi trường
 
 ---
 

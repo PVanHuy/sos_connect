@@ -33,12 +33,15 @@ class SupportController extends GetxController {
   final selectedTimeWindow = RxnString();
   final acceptingId = RxnString();
   final hasActiveSupport = false.obs;
+  final hasActiveOwnSos = false.obs;
 
   late final LazyListController<SosEventModel> sosListController;
 
   String get selectedProvinceName => selectedProvince.value?.name ?? 'select_province_city'.tr;
 
   bool get hasActiveFilter => selectedRadiusKm.value != null || selectedTimeWindow.value != null;
+
+  bool get canSendSos => !hasActiveOwnSos.value;
 
   bool get _hasTeamRole {
     if (!Get.isRegistered<DashboardController>()) return false;
@@ -80,6 +83,7 @@ class SupportController extends GetxController {
   void onReady() {
     super.onReady();
     fetchActiveSupportStatus();
+    fetchActiveOwnSosStatus();
   }
 
   Future<void> _bootstrap() async {
@@ -94,9 +98,10 @@ class SupportController extends GetxController {
       sosListController.updateLoading(true);
     }
     final supportFuture = fetchActiveSupportStatus();
+    final ownSosFuture = fetchActiveOwnSosStatus();
     await sosListController.onRefresh();
     if (isClosed) return;
-    await supportFuture;
+    await Future.wait([supportFuture, ownSosFuture]);
   }
 
   Future<void> fetchActiveSupportStatus() async {
@@ -111,6 +116,16 @@ class SupportController extends GetxController {
       hasActiveSupport.value = result.models.isNotEmpty;
     } catch (e) {
       loggerHelper.error('Fetch active support status error: $e');
+    }
+  }
+
+  Future<void> fetchActiveOwnSosStatus() async {
+    try {
+      final result = await sosRepository.getMySosRequests(page: 1);
+      if (isClosed) return;
+      hasActiveOwnSos.value = result.models.any((e) => e.canMarkAsSafe);
+    } catch (e) {
+      loggerHelper.error('Fetch active own SOS status error: $e');
     }
   }
 
@@ -192,7 +207,26 @@ class SupportController extends GetxController {
 
     try {
       acceptingId.value = sosId;
-      final response = await teamRepository.acceptSupport(sosId);
+
+      var lat = currentLatLng.value?.latitude;
+      var lon = currentLatLng.value?.longitude;
+      if ((lat == null || lon == null) && Get.isRegistered<MapController>()) {
+        final mapPos = Get.find<MapController>().currentPosition.value;
+        lat = mapPos?.latitude;
+        lon = mapPos?.longitude;
+      }
+      if (lat == null || lon == null) {
+        final result = await LocationUtil.getCurrentLatLng();
+        if (!result.isSuccess || result.position == null) {
+          DialogUtils.showErrorDialog((result.errorKey ?? 'location_get_failed').tr);
+          return;
+        }
+        currentLatLng.value = result.position;
+        lat = result.position!.latitude;
+        lon = result.position!.longitude;
+      }
+
+      final response = await teamRepository.acceptSupport(sosId, lat: lat, lon: lon);
       if (response.isOk) {
         hasActiveSupport.value = true;
         final message = response.body is Map ? response.body['message'] : null;

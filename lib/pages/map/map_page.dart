@@ -5,6 +5,7 @@ import 'package:sos_connect/gen/assets.gen.dart';
 import 'package:sos_connect/main.dart';
 import 'package:sos_connect/pages/map/map_controller.dart';
 import 'package:sos_connect/pages/map/widget/map_weather_bar_widget.dart';
+import 'package:sos_connect/theme/style/style_theme.dart';
 import 'package:sos_connect/utils/map_marker_cluster_util.dart';
 import 'package:sos_connect/widget/reponsive/extension.dart';
 
@@ -38,6 +39,11 @@ class MapPage extends GetWidget<MapController> {
                   panBuffer: 1,
                 ),
                 Obx(() {
+                  final route = controller.activeRoute.value;
+                  if (route == null) return const SizedBox.shrink();
+                  return PolylineLayer(polylines: [route.toPolyline(strokeWidth: 5, color: appTheme.appColor)]);
+                }),
+                Obx(() {
                   if (controller.isClusterMode) {
                     final clusters = controller.clusters.toList();
                     return MarkerLayer(
@@ -69,14 +75,14 @@ class MapPage extends GetWidget<MapController> {
                 }),
                 Obx(() {
                   final myPos = controller.currentPosition.value;
-                  if (myPos == null) return const SizedBox.shrink();
-
+                  final destination = controller.routeDestination.value;
                   final zoom = controller.mapZoom.value;
-                  final width = MapMarkerClusterUtil.myLocationPinWidth(zoom);
-                  final height = MapMarkerClusterUtil.myLocationPinHeight(zoom);
+                  final markers = <Marker>[];
 
-                  return MarkerLayer(
-                    markers: [
+                  if (myPos != null) {
+                    final width = MapMarkerClusterUtil.myLocationPinWidth(zoom);
+                    final height = MapMarkerClusterUtil.myLocationPinHeight(zoom);
+                    markers.add(
                       Marker(
                         point: myPos,
                         width: width,
@@ -84,8 +90,37 @@ class MapPage extends GetWidget<MapController> {
                         alignment: Alignment.bottomCenter,
                         child: Assets.images.pinLocation.image(width: width, height: height, fit: BoxFit.contain),
                       ),
-                    ],
-                  );
+                    );
+                  }
+
+                  if (destination != null) {
+                    markers.add(
+                      Marker(
+                        point: destination,
+                        width: 36.w,
+                        height: 36.w,
+                        alignment: Alignment.center,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: appTheme.appColor,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: appTheme.whiteColor, width: 3),
+                            boxShadow: [
+                              BoxShadow(
+                                color: appTheme.blackColor.withValues(alpha: 0.2),
+                                blurRadius: 6,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Icon(Icons.flag_rounded, color: appTheme.whiteColor, size: 18.w),
+                        ),
+                      ),
+                    );
+                  }
+
+                  if (markers.isEmpty) return const SizedBox.shrink();
+                  return MarkerLayer(markers: markers);
                 }),
               ],
             ),
@@ -108,24 +143,91 @@ class MapPage extends GetWidget<MapController> {
             ),
           ),
           Positioned(
+            left: 16.w,
             right: 16.w,
             bottom: 24.h,
             child: SafeArea(
               top: false,
-              child: Obx(
-                () => FloatingActionButton.small(
-                  heroTag: 'map_my_location',
-                  backgroundColor: appTheme.whiteColor,
-                  onPressed: controller.isLocating.value ? null : controller.goToMyLocation,
-                  child: controller.isLocating.value
-                      ? SizedBox(
-                          width: 18.w,
-                          height: 18.w,
-                          child: CircularProgressIndicator(strokeWidth: 2, color: appTheme.appColor),
-                        )
-                      : Icon(Icons.my_location_rounded, color: appTheme.appColor, size: 22.w),
-                ),
-              ),
+              child: Obx(() {
+                final route = controller.activeRoute.value;
+                final hasRoute = route != null;
+                final isLocating = controller.isLocating.value;
+                final isFollowing = controller.isFollowingLocation.value;
+
+                final locationBtn = Material(
+                  color: isFollowing ? appTheme.appColor : appTheme.whiteColor,
+                  elevation: 2,
+                  borderRadius: BorderRadius.circular(12),
+                  child: InkWell(
+                    onTap: isLocating ? null : controller.goToMyLocation,
+                    borderRadius: BorderRadius.circular(12),
+                    child: SizedBox(
+                      width: 48.w,
+                      height: hasRoute ? null : 48.w,
+                      child: Center(
+                        child: isLocating
+                            ? SizedBox(
+                                width: 22.w,
+                                height: 22.w,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2.5,
+                                  color: isFollowing ? appTheme.whiteColor : appTheme.appColor,
+                                ),
+                              )
+                            : Icon(
+                                isFollowing ? Icons.navigation_rounded : Icons.my_location_rounded,
+                                color: isFollowing ? appTheme.whiteColor : appTheme.appColor,
+                                size: 24.w,
+                              ),
+                      ),
+                    ),
+                  ),
+                );
+
+                if (!hasRoute) {
+                  return Align(alignment: Alignment.centerRight, child: locationBtn);
+                }
+
+                return IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Expanded(
+                        child: Material(
+                          color: appTheme.whiteColor,
+                          elevation: 2,
+                          borderRadius: BorderRadius.circular(12),
+                          child: Padding(
+                            padding: padding(horizontal: 12, vertical: 10),
+                            child: Row(
+                              children: [
+                                Icon(Icons.route_rounded, color: appTheme.appColor, size: 22.w),
+                                SizedBox(width: 8.w),
+                                Expanded(
+                                  child: Text(
+                                    '${route.distanceLabel} · ${route.durationLabel}',
+                                    style: StyleThemeData.size14Weight700(),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                IconButton(
+                                  tooltip: 'route_clear'.tr,
+                                  onPressed: controller.clearRoute,
+                                  visualDensity: VisualDensity.compact,
+                                  icon: Icon(Icons.close_rounded, color: appTheme.gray83Color, size: 22.w),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 8.w),
+                      locationBtn,
+                    ],
+                  ),
+                );
+              }),
             ),
           ),
         ],

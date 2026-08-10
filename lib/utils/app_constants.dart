@@ -16,6 +16,7 @@ class AppConstants {
 
   static String baseUrl = dotenv.get('BASE_URL');
   static String socketUrl = dotenv.get('SOCKET_URL');
+  static String osrmRouteUrl = dotenv.get('OSRM_ROUTE_URL');
 
   static const String notificationChannelId = 'notification';
 

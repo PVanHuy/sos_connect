@@ -212,9 +212,13 @@ class TeamRepository extends ITeamRepository {
   }
 
   @override
-  Future<Response> acceptSupport(String sosId) async {
+  Future<Response> acceptSupport(String sosId, {double? lat, double? lon}) async {
     try {
-      return await clientPostData(AppConstants.teamSupportUri(sosId), {});
+      final body = <String, dynamic>{
+        if (lat != null) 'lat': lat,
+        if (lon != null) 'lon': lon,
+      };
+      return await clientPostData(AppConstants.teamSupportUri(sosId), body);
     } catch (error) {
       handleError(error);
       rethrow;

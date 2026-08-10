@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:socket_io_client/socket_io_client.dart' as socket_io_client;
 import 'package:sos_connect/utils/app_constants.dart';
@@ -108,7 +109,9 @@ class SocketIoService extends GetxService {
     });
 
     _socket!.onAny((String event, dynamic data) {
-      loggerHelper.log('raw event=$event data=$data', name: 'SocketIoService - RAW');
+      if (kDebugMode) {
+        loggerHelper.log('raw event=$event data=$data', name: 'SocketIoService - RAW');
+      }
       _handleIncomingEvent(event, data);
     });
 

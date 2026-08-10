@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import 'package:sos_connect/model/pagination_model.dart';
 import 'package:sos_connect/model/sos/sos_event_model.dart';
 import 'package:sos_connect/pages/dashboard/dashboard_controller.dart';
+import 'package:sos_connect/pages/support/support_controller.dart';
 import 'package:sos_connect/resourese/sos/isos_repository.dart';
 import 'package:sos_connect/resourese/team/iteam_repository.dart';
 import 'package:sos_connect/utils/dialog_utils.dart';
@@ -144,6 +145,9 @@ class ActivityController extends GetxController {
         final message = response.body is Map ? response.body['message'] : null;
         DialogUtils.showSuccessDialog(message ?? 'mark_as_safe_success'.tr);
         yourRequestsListController.removeWhere((item) => item.id == sosId);
+        if (Get.isRegistered<SupportController>()) {
+          Get.find<SupportController>().fetchActiveOwnSosStatus();
+        }
       } else {
         final message = response.body is Map ? response.body['message'] : null;
         DialogUtils.showErrorDialog(message ?? '');

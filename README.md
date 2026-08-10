@@ -149,12 +149,14 @@ flutter doctor
 | ------------ | -------------------- | ---------------------------- |
 | `BASE_URL`   | Base URL REST API    | `https://api.example.com`    |
 | `SOCKET_URL` | URL Socket.IO server | `https://socket.example.com` |
+| `OSRM_ROUTE_URL` | Base URL OSRM routing (driving) | `https://router.example.com` |
 
 ### Ví dụ `.env`
 
 ```env
 BASE_URL=https://api.example.com
 SOCKET_URL=https://socket.example.com
+OSRM_ROUTE_URL=https://router.example.com
 ```
 
 Các key được đọc trong `lib/utils/app_constants.dart`.

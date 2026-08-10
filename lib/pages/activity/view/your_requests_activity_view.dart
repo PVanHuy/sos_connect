@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sos_connect/pages/activity/activity_controller.dart';
 import 'package:sos_connect/pages/activity/widget/item_activity_sos_widget.dart';
+import 'package:sos_connect/pages/map/map_controller.dart';
 import 'package:sos_connect/pages/sos_chat/sos_chat_parameter.dart';
 import 'package:sos_connect/routes/pages.dart';
 import 'package:sos_connect/utils/sos_emergency_type_utils.dart';
@@ -34,7 +35,9 @@ class YourRequestsActivityView extends GetView<ActivityController> {
         final type = item.emergencyType;
         final team = item.teamRescue;
         final sosId = item.id?.trim() ?? '';
-        final canChat = sosId.isNotEmpty && (item.status ?? '').isSosInProgress;
+        final hasTeam = item.hasAssignedTeam || team != null;
+        final canChat = hasTeam && sosId.isNotEmpty;
+        final canViewMap = hasTeam && team?.teamLat != null && team?.teamLon != null;
         final canSafe = item.canMarkAsSafe;
         final statusStyle = (item.status ?? SosStatusUtils.inProgress).sosStatusStyle;
 
@@ -58,8 +61,9 @@ class YourRequestsActivityView extends GetView<ActivityController> {
             isMarkingSafe: isMarking,
             onMarkAsSafe: canSafe ? () => controller.markAsSafe(item) : null,
             showChatButton: canChat,
-            onChat: canChat
-                ? () => Get.toNamed(Routes.SOS_CHAT, arguments: SosChatParameter(sosId: sosId))
+            onChat: canChat ? () => Get.toNamed(Routes.SOS_CHAT, arguments: SosChatParameter(sosId: sosId)) : null,
+            onViewOnMap: canViewMap
+                ? () => MapController.openInAppRouteFromCoords(lat: team!.teamLat, lon: team.teamLon)
                 : null,
           );
         });

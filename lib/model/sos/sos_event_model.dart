@@ -68,6 +68,8 @@ class SosEventModel {
 
   Map<String, dynamic> toJson() => _$SosEventModelToJson(this);
 
+  bool get hasAssignedTeam => (teamId?.trim() ?? '').isNotEmpty;
+
   SosEmergencyType get emergencyType => SosEmergencyTypeExtension.fromApi(type);
 
   String get urgencyScoreText {

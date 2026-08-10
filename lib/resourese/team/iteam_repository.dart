@@ -34,7 +34,7 @@ abstract class ITeamRepository extends IBaseRepository {
 
   Future<UserModel?> getTeamUserInfo({String? userId});
 
-  Future<Response> acceptSupport(String sosId);
+  Future<Response> acceptSupport(String sosId, {double? lat, double? lon});
 
   Future<PaginationModel<SosEventModel>> getAllSupport({String? status});
 }

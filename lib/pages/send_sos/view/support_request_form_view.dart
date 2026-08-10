@@ -70,7 +70,7 @@ class SupportRequestFormView extends GetView<SendSosController> {
               buttonText: 'send_sos'.tr,
               hasSafeArea: false,
               isLoading: isSending,
-              color: isValid ? appTheme.red1AColor : appTheme.pinkE5Color,
+              color: isValid ? null : appTheme.pinkE5Color,
               textColor: isValid ? appTheme.whiteColor : appTheme.red1AColor,
               onPressed: canSubmit
                   ? () {

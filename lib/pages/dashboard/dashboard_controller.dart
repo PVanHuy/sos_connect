@@ -86,7 +86,6 @@ class DashboardController extends GetxController {
     }
 
     try {
-      socketIoService.onAny(_onSocketAnyEvent);
       socketIoService.on(SocketEvent.sosNewRequest, _onSosNewRequest);
       socketIoService.on(SocketEvent.sosMapUpdated, _onSosMapUpdated);
       socketIoService.addReconnectedCallback(_subscribeChannels);
@@ -94,10 +93,6 @@ class DashboardController extends GetxController {
     } catch (e) {
       loggerHelper.error('Dashboard socket init error: $e');
     }
-  }
-
-  void _onSocketAnyEvent(String event, dynamic data) {
-    loggerHelper.log('event=$event data=$data', name: 'SocketIoService - ANY');
   }
 
   void _subscribeChannels() {
@@ -216,6 +211,7 @@ class DashboardController extends GetxController {
     currentPage.value = index;
     pageController.jumpToPage(index);
     _refreshTab(index);
+    _notifyMapTabVisibility(index);
   }
 
   void _refreshTab(int index) {
@@ -229,13 +225,19 @@ class DashboardController extends GetxController {
 
   void animateToTab(int index) {
     currentPage.value = index;
+    _notifyMapTabVisibility(index);
+  }
+
+  void _notifyMapTabVisibility(int index) {
+    if (!Get.isRegistered<MapController>()) return;
+    Get.find<MapController>().onMapTabVisible(index == 0);
   }
 
   @override
   void onClose() {
     socketIoService.off(SocketEvent.sosNewRequest, _onSosNewRequest);
     socketIoService.off(SocketEvent.sosMapUpdated, _onSosMapUpdated);
-    socketIoService.offAny(_onSocketAnyEvent);
+    socketIoService.clearReconnectedCallbacks();
     socketIoService.disconnect();
     pageController.dispose();
     notificationService.onClose();

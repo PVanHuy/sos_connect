@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sos_connect/gen/assets.gen.dart';
 import 'package:sos_connect/main.dart';
+import 'package:sos_connect/pages/map/map_controller.dart';
 import 'package:sos_connect/pages/support/support_controller.dart';
 import 'package:sos_connect/pages/support/widget/item_support_sos_widget.dart';
 import 'package:sos_connect/theme/style/style_theme.dart';
@@ -115,6 +116,7 @@ class SupportListView extends GetView<SupportController> {
                   showAcceptButton: controller.canAcceptSos,
                   isAccepting: controller.acceptingId.value == item.id,
                   onAccept: () => controller.onAcceptSos(item),
+                  onViewOnMap: () => MapController.openInAppRouteFromCoords(lat: item.lat, lon: item.lon),
                 ),
               );
             },

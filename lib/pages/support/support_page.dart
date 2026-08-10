@@ -38,13 +38,21 @@ class SupportPage extends GetWidget<SupportController> {
               ),
               SizedBox(height: 16.h),
               const Expanded(child: SupportListView()),
-              SizedBox(height: 12.h),
-              CustomButton(
-                buttonText: 'send_sos'.tr,
-                hasSafeArea: false,
-                gradient: AppGradient.redGradient,
-                onPressed: () => Get.toNamed(Routes.SEND_SOS),
-              ),
+              Obx(() {
+                if (!controller.canSendSos) return const SizedBox.shrink();
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(height: 12.h),
+                    CustomButton(
+                      buttonText: 'send_sos'.tr,
+                      hasSafeArea: false,
+                      gradient: AppGradient.redGradient,
+                      onPressed: () => Get.toNamed(Routes.SEND_SOS),
+                    ),
+                  ],
+                );
+              }),
             ],
           ),
         ),

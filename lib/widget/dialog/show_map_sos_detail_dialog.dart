@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sos_connect/main.dart';
 import 'package:sos_connect/model/map/map_sos_item_model.dart';
+import 'package:sos_connect/pages/map/map_controller.dart';
 import 'package:sos_connect/pages/support/widget/item_support_sos_widget.dart';
 import 'package:sos_connect/widget/reponsive/extension.dart';
 
@@ -25,6 +26,7 @@ Future<void> showMapSosDetailDialog({
         imageUrl: item.imageUrl,
         acceptButtonText: item.acceptButtonTextKey.tr,
         showAcceptButton: showAcceptButton,
+        onViewOnMap: () => MapController.openInAppRoute(item.point),
         onAccept: showAcceptButton
             ? () {
                 Get.back();

@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:sos_connect/utils/json_utils.dart';
 
 part 'rescue_team_model.g.dart';
 
@@ -24,6 +25,10 @@ class RescueTeamModel {
   @JsonKey(name: 'team_status')
   String? teamStatus;
   String? email;
+  @JsonKey(name: 'team_lat', fromJson: parseToDouble)
+  double? teamLat;
+  @JsonKey(name: 'team_lon', fromJson: parseToDouble)
+  double? teamLon;
 
   RescueTeamModel({
     this.id,
@@ -41,6 +46,8 @@ class RescueTeamModel {
     this.createdAt,
     this.teamStatus,
     this.email,
+    this.teamLat,
+    this.teamLon,
   });
 
   factory RescueTeamModel.fromJson(Map<String, dynamic> json) => _$RescueTeamModelFromJson(json);

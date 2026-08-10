@@ -3,13 +3,14 @@ import 'package:get/get.dart';
 import 'package:sos_connect/gen/assets.gen.dart';
 import 'package:sos_connect/main.dart';
 import 'package:sos_connect/theme/style/style_theme.dart';
-import 'package:sos_connect/utils/route_launcher_util.dart';
 import 'package:sos_connect/utils/sos_emergency_type_utils.dart';
 import 'package:sos_connect/widget/custom_button.dart';
 import 'package:sos_connect/widget/custom_image_widget.dart';
 import 'package:sos_connect/widget/full_photo_viewer.dart';
 import 'package:sos_connect/widget/image_asset_custom.dart';
 import 'package:sos_connect/widget/reponsive/extension.dart';
+// Backup Google Maps:
+// import 'package:sos_connect/utils/route_launcher_util.dart';
 
 class ItemSupportSosWidget extends StatelessWidget {
   const ItemSupportSosWidget({
@@ -24,6 +25,7 @@ class ItemSupportSosWidget extends StatelessWidget {
     this.showAcceptButton = true,
     this.isAccepting = false,
     this.onAccept,
+    this.onViewOnMap,
   });
 
   final SosEmergencyType type;
@@ -36,6 +38,13 @@ class ItemSupportSosWidget extends StatelessWidget {
   final bool showAcceptButton;
   final bool isAccepting;
   final VoidCallback? onAccept;
+  final VoidCallback? onViewOnMap;
+
+  void _openMap() {
+    // Backup: mở Google Maps theo địa chỉ
+    // RouteLauncherUtil.openGoogleMapByAddress(address);
+    onViewOnMap?.call();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -88,7 +97,7 @@ class ItemSupportSosWidget extends StatelessWidget {
           ),
           SizedBox(height: 12.h),
           InkWell(
-            onTap: () => RouteLauncherUtil.openGoogleMapByAddress(address),
+            onTap: _openMap,
             child: Row(
               children: [
                 ImageAssetCustom(imagePath: Assets.icons.localTwo.path, size: 16),
@@ -113,7 +122,7 @@ class ItemSupportSosWidget extends StatelessWidget {
                   color: appTheme.greenECColor,
                   textColor: appTheme.green47Color,
                   hasSafeArea: false,
-                  onPressed: () => RouteLauncherUtil.openGoogleMapByAddress(address),
+                  onPressed: _openMap,
                 ),
               ),
               if (showAcceptButton) ...[

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:get/get.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:socket_io_client/socket_io_client.dart' as socket_io_client;
 import 'package:sos_connect/pages/activity/activity_controller.dart';
 import 'package:sos_connect/pages/map/map_controller.dart';
@@ -20,6 +21,8 @@ class TeamLiveModeService extends GetxService {
 
   socket_io_client.Socket? _socket;
   Timer? _locationTimer;
+  Timer? _reconnectTimer;
+  int _reconnectAttempt = 0;
 
   final isLive = false.obs;
   final isToggling = false.obs;
@@ -56,6 +59,7 @@ class TeamLiveModeService extends GetxService {
         }
 
         isLive.value = true;
+        _reconnectAttempt = 0;
         _startLocationTimer();
         DialogUtils.showSuccessDialog('team_live_mode_on_success'.tr);
         return true;
@@ -74,8 +78,10 @@ class TeamLiveModeService extends GetxService {
 
   Future<void> stopLiveMode({bool showMessage = false}) async {
     _stopLocationTimer();
+    _cancelReconnect();
     final wasLive = isLive.value;
     isLive.value = false;
+    _reconnectAttempt = 0;
 
     if (_socket != null && _socket!.connected && wasLive) {
       _emitToggle(active: false, radiusMeters: radiusMeters.value);
@@ -140,19 +146,34 @@ class TeamLiveModeService extends GetxService {
   }
 
   void _scheduleReconnect() {
-    Future.delayed(const Duration(seconds: 2), () async {
+    if (!isLive.value || _reconnectTimer != null) return;
+
+    final delaySeconds = (2 << _reconnectAttempt.clamp(0, 4)).clamp(2, 32);
+    _reconnectAttempt++;
+
+    _reconnectTimer = Timer(Duration(seconds: delaySeconds), () async {
+      _reconnectTimer = null;
       if (!isLive.value) return;
       try {
         await _connect();
         if (_socket?.connected == true) {
+          _reconnectAttempt = 0;
           _emitToggle(active: true, radiusMeters: radiusMeters.value);
           await _emitCurrentLocation();
           _startLocationTimer();
+        } else if (isLive.value) {
+          _scheduleReconnect();
         }
       } catch (e) {
         loggerHelper.error('Live mode reconnect error: $e');
+        if (isLive.value) _scheduleReconnect();
       }
     });
+  }
+
+  void _cancelReconnect() {
+    _reconnectTimer?.cancel();
+    _reconnectTimer = null;
   }
 
   void _emitToggle({required bool active, required int radiusMeters}) {
@@ -167,7 +188,8 @@ class TeamLiveModeService extends GetxService {
   }
 
   Future<bool> _emitCurrentLocation() async {
-    final result = await LocationUtil.getCurrentLatLng();
+    // Medium accuracy is enough for nearby SOS and uses less GPS power/heat.
+    final result = await LocationUtil.getCurrentLatLng(accuracy: LocationAccuracy.medium);
     if (!result.isSuccess || result.position == null) return false;
 
     final lat = result.position!.latitude;
@@ -224,6 +246,7 @@ class TeamLiveModeService extends GetxService {
 
   Future<void> _disconnectSocket() async {
     _stopLocationTimer();
+    _cancelReconnect();
     try {
       _socket?.off(SocketEvent.sosNearbyAlert);
       _socket?.disconnect();

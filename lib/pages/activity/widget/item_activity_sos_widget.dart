@@ -32,6 +32,7 @@ class ItemActivitySosWidget extends StatelessWidget {
     this.onMarkAsSafe,
     this.showChatButton = false,
     this.onChat,
+    this.onViewOnMap,
   });
 
   final String imageUrl;
@@ -52,8 +53,15 @@ class ItemActivitySosWidget extends StatelessWidget {
   final VoidCallback? onMarkAsSafe;
   final bool showChatButton;
   final VoidCallback? onChat;
+  final VoidCallback? onViewOnMap;
 
   bool get _hasTeamInfo => teamName.trim().isNotEmpty;
+
+  void _openMap() {
+    // Backup: mở Google Maps theo địa chỉ
+    // RouteLauncherUtil.openGoogleMapByAddress(address);
+    onViewOnMap?.call();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -106,11 +114,7 @@ class ItemActivitySosWidget extends StatelessWidget {
             ),
           ),
           SizedBox(height: 12.h),
-          ActivityInfoRowWidget(
-            icon: Assets.icons.localTwo.path,
-            text: address,
-            onTap: () => RouteLauncherUtil.openGoogleMapByAddress(address),
-          ),
+          ActivityInfoRowWidget(icon: Assets.icons.localTwo.path, text: address, onTap: _openMap),
           SizedBox(height: 8.h),
           ActivityInfoRowWidget(
             icon: Assets.icons.callBold.path,
@@ -145,9 +149,27 @@ class ItemActivitySosWidget extends StatelessWidget {
               ),
             ),
           ],
-          if (showChatButton) ...[
+          if (onViewOnMap != null || showChatButton) ...[
             SizedBox(height: 12.h),
-            CustomButton(buttonText: 'sos_chat_open'.tr, hasSafeArea: false, onPressed: onChat),
+            Row(
+              children: [
+                if (onViewOnMap != null)
+                  Expanded(
+                    child: CustomButton(
+                      buttonText: 'view_on_map'.tr,
+                      color: appTheme.greenECColor,
+                      textColor: appTheme.green47Color,
+                      hasSafeArea: false,
+                      onPressed: _openMap,
+                    ),
+                  ),
+                if (onViewOnMap != null && showChatButton) SizedBox(width: 8.w),
+                if (showChatButton)
+                  Expanded(
+                    child: CustomButton(buttonText: 'sos_chat_open'.tr, hasSafeArea: false, onPressed: onChat),
+                  ),
+              ],
+            ),
           ],
           if (showSafeButton) ...[
             SizedBox(height: 12.h),
