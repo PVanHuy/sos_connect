@@ -1,291 +1,193 @@
 # SOS Connect — Tài liệu sản phẩm
 
-Tài liệu mô tả **mục tiêu**, **chức năng** và **luồng sử dụng** của ứng dụng di động **SOS Connect**, minh họa bằng screenshot thực tế trong `assets/images_app/`.
+**SOS Connect** kết nối người gặp sự cố với người / đội cứu hộ xung quanh.
 
----
+> Đăng sự cố (SOS) kèm vị trí → thông báo lực lượng gần nhất → nhận hỗ trợ, chỉ đường, chat realtime → báo đã an toàn.
 
-## 1. Dự án là gì?
+| Vai trò                | Việc chính                                                  |
+| ---------------------- | ----------------------------------------------------------- |
+| **Người gặp sự cố**    | Gửi SOS, theo dõi, chat với đội, báo đã an toàn             |
+| **Người / đội cứu hộ** | Xem SOS gần khu vực, nhận hỗ trợ, chỉ đường, chat, hoàn tất |
 
-**SOS Connect** kết nối người gặp sự cố với người / đội cứu hộ xung quanh:
+### Mục tiêu
 
-> Người gặp nạn **đăng sự cố** (SOS) kèm vị trí → hệ thống thông báo tới lực lượng gần nhất → người khác **nhận hỗ trợ, đi tới hiện trường, chat realtime** → kết thúc khi nạn nhân **đã an toàn**.
+| Mục tiêu                  | Ý nghĩa                                        |
+| ------------------------- | ---------------------------------------------- |
+| Đăng sự cố nhanh          | Loại khẩn cấp, mô tả, GPS, SĐT, ảnh            |
+| Kêu gọi trợ giúp đúng chỗ | Đẩy SOS tới đội / tình nguyện viên gần khu vực |
+| Đến hiện trường rõ ràng   | Bản đồ + chỉ đường trong app                   |
+| Phối hợp realtime         | Chat SOS + FCM + cập nhật trạng thái           |
+| Tổ chức lực lượng         | Đăng ký / quản lý đội, duyệt xin gia nhập      |
 
-Ứng dụng phục vụ hai phía:
-
-| Vai trò                | Việc chính                                                                     |
-| ---------------------- | ------------------------------------------------------------------------------ |
-| **Người gặp sự cố**    | Gửi SOS, theo dõi trạng thái, chat với đội đang hỗ trợ, báo “đã an toàn”       |
-| **Người / đội cứu hộ** | Xem SOS gần khu vực, nhận hỗ trợ, dẫn đường trên bản đồ, chat, hoàn tất cứu hộ |
-
----
-
-## 2. Mục tiêu
-
-| Mục tiêu                      | Ý nghĩa                                                                |
-| ----------------------------- | ---------------------------------------------------------------------- |
-| **Đăng sự cố nhanh**          | Mô tả, loại khẩn cấp, vị trí GPS, SĐT, ảnh — chỉ vài thao tác          |
-| **Kêu gọi trợ giúp đúng chỗ** | Đẩy thông báo / danh sách SOS tới đội và tình nguyện viên gần khu vực  |
-| **Đến hiện trường rõ ràng**   | Bản đồ + chỉ đường trong app; theo dõi tiến trình trên tab Hoạt động   |
-| **Phối hợp realtime**         | Chat SOS, push notification (FCM), cập nhật trạng thái đến khi an toàn |
-| **Tổ chức lực lượng**         | Đăng ký / quản lý đội cứu hộ, duyệt yêu cầu tham gia                   |
-
----
-
-## 3. Luồng tổng quan (step)
+### Luồng tổng quan
 
 ```text
-Onboarding → Đăng nhập
-     ↓
-Dashboard (Bản đồ)
-     ↓
-┌────────────────────────────┬────────────────────────────────┐
-│  NGƯỜI GẶP SỰ CỐ           │  NGƯỜI / ĐỘI CỨU HỘ            │
-│  1. Gửi SOS                │  1. Xem danh sách Hỗ trợ       │
-│  2. Theo dõi yêu cầu       │  2. Nhận SOS / xem trên bản đồ │
-│  3. Chat với đội           │  3. Chỉ đường tới hiện trường  │
-│  4. Báo đã an toàn         │  4. Chat + hoàn thành cứu hộ   │
-└────────────────────────────┴────────────────────────────────┘
-     ↓
+Onboarding → Đăng nhập → Dashboard
+        ┌──────────────────┬─────────────────────┐
+        │ Người gặp sự cố  │ Người / đội cứu hộ  │
+        │ Gửi SOS → Theo dõi → Chat → An toàn    │
+        │ Hỗ trợ → Bản đồ → Chỉ đường → Hoàn tất │
+        └──────────────────┴─────────────────────┘
 Thông báo · Đội cứu hộ · Tài khoản · Trợ lý AI
 ```
 
 ---
 
-## 4. Bắt đầu dùng app
+## 1. Bắt đầu dùng app
 
-### Bước 1 — Onboarding (3 màn)
+### Onboarding
 
-Giới thiệu mục tiêu: gặp nguy hiểm → đội đến hỗ trợ → bạn an toàn.
+<p>
+<img src="../assets/images_app/onboarding_step1.jpg" width="48%" alt="Onboarding 1 — Gửi SOS khi gặp nguy hiểm" />
+<img src="../assets/images_app/onboarding_step2.jpg" width="48%" alt="Onboarding 2 — Đội cứu hộ đến hỗ trợ" />
+</p>
+<p>
+<img src="../assets/images_app/onboarding_step3.jpg" width="48%" alt="Onboarding 3 — Bạn an toàn" />
+</p>
 
-**1.1. Gửi SOS khi gặp nguy hiểm**
+### Đăng nhập / Đăng ký
 
-![Onboarding bước 1](../assets/images_app/onboarding_step1.jpg)
-
-**1.2. Đội cứu hộ được kết nối và đến hỗ trợ**
-
-![Onboarding bước 2](../assets/images_app/onboarding_step2.jpg)
-
-**1.3. Đồng hành đến khi bạn an toàn**
-
-![Onboarding bước 3](../assets/images_app/onboarding_step3.jpg)
-
----
-
-### Bước 2 — Đăng ký / Đăng nhập
-
-**2.1. Đăng nhập** bằng số điện thoại và mật khẩu
-
-![Đăng nhập](../assets/images_app/login.jpg)
-
-**2.2. Đăng ký tài khoản mới**
-
-![Đăng ký](../assets/images_app/register.jpg)
-
-**2.3. Xác thực OTP** (khi quên mật khẩu / xác minh)
-
-![Xác thực OTP](../assets/images_app/verify_otp.jpg)
-
-**2.4. Quên mật khẩu → tạo mật khẩu mới**
-
-![Quên mật khẩu](../assets/images_app/forget_password.jpg)
-
-![Tạo mật khẩu mới](../assets/images_app/create_new_password.jpg)
+<p>
+<img src="../assets/images_app/login.jpg" width="48%" alt="Đăng nhập" />
+<img src="../assets/images_app/register.jpg" width="48%" alt="Đăng ký" />
+</p>
+<p>
+<img src="../assets/images_app/verify_otp.jpg" width="48%" alt="Xác thực OTP" />
+<img src="../assets/images_app/forget_password.jpg" width="48%" alt="Quên mật khẩu" />
+</p>
+<p>
+<img src="../assets/images_app/create_new_password.jpg" width="48%" alt="Tạo mật khẩu mới" />
+</p>
 
 ---
 
-## 5. Dashboard — 5 tab chính
+## 2. Dashboard — 5 tab
 
-Sau khi đăng nhập, người dùng làm việc trên 5 tab:
-
-| Tab           | Chức năng                                         |
-| ------------- | ------------------------------------------------- |
-| **Bản đồ**    | Xem vị trí SOS quanh khu vực, thời tiết, định vị  |
-| **Hoạt động** | Yêu cầu SOS của bạn / nhiệm vụ cứu hộ đang nhận   |
-| **Hỗ trợ**    | Danh sách SOS cần giúp (lọc loại, tỉnh/thành)     |
-| **Tin tức**   | Thông báo ứng dụng & hệ thống (có badge chưa đọc) |
-| **Tài khoản** | Hồ sơ, đội, đổi mật khẩu, cài đặt                 |
+| Tab           | Chức năng                               |
+| ------------- | --------------------------------------- |
+| **Bản đồ**    | SOS quanh khu vực, thời tiết, định vị   |
+| **Hoạt động** | Yêu cầu của bạn / nhiệm vụ đang nhận    |
+| **Hỗ trợ**    | Danh sách SOS cần giúp (lọc loại, tỉnh) |
+| **Tin tức**   | Thông báo + badge chưa đọc              |
+| **Tài khoản** | Hồ sơ, đội, đổi mật khẩu                |
 
 ---
 
-## 6. Luồng người gặp sự cố — đăng SOS và nhận giúp đỡ
+## 3. Người gặp sự cố — đăng SOS & nhận giúp
 
-### Bước 1 — Mở form Gửi SOS
+**Bước 1–2.** Chọn loại trên tab Hỗ trợ → điền form Gửi SOS (mô tả, vị trí, SĐT, ảnh)
 
-Từ tab **Hỗ trợ**, chọn loại khẩn cấp để bắt đầu đăng sự cố (hoặc mở màn Gửi SOS).
+<p>
+<img src="../assets/images_app/ui_support_2.jpg" width="48%" alt="Hỗ trợ — chọn loại SOS" />
+<img src="../assets/images_app/ui_support.jpg" width="48%" alt="Hỗ trợ — danh sách SOS" />
+</p>
+<p>
+<img src="../assets/images_app/send_sos.jpg" width="48%" alt="Form gửi SOS" />
+<img src="../assets/images_app/send_sos_2.jpg" width="48%" alt="Form gửi SOS đã điền" />
+</p>
 
-![Tab Hỗ trợ — chọn loại SOS](../assets/images_app/ui_support_2.jpg)
+**Bước 3–4.** Theo dõi trên Hoạt động: Chờ nhận → Đang hỗ trợ → An toàn
 
-![Tab Hỗ trợ — danh sách SOS xếp hạng AI](../assets/images_app/ui_support.jpg)
+<p>
+<img src="../assets/images_app/activity_support_me.jpg" width="48%" alt="Yêu cầu đang chờ nhận" />
+<img src="../assets/images_app/sos_received.jpg" width="48%" alt="Đã có đội nhận" />
+</p>
+<p>
+<img src="../assets/images_app/your_sos.jpg" width="48%" alt="Yêu cầu của bạn" />
+<img src="../assets/images_app/view_photo_full.jpg" width="48%" alt="Xem ảnh hiện trường" />
+</p>
 
-### Bước 2 — Điền thông tin sự cố
+**Bước 5.** Chat với đội cứu hộ
 
-- Chọn loại: **Cần cứu hộ** / **Cấp cứu y tế** / **Thực phẩm/nước**
-- Mô tả tình huống, vị trí, số điện thoại
-- Đính kèm ảnh hiện trường (nếu có)
-- Bấm **Gửi SOS**
-
-![Form gửi SOS (trống)](../assets/images_app/send_sos.jpg)
-
-![Form gửi SOS (đã điền + ảnh)](../assets/images_app/send_sos_2.jpg)
-
-### Bước 3 — Theo dõi yêu cầu của bạn
-
-Tab **Hoạt động** → **Yêu cầu hỗ trợ của bạn**:
-
-- Trạng thái **Chờ nhận** khi chưa có đội nhận
-- Có thể báo **Tôi đã được an toàn** để kết thúc sớm
-
-![Yêu cầu đang chờ nhận](../assets/images_app/activity_support_me.jpg)
-
-### Bước 4 — Khi đã có đội nhận hỗ trợ
-
-Card cập nhật trạng thái **Đang hỗ trợ**, hiện thông tin đội, nút xem bản đồ / nhắn tin / báo an toàn.
-
-![SOS đã được đội nhận](../assets/images_app/sos_received.jpg)
-
-![Yêu cầu của bạn — đang / đã hỗ trợ](../assets/images_app/your_sos.jpg)
-
-### Bước 5 — Chat với đội cứu hộ
-
-Phối hợp vị trí, tình trạng, hướng dẫn tới hiện trường.
-
-![Chat SOS](../assets/images_app/chat.jpg)
-
-![Chat với leader đội](../assets/images_app/chat_team.jpg)
+<p>
+<img src="../assets/images_app/chat.jpg" width="48%" alt="Chat SOS" />
+<img src="../assets/images_app/chat_team.jpg" width="48%" alt="Chat với leader" />
+</p>
 
 ---
 
-## 7. Luồng người / đội cứu hộ — tới giúp
+## 4. Người / đội cứu hộ — tới giúp
 
-### Bước 1 — Xem SOS cần hỗ trợ
+**Bước 1–2.** Xem SOS cần hỗ trợ → Bản đồ / sự kiện quanh khu vực
 
-Tab **Hỗ trợ**: lọc theo loại sự cố và tỉnh/thành; danh sách được **xếp hạng bởi AI**.
+<p>
+<img src="../assets/images_app/ui_support.jpg" width="48%" alt="Danh sách SOS cần hỗ trợ" />
+<img src="../assets/images_app/map.jpg" width="48%" alt="Bản đồ tổng quan" />
+</p>
+<p>
+<img src="../assets/images_app/map_zoom.jpg" width="48%" alt="Zoom bản đồ" />
+<img src="../assets/images_app/view_event_map.jpg" width="48%" alt="Sự kiện trên bản đồ" />
+</p>
 
-![Danh sách SOS cần hỗ trợ](../assets/images_app/ui_support.jpg)
+**Bước 3–4.** Chỉ đường tới hiện trường → Quản lý nhiệm vụ đang nhận
 
-### Bước 2 — Xem trên bản đồ & sự kiện quanh khu vực
+<p>
+<img src="../assets/images_app/view_routes_event.jpg" width="48%" alt="Chỉ đường tới sự kiện" />
+<img src="../assets/images_app/activity_receiving.jpg" width="48%" alt="Cứu trợ đang nhận" />
+</p>
 
-Tab **Bản đồ**: cluster điểm SOS, định vị hiện tại, thời tiết khu vực.
+**Bước 5–6.** Chat phối hợp → Hoàn thành cứu hộ
 
-![Bản đồ tổng quan](../assets/images_app/map.jpg)
-
-![Zoom bản đồ](../assets/images_app/map_zoom.jpg)
-
-![Xem sự kiện trên bản đồ](../assets/images_app/view_event_map.jpg)
-
-### Bước 3 — Chỉ đường tới hiện trường
-
-Sau khi nhận hỗ trợ, mở chỉ đường trong app (khoảng cách + thời gian ước tính).
-
-![Chỉ đường tới sự kiện](../assets/images_app/view_routes_event.jpg)
-
-### Bước 4 — Quản lý nhiệm vụ đang nhận
-
-Tab **Hoạt động** → **Cứu trợ đang nhận**: xem mô tả, gọi điện, mở bản đồ, nhắn tin.
-
-![Cứu trợ đang nhận](../assets/images_app/activity_receiving.jpg)
-
-### Bước 5 — Chat với người gặp nạn
-
-![Chat phối hợp cứu hộ](../assets/images_app/chat_team.jpg)
-
-### Bước 6 — Hoàn thành cứu hộ
-
-Khi kết thúc, xem lại thông tin sự cố đã hoàn thành; vẫn có thể mở lịch sử chat (read-only nếu đã đóng).
-
-![Cứu trợ đã hoàn thành](../assets/images_app/rescue_complete.jpg)
+<p>
+<img src="../assets/images_app/chat_team.jpg" width="48%" alt="Chat phối hợp" />
+<img src="../assets/images_app/rescue_complete.jpg" width="48%" alt="Cứu trợ đã hoàn thành" />
+</p>
 
 ---
 
-## 8. Thông báo (Tin tức)
+## 5. Thông báo
 
-Giữ người dùng được cập nhật khi có SOS mới, đội nhận hỗ trợ, duyệt đội, tin hệ thống…
+Badge đỏ trên tab **Tin tức** = số chưa đọc. Tap (trong app / FCM) → điều hướng + đánh dấu đã đọc.
 
-**Tab Ứng dụng** — thông báo liên quan vận hành SOS / đội
-
-![Thông báo ứng dụng](../assets/images_app/notification.jpg)
-
-**Tab Hệ thống** — thông báo hệ thống
-
-![Thông báo hệ thống](../assets/images_app/notification_2.jpg)
-
-> Badge đỏ trên tab **Tin tức** = số thông báo chưa đọc. Tap thông báo (trong app hoặc FCM) sẽ điều hướng đúng màn hình liên quan và đánh dấu đã đọc.
+<p>
+<img src="../assets/images_app/notification.jpg" width="48%" alt="Thông báo ứng dụng" />
+<img src="../assets/images_app/notification_2.jpg" width="48%" alt="Thông báo hệ thống" />
+</p>
 
 ---
 
-## 9. Đội cứu hộ — tổ chức lực lượng giúp đỡ
+## 6. Đội cứu hộ
 
-### Bước 1 — Xem danh sách đội
+Danh sách đội → chi tiết / thông tin → xin gia nhập → thành viên (Leader)
 
-![Danh sách đội cứu hộ](../assets/images_app/view_list_team.jpg)
-
-### Bước 2 — Xem chi tiết / thông tin đội
-
-![Chi tiết đội](../assets/images_app/list_team_details.jpg)
-
-![Thông tin đội cứu hộ](../assets/images_app/view_info_team.jpg)
-
-### Bước 3 — Xin tham gia đội & theo dõi yêu cầu
-
-![Yêu cầu tham gia của tôi](../assets/images_app/list_request_team.jpg)
-
-### Bước 4 — Xem thành viên đội (Leader)
-
-![Danh sách thành viên](../assets/images_app/view_member_team.jpg)
+<p>
+<img src="../assets/images_app/view_list_team.jpg" width="48%" alt="Danh sách đội" />
+<img src="../assets/images_app/list_team_details.jpg" width="48%" alt="Chi tiết đội" />
+</p>
+<p>
+<img src="../assets/images_app/view_info_team.jpg" width="48%" alt="Thông tin đội" />
+<img src="../assets/images_app/list_request_team.jpg" width="48%" alt="Yêu cầu tham gia" />
+</p>
+<p>
+<img src="../assets/images_app/view_member_team.jpg" width="48%" alt="Thành viên đội" />
+</p>
 
 ---
 
-## 10. Tài khoản & hồ sơ
+## 7. Tài khoản & Trợ lý AI
 
-**Thông tin cá nhân**
-
-![Hồ sơ / thông tin bạn](../assets/images_app/information_you.jpg)
-
-![Trang tài khoản](../assets/images_app/profile.jpg)
-
-**Đổi mật khẩu**
-
-![Đổi mật khẩu](../assets/images_app/change_password.jpg)
-
----
-
-## 11. Trợ lý AI
-
-Hỗ trợ hướng dẫn cách gửi SOS, vận hành app, lưu ý khi gặp sự cố.
-
-![Trợ lý AI](../assets/images_app/AI_CHAT.jpg)
+<p>
+<img src="../assets/images_app/profile.jpg" width="48%" alt="Tài khoản" />
+<img src="../assets/images_app/information_you.jpg" width="48%" alt="Thông tin cá nhân" />
+</p>
+<p>
+<img src="../assets/images_app/change_password.jpg" width="48%" alt="Đổi mật khẩu" />
+<img src="../assets/images_app/AI_CHAT.jpg" width="48%" alt="Trợ lý AI" />
+</p>
 
 ---
 
-## 12. Xem ảnh hiện trường (toàn màn)
+## 8. Tóm tắt nhanh
 
-Ảnh đính kèm trong SOS có thể mở xem full màn hình.
+| Mục tiêu            | Chức năng                                   |
+| ------------------- | ------------------------------------------- |
+| Đăng sự cố          | Gửi SOS (loại / mô tả / vị trí / SĐT / ảnh) |
+| Người khác tới giúp | Hỗ trợ + Bản đồ + chỉ đường                 |
+| Theo dõi tiến trình | Hoạt động (của bạn / đang nhận)             |
+| Phối hợp realtime   | Chat SOS + Thông báo FCM                    |
+| Kết thúc an toàn    | Báo đã an toàn / hoàn thành cứu hộ          |
+| Tổ chức lực lượng   | Đội cứu hộ, xin gia nhập, thành viên        |
 
-![Xem ảnh full](../assets/images_app/view_photo_full.jpg)
+**Dev:** `sos_connect` · OSM + OSRM · FCM + Socket.IO · Chat theo `sosId` · role guest / volunteer / leader
 
----
-
-## 13. Tóm tắt chức năng theo mục tiêu dự án
-
-| Mục tiêu                   | Chức năng trên app                          | Ảnh minh họa chính                                                      |
-| -------------------------- | ------------------------------------------- | ----------------------------------------------------------------------- |
-| Đăng sự cố mình gặp        | Gửi SOS (loại / mô tả / vị trí / SĐT / ảnh) | `send_sos.jpg`, `send_sos_2.jpg`                                        |
-| Người khác thấy & tới giúp | Tab Hỗ trợ + Bản đồ + chỉ đường             | `ui_support.jpg`, `map.jpg`, `view_routes_event.jpg`                    |
-| Theo dõi tiến trình        | Tab Hoạt động (của bạn / đang nhận)         | `activity_support_me.jpg`, `activity_receiving.jpg`, `sos_received.jpg` |
-| Phối hợp realtime          | Chat SOS + Thông báo FCM                    | `chat.jpg`, `chat_team.jpg`, `notification.jpg`                         |
-| Kết thúc an toàn           | Báo đã an toàn / hoàn thành cứu hộ          | `rescue_complete.jpg`, `your_sos.jpg`                                   |
-| Tổ chức lực lượng          | Đội cứu hộ, xin gia nhập, thành viên        | `view_info_team.jpg`, `list_request_team.jpg`                           |
-
----
-
-## 14. Ghi chú kỹ thuật ngắn (cho dev)
-
-- Package: `sos_connect`
-- Bản đồ: OpenStreetMap + chỉ đường trong app (OSRM)
-- Realtime: Firebase Cloud Messaging + Socket.IO
-- Chat SOS theo từng sự kiện (`sosId`)
-- Vai trò: người dùng thường / volunteer / leader (quyền nhận SOS & quản lý đội khác nhau)
-
----
-
-_Ảnh trong tài liệu lấy từ `assets/images_app/` — screenshot UI thực tế của app._
+_Ảnh từ `assets/images_app/` — screenshot UI thực tế._
