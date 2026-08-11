@@ -163,13 +163,13 @@ class JoinRequestDetailController extends GetxController {
 
   Future<void> _markNotificationAsRead(String notificationId) async {
     try {
-      final response = await notificationRepository.markNotificationAsRead(id: notificationId);
-      if (!response.isOk) return;
-
       if (Get.isRegistered<NotiController>()) {
-        Get.find<NotiController>().updateNotificationAsReadLocally(notificationId);
+        await Get.find<NotiController>().markNotificationAsRead(notificationId);
         return;
       }
+
+      final response = await notificationRepository.markNotificationAsRead(id: notificationId);
+      if (!response.isOk) return;
 
       if (Get.isRegistered<DashboardController>()) {
         final dashboardController = Get.find<DashboardController>();

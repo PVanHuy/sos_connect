@@ -51,26 +51,29 @@ class RescueCompletedController extends GetxController {
       title: 'mark_as_safe'.tr,
       content: 'mark_as_safe_confirm'.tr,
       titleBtn: 'confirm'.tr,
-      onConfirm: () => _cancelMySos(sosId),
+      onConfirm: () => _resolveMySos(item),
     );
   }
 
-  Future<void> _cancelMySos(String sosId) async {
-    if (markingSafeId.value != null) return;
+  Future<void> _resolveMySos(SosEventModel item) async {
+    final sosId = item.id?.trim() ?? '';
+    if (sosId.isEmpty || markingSafeId.value != null) return;
 
     try {
       markingSafeId.value = sosId;
-      final response = await sosRepository.cancelMySosRequest(sosId);
+      final response = item.hasAssignedTeam
+          ? await sosRepository.completeMySosRequest(sosId)
+          : await sosRepository.cancelMySosRequest(sosId);
       if (response.isOk) {
         final message = response.body is Map ? response.body['message'] : null;
         DialogUtils.showSuccessDialog(message ?? 'mark_as_safe_success'.tr);
-        postsController.removeWhere((item) => item.id == sosId);
+        postsController.removeWhere((e) => e.id == sosId);
       } else {
         final message = response.body is Map ? response.body['message'] : null;
         DialogUtils.showErrorDialog(message ?? '');
       }
     } catch (e) {
-      loggerHelper.error('Cancel my SOS error: $e');
+      loggerHelper.error('Resolve my SOS error: $e');
     } finally {
       markingSafeId.value = null;
     }

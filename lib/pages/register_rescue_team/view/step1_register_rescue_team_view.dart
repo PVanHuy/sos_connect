@@ -71,6 +71,7 @@ class Step1RegisterRescueTeamView extends GetView<RegisterRescueTeamController> 
             controller: controller.memberCountController,
             borderRadius: 12,
             inputType: TextInputType.number,
+            maxLength: 2,
             formatter: FormatterUtil.numberFormatter,
             onValidate: (value) => CustomValidator.validateRequiredField(value.trim(), 'member_count'.tr),
           ),

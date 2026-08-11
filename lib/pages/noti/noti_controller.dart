@@ -5,7 +5,6 @@ import 'package:sos_connect/resourese/notification/inotification_repository.dart
 import 'package:sos_connect/resourese/service/notification/notification_service.dart';
 import 'package:sos_connect/utils/logger_helper.dart';
 import 'package:sos_connect/utils/noti_tab_type_utils.dart';
-import 'package:sos_connect/utils/noti_type_utils.dart';
 import 'package:sos_connect/widget/lazy_list/lazy_list_controller.dart';
 
 class NotiController extends GetxController {
@@ -13,10 +12,12 @@ class NotiController extends GetxController {
 
   final INotificationRepository notificationRepository;
 
-  final selectedTab = NotiTabType.system.obs;
+  final selectedTab = NotiTabType.app.obs;
 
   late final LazyListController<NotificationModel> systemListController;
   late final LazyListController<NotificationModel> appListController;
+
+  final Set<String> _markingAsReadIds = <String>{};
 
   LazyListController<NotificationModel> listControllerOf(NotiTabType tab) {
     return tab == NotiTabType.system ? systemListController : appListController;
@@ -96,28 +97,21 @@ class NotiController extends GetxController {
     return true;
   }
 
+  bool _isReadLocally(String notificationId) {
+    final systemIndex = systemListController.list.indexWhere((item) => item.id == notificationId);
+    if (systemIndex != -1) return systemListController.list[systemIndex].isRead;
+
+    final appIndex = appListController.list.indexWhere((item) => item.id == notificationId);
+    if (appIndex != -1) return appListController.list[appIndex].isRead;
+
+    return false;
+  }
+
   void handleNotificationTap(NotificationModel notification) {
     final notificationId = notification.id?.trim() ?? '';
     final sosId = notification.requestId?.trim() ?? '';
 
-    if (notification.type == NotiTypeUtils.chat) {
-      if (notificationId.isNotEmpty) markNotificationAsRead(notificationId);
-      if (!Get.isRegistered<NotificationService>()) return;
-      Get.find<NotificationService>().navigateByNotification(
-        type: notification.type,
-        action: notification.action,
-        notificationId: notificationId.isNotEmpty ? notificationId : null,
-        requestId: sosId,
-        sosId: sosId,
-      );
-      return;
-    }
-
-    if (notificationId.isEmpty) return;
-
-    if ((notification.type == NotiTypeUtils.joinRequest &&
-            (notification.action == NotiActionUtils.created || notification.action == null)) ||
-        notification.type == NotiTypeUtils.sosRequest) {
+    if (notificationId.isNotEmpty) {
       markNotificationAsRead(notificationId);
     }
 
@@ -125,10 +119,10 @@ class NotiController extends GetxController {
     Get.find<NotificationService>().navigateByNotification(
       type: notification.type,
       action: notification.action,
-      notificationId: notificationId,
+      notificationId: notificationId.isNotEmpty ? notificationId : null,
       teamId: notification.data?.teamId,
       requestId: notification.requestId,
-      sosId: notification.requestId,
+      sosId: sosId.isNotEmpty ? sosId : notification.requestId,
     );
   }
 
@@ -136,34 +130,27 @@ class NotiController extends GetxController {
     try {
       final id = notificationId.trim();
       if (id.isEmpty) return;
+      if (_markingAsReadIds.contains(id)) return;
+      if (_isReadLocally(id)) return;
 
-      final listController = _listControllerContaining(id);
-      if (listController == null) return;
+      _markingAsReadIds.add(id);
+      try {
+        final response = await notificationRepository.markNotificationAsRead(id: id);
+        if (!response.isOk) return;
 
-      final index = listController.list.indexWhere((item) => item.id == id);
-      if (index == -1) return;
+        // Cập nhật UI list tin tức nếu item đã được load.
+        _markLocalAsRead(systemListController, id);
+        _markLocalAsRead(appListController, id);
 
-      final oldItem = listController.list[index];
-      if (oldItem.isRead) return;
-
-      final response = await notificationRepository.markNotificationAsRead(id: id);
-      if (!response.isOk) return;
-
-      listController.updateNewData(index, oldItem.copyWith(isRead: true));
-      _decreaseUnreadCount();
+        // Badge phải giảm ngay — không phụ thuộc unread_count từ API (hay bị null/stale).
+        _decreaseUnreadCount();
+      } finally {
+        _markingAsReadIds.remove(id);
+      }
     } catch (e) {
+      _markingAsReadIds.remove(notificationId.trim());
       loggerHelper.error('Error updating notification as read: $e');
     }
-  }
-
-  LazyListController<NotificationModel>? _listControllerContaining(String notificationId) {
-    if (systemListController.list.any((item) => item.id == notificationId)) {
-      return systemListController;
-    }
-    if (appListController.list.any((item) => item.id == notificationId)) {
-      return appListController;
-    }
-    return null;
   }
 
   void _setUnreadCount(int count) {

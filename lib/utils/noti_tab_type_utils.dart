@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
 import 'package:sos_connect/utils/noti_type_utils.dart';
 
-enum NotiTabType { system, app }
+enum NotiTabType { app, system }
 
 extension NotiTabTypeExtension on NotiTabType {
   String get title {

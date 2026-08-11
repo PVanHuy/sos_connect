@@ -36,8 +36,10 @@ class YourRequestsActivityView extends GetView<ActivityController> {
         final team = item.teamRescue;
         final sosId = item.id?.trim() ?? '';
         final hasTeam = item.hasAssignedTeam || team != null;
+        final status = item.status ?? '';
         final canChat = hasTeam && sosId.isNotEmpty;
-        final canViewMap = hasTeam && team?.teamLat != null && team?.teamLon != null;
+        final chatReadOnly = status.isSosComplete;
+        final canViewMap = hasTeam && !status.isSosComplete && team?.teamLat != null && team?.teamLon != null;
         final canSafe = item.canMarkAsSafe;
         final statusStyle = (item.status ?? SosStatusUtils.inProgress).sosStatusStyle;
 
@@ -61,7 +63,12 @@ class YourRequestsActivityView extends GetView<ActivityController> {
             isMarkingSafe: isMarking,
             onMarkAsSafe: canSafe ? () => controller.markAsSafe(item) : null,
             showChatButton: canChat,
-            onChat: canChat ? () => Get.toNamed(Routes.SOS_CHAT, arguments: SosChatParameter(sosId: sosId)) : null,
+            onChat: canChat
+                ? () => Get.toNamed(
+                    Routes.SOS_CHAT,
+                    arguments: SosChatParameter(sosId: sosId, readOnly: chatReadOnly),
+                  )
+                : null,
             onViewOnMap: canViewMap
                 ? () => MapController.openInAppRouteFromCoords(lat: team!.teamLat, lon: team.teamLon)
                 : null,

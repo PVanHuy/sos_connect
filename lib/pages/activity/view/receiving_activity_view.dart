@@ -35,7 +35,9 @@ class ReceivingActivityView extends GetView<ActivityController> {
         final type = item.emergencyType;
         final team = item.teamRescue;
         final sosId = item.id?.trim() ?? '';
-        final canChat = sosId.isNotEmpty && (item.status ?? '').isSosInProgress;
+        final status = item.status ?? '';
+        final canChat = sosId.isNotEmpty && (status.isSosInProgress || status.isSosComplete);
+        final chatReadOnly = status.isSosComplete;
         final statusStyle = (item.status ?? SosStatusUtils.inProgress).sosStatusStyle;
 
         return ItemActivitySosWidget(
@@ -54,7 +56,10 @@ class ReceivingActivityView extends GetView<ActivityController> {
           managerPhone: team?.phone ?? '',
           showChatButton: canChat,
           onChat: canChat
-              ? () => Get.toNamed(Routes.SOS_CHAT, arguments: SosChatParameter(sosId: sosId))
+              ? () => Get.toNamed(
+                  Routes.SOS_CHAT,
+                  arguments: SosChatParameter(sosId: sosId, readOnly: chatReadOnly),
+                )
               : null,
           onViewOnMap: () => MapController.openInAppRouteFromCoords(lat: item.lat, lon: item.lon),
         );

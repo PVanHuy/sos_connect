@@ -46,4 +46,6 @@ abstract class ISosRepository extends IBaseRepository {
   Future<PaginationModel<SosEventModel>> getMySosRequests({int page = 1});
 
   Future<Response> cancelMySosRequest(String sosId);
+
+  Future<Response> completeMySosRequest(String sosId);
 }

@@ -37,6 +37,7 @@ class SupportRequestFormView extends GetView<SendSosController> {
             titleText: 'location'.tr,
             hintText: 'enter_current_location'.tr,
             borderRadius: 12,
+            readOnly: true,
             onValidate: (value) => CustomValidator.validateRequiredField(value, 'location'.tr),
           ),
           CustomTextField(

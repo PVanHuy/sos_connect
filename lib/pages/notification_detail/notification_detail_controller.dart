@@ -46,14 +46,16 @@ class NotificationDetailController extends GetxController {
 
   Future<void> _markNotificationAsRead(String notificationId) async {
     try {
-      final response = await notificationRepository.markNotificationAsRead(id: notificationId);
-      if (!response.isOk) return;
-
       if (Get.isRegistered<NotiController>()) {
-        Get.find<NotiController>().updateNotificationAsReadLocally(notificationId);
+        await Get.find<NotiController>().markNotificationAsRead(notificationId);
+        notificationDetail.value = notificationDetail.value?.copyWith(isRead: true);
         return;
       }
 
+      final response = await notificationRepository.markNotificationAsRead(id: notificationId);
+      if (!response.isOk) return;
+
+      notificationDetail.value = notificationDetail.value?.copyWith(isRead: true);
       if (Get.isRegistered<DashboardController>()) {
         final dashboardController = Get.find<DashboardController>();
         if (dashboardController.notificationCount.value > 0) {

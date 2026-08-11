@@ -2,6 +2,7 @@ class NotiTypeUtils {
   static const String joinRequest = 'join_request';
   static const String announcement = 'announcement';
   static const String teamMembership = 'team_membership';
+  static const String teamRegistration = 'team_registration';
   static const String sosRequest = 'sos_request';
   static const String chat = 'chat';
 }

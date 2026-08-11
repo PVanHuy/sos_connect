@@ -52,6 +52,8 @@ class SosChatController extends GetxController {
 
   bool get hasNextPage => pagination.value?.hasNext ?? false;
 
+  bool get isReadOnly => parameter.readOnly;
+
   bool isMine(SosChatMessageModel message) {
     final me = currentUserId;
     if (me.isEmpty) return false;
@@ -77,14 +79,16 @@ class SosChatController extends GetxController {
     isLoading.value = true;
     try {
       await fetchMessages();
-      await chatSocketService.ensureConnected();
-      chatSocketService.onNewMessage(_onNewMessage);
-      chatSocketService.onJoined(_onJoined);
-      chatSocketService.joinRoom(sosId);
+      if (!isReadOnly) {
+        await chatSocketService.ensureConnected();
+        chatSocketService.onNewMessage(_onNewMessage);
+        chatSocketService.onJoined(_onJoined);
+        chatSocketService.joinRoom(sosId);
+      }
       scrollToBottom();
     } catch (e) {
       loggerHelper.error('SosChat bootstrap error: $e');
-      DialogUtils.showErrorDialog('sos_chat_connect_failed'.tr);
+      DialogUtils.showErrorDialog(isReadOnly ? 'sos_chat_load_failed'.tr : 'sos_chat_connect_failed'.tr);
     } finally {
       isLoading.value = false;
     }
@@ -101,7 +105,6 @@ class SosChatController extends GetxController {
     if (!scrollController.hasClients) return;
 
     final position = scrollController.position;
-    // reverse:true → pixels ~0 is bottom (newest); maxScrollExtent is top (oldest)
     final nearBottom = position.pixels <= 80;
     if (!nearBottom && !isShowScrollToBottom.value) {
       isShowScrollToBottom.value = true;
@@ -168,6 +171,7 @@ class SosChatController extends GetxController {
   }
 
   void sendMessage() {
+    if (isReadOnly) return;
     final content = messageController.text.trim();
     if (content.isEmpty || isSending.value || sosId.isEmpty) return;
 
@@ -200,9 +204,11 @@ class SosChatController extends GetxController {
 
   @override
   void onClose() {
-    chatSocketService.offNewMessage(_onNewMessage);
-    chatSocketService.offJoined(_onJoined);
-    unawaited(chatSocketService.disconnect());
+    if (!isReadOnly) {
+      chatSocketService.offNewMessage(_onNewMessage);
+      chatSocketService.offJoined(_onJoined);
+      unawaited(chatSocketService.disconnect());
+    }
     scrollController.removeListener(_scrollListener);
     messageController.dispose();
     scrollController.dispose();

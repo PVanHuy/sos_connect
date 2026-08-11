@@ -56,6 +56,8 @@ class AppConstants {
 
   static String userProfileSosCancelUri(String sosId) => '/user/profile/sos/cancel/$sosId';
 
+  static String userProfileSosCompleteUri(String sosId) => '/user/profile/sos/complete/$sosId';
+
   static String teamJoinRequestRespondUri(String requestId) => '/team/join-request/$requestId/respond';
 
   static String teamMemberKickUri(String memberId) => '/team/members/$memberId/kick';

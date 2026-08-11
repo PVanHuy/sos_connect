@@ -170,4 +170,14 @@ class SosRepository extends ISosRepository {
       rethrow;
     }
   }
+
+  @override
+  Future<Response> completeMySosRequest(String sosId) async {
+    try {
+      return await clientPostData(AppConstants.userProfileSosCompleteUri(sosId), {});
+    } catch (error) {
+      handleError(error);
+      rethrow;
+    }
+  }
 }

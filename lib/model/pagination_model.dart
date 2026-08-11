@@ -54,9 +54,9 @@ class PaginationModel<T> {
     return PaginationModel.fromJsonList(
       pagination,
       models,
-      unreadCount: parseToInt(map['unread_count']),
-      countMember: parseToInt(map['count_member']),
-      countRequest: parseToInt(map['count_request']),
+      unreadCount: parseToInt(map['unread_count']) ?? parseToInt(pagination?['unread_count']),
+      countMember: parseToInt(map['count_member']) ?? parseToInt(pagination?['count_member']),
+      countRequest: parseToInt(map['count_request']) ?? parseToInt(pagination?['count_request']),
     );
   }
 

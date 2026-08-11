@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import 'package:sos_connect/main.dart';
 import 'package:sos_connect/pages/activity/widget/item_activity_sos_widget.dart';
 import 'package:sos_connect/pages/rescue_completed/rescue_completed_controller.dart';
+import 'package:sos_connect/pages/sos_chat/sos_chat_parameter.dart';
+import 'package:sos_connect/routes/pages.dart';
 import 'package:sos_connect/utils/sos_emergency_type_utils.dart';
 import 'package:sos_connect/utils/sos_status_utils.dart';
 import 'package:sos_connect/widget/default_app_bar.dart';
@@ -34,6 +36,8 @@ class RescueCompletedPage extends GetWidget<RescueCompletedController> {
         itemBuilder: (index, item) {
           final type = item.emergencyType;
           final team = item.teamRescue;
+          final sosId = item.id?.trim() ?? '';
+          final canChat = sosId.isNotEmpty && (item.hasAssignedTeam || team != null);
           final statusStyle = (item.status ?? SosStatusUtils.complete).sosStatusStyle;
 
           return ItemActivitySosWidget(
@@ -50,6 +54,10 @@ class RescueCompletedPage extends GetWidget<RescueCompletedController> {
             teamName: team?.name ?? '',
             managerName: team?.leader ?? '',
             managerPhone: team?.phone ?? '',
+            showChatButton: canChat,
+            onChat: canChat
+                ? () => Get.toNamed(Routes.SOS_CHAT, arguments: SosChatParameter(sosId: sosId, readOnly: true))
+                : null,
           );
         },
       ),

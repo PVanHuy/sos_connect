@@ -64,7 +64,7 @@ class FcmNotificationModel {
 
   factory FcmNotificationModel.fromJson(Map<String, dynamic> json) {
     final model = _$FcmNotificationModelFromJson(json);
-    model.notificationId ??= _readString(json['notification_id']);
+    model.notificationId ??= _readString(json['notification_id']) ?? _readString(json['id']);
     model.type ??= _readString(json['type']);
     model.action ??= _readString(json['action']);
     model.requestId ??= _readString(json['request_id']);
@@ -87,11 +87,10 @@ class FcmNotificationModel {
     return fromRequest.isNotEmpty ? fromRequest : null;
   }
 
+  /// Id dùng để PATCH /notification/{id}/read — không dùng message_id (chat).
   String? get resolvedNotificationId {
     final direct = notificationId?.trim() ?? '';
-    if (direct.isNotEmpty) return direct;
-    final fromMessage = messageId?.trim() ?? '';
-    return fromMessage.isNotEmpty ? fromMessage : null;
+    return direct.isNotEmpty ? direct : null;
   }
 
   String? get resolvedSosEmergencyApiType {

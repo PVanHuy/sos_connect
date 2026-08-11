@@ -19,6 +19,7 @@ import 'package:sos_connect/pages/rescue_team_list/rescue_team_list_controller.d
 import 'package:sos_connect/pages/sos_chat/sos_chat_parameter.dart';
 import 'package:sos_connect/pages/support/support_controller.dart';
 import 'package:sos_connect/resourese/dashboard/idashboard_repository.dart';
+import 'package:sos_connect/resourese/notification/inotification_repository.dart';
 import 'package:sos_connect/routes/pages.dart';
 import 'package:sos_connect/utils/app_constants.dart';
 import 'package:sos_connect/utils/join_team_request_status_utils.dart';
@@ -241,7 +242,13 @@ class NotificationService {
 
     try {
       final data = payload['data'] is Map ? Map<String, dynamic>.from(payload['data'] as Map) : payload;
-      final fcmNotification = FcmNotificationModel.fromJson(data);
+      final normalized = _normalizeIncomingNotificationPayload(data);
+      final fcmNotification = FcmNotificationModel.fromJson(normalized);
+      final notificationId = fcmNotification.resolvedNotificationId?.trim() ?? '';
+
+      if (notificationId.isNotEmpty) {
+        unawaited(_markOpenedNotificationAsRead(notificationId));
+      }
 
       navigateByNotification(
         type: fcmNotification.type,
@@ -256,6 +263,45 @@ class NotificationService {
       );
     } catch (e) {
       loggerHelper.error('Error handling notification: $e', name: 'NotificationService - CLICK');
+    }
+  }
+
+  Map<String, dynamic> _normalizeIncomingNotificationPayload(Map<String, dynamic> data) {
+    final payload = Map<String, dynamic>.from(data);
+    final notificationId = payload['notification_id']?.toString().trim() ?? '';
+    final id = payload['id']?.toString().trim() ?? '';
+    if (notificationId.isEmpty && id.isNotEmpty) {
+      payload['notification_id'] = id;
+    }
+    if ((payload['created_at']?.toString().trim() ?? '').isNotEmpty &&
+        (payload['time']?.toString().trim() ?? '').isEmpty) {
+      payload['time'] = payload['created_at'];
+    }
+    return payload;
+  }
+
+  Future<void> _markOpenedNotificationAsRead(String notificationId) async {
+    final id = notificationId.trim();
+    if (id.isEmpty) return;
+
+    try {
+      if (Get.isRegistered<NotiController>()) {
+        await Get.find<NotiController>().markNotificationAsRead(id);
+        return;
+      }
+
+      if (!Get.isRegistered<INotificationRepository>()) return;
+      final response = await Get.find<INotificationRepository>().markNotificationAsRead(id: id);
+      if (!response.isOk) return;
+
+      if (Get.isRegistered<DashboardController>()) {
+        final dashboard = Get.find<DashboardController>();
+        if (dashboard.notificationCount.value > 0) {
+          dashboard.notificationCount.value -= 1;
+        }
+      }
+    } catch (e) {
+      loggerHelper.error('Error marking opened notification as read: $e');
     }
   }
 
@@ -313,6 +359,16 @@ class NotificationService {
           if (!wasOnTeamPage && id.isNotEmpty) {
             Get.toNamed(Routes.NOTIFICATION_DETAIL, arguments: NotificationDetailParameter(notificationId: id));
           }
+        } else if (action == NotiActionUtils.approved) {
+          unawaited(_openTeamInformation());
+        } else if (id.isNotEmpty) {
+          Get.toNamed(Routes.NOTIFICATION_DETAIL, arguments: NotificationDetailParameter(notificationId: id));
+        }
+        break;
+      case NotiTypeUtils.teamRegistration:
+        final registrationAction = (action ?? '').trim();
+        if (registrationAction.isEmpty || registrationAction == NotiActionUtils.approved) {
+          unawaited(_openTeamInformation());
         } else if (id.isNotEmpty) {
           Get.toNamed(Routes.NOTIFICATION_DETAIL, arguments: NotificationDetailParameter(notificationId: id));
         }
@@ -398,6 +454,10 @@ class NotificationService {
       case NotiTypeUtils.teamMembership:
         _addIncomingNotification(data);
         _handleTeamMembershipRealtime(FcmNotificationModel.fromJson(data));
+        break;
+      case NotiTypeUtils.teamRegistration:
+        _addIncomingNotification(data);
+        _handleTeamRegistrationRealtime(FcmNotificationModel.fromJson(data));
         break;
       case NotiTypeUtils.sosRequest:
         _addIncomingNotification(data);
@@ -485,8 +545,27 @@ class NotificationService {
   }
 
   void _handleTeamMembershipRealtime(FcmNotificationModel fcm) {
-    if (fcm.action != NotiActionUtils.kicked) return;
-    _handleKickedFromTeam(showDialogIfNeeded: true, reasonKicked: fcm.resolvedReasonKicked, content: fcm.content);
+    if (fcm.action == NotiActionUtils.kicked) {
+      _handleKickedFromTeam(showDialogIfNeeded: true, reasonKicked: fcm.resolvedReasonKicked, content: fcm.content);
+      return;
+    }
+
+    if (fcm.action == NotiActionUtils.approved && Get.isRegistered<DashboardController>()) {
+      Get.find<DashboardController>().fetchProfile();
+    }
+  }
+
+  void _handleTeamRegistrationRealtime(FcmNotificationModel fcm) {
+    if (Get.isRegistered<DashboardController>()) {
+      Get.find<DashboardController>().fetchProfile();
+    }
+  }
+
+  Future<void> _openTeamInformation() async {
+    if (Get.isRegistered<DashboardController>()) {
+      await Get.find<DashboardController>().fetchProfile();
+    }
+    Get.toNamed(Routes.REGISTER_RESCUE_TEAM);
   }
 
   Future<void> _handleKickedFromTeam({required bool showDialogIfNeeded, String? reasonKicked, String? content}) async {
@@ -524,19 +603,7 @@ class NotificationService {
   void _addIncomingNotification(Map<String, dynamic> data) {
     if (!Get.isRegistered<NotiController>()) return;
 
-    final payload = Map<String, dynamic>.from(data);
-    // Normalize id field so list item has a stable key for dedupe/update.
-    final notificationId = payload['notification_id']?.toString().trim() ?? '';
-    final id = payload['id']?.toString().trim() ?? '';
-    if (notificationId.isEmpty && id.isNotEmpty) {
-      payload['notification_id'] = id;
-    }
-    if ((payload['created_at']?.toString().trim() ?? '').isNotEmpty &&
-        (payload['time']?.toString().trim() ?? '').isEmpty) {
-      payload['time'] = payload['created_at'];
-    }
-
-    final fcmNotification = FcmNotificationModel.fromJson(payload);
+    final fcmNotification = FcmNotificationModel.fromJson(_normalizeIncomingNotificationPayload(data));
     // Routes into system/app list based on notification type (announcement vs others).
     Get.find<NotiController>().addNotification(fcmNotification.toNotificationModel());
   }

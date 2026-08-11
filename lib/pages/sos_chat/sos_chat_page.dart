@@ -116,79 +116,80 @@ class SosChatPage extends GetWidget<SosChatController> {
                 ],
               ),
             ),
-            Container(
-              padding: padding(all: 16),
-              decoration: BoxDecoration(
-                color: appTheme.whiteColor,
-                boxShadow: [
-                  BoxShadow(
-                    color: appTheme.blackColor.withSafeOpacity(0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, -2),
-                  ),
-                ],
-              ),
-              child: SafeArea(
-                top: false,
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Container(
-                        decoration: BoxDecoration(color: appTheme.grayF1Color, borderRadius: BorderRadius.circular(24)),
-                        child: TextField(
-                          controller: controller.messageController,
-                          decoration: InputDecoration(
-                            hintText: 'sos_chat_hint'.tr,
-                            hintStyle: StyleThemeData.size14Weight400(color: appTheme.gray94Color),
-                            border: InputBorder.none,
-                            contentPadding: padding(horizontal: 16, vertical: 12),
-                            counterText: '',
-                          ),
-                          style: StyleThemeData.size14Weight400(),
-                          maxLines: null,
-                          maxLength: AppConstants.maxSosChatMessageLength,
-                          textInputAction: TextInputAction.send,
-                          onSubmitted: (_) => controller.sendMessage(),
-                        ),
-                      ),
+            if (!controller.isReadOnly)
+              Container(
+                padding: padding(all: 16),
+                decoration: BoxDecoration(
+                  color: appTheme.whiteColor,
+                  boxShadow: [
+                    BoxShadow(
+                      color: appTheme.blackColor.withSafeOpacity(0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, -2),
                     ),
-                    SizedBox(width: 12.w),
-                    Obx(() {
-                      final canSend = controller.inputValue.value.trim().isNotEmpty && !controller.isSending.value;
-                      return InkWell(
-                        onTap: canSend ? controller.sendMessage : null,
-                        borderRadius: BorderRadius.circular(24),
-                        child: Container(
-                          width: 48.w,
-                          height: 48.w,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            gradient: canSend ? AppGradient.gradientBlueGenderMale : null,
-                            color: canSend ? null : appTheme.grayE6Color,
-                          ),
-                          child: Center(
-                            child: controller.isSending.value
-                                ? SizedBox(
-                                    width: 20.w,
-                                    height: 20.w,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      valueColor: AlwaysStoppedAnimation<Color>(appTheme.gray94Color),
-                                    ),
-                                  )
-                                : Assets.icons.send.svg(
-                                    width: 20.w,
-                                    height: 20.w,
-                                    colorFilter: ColorFilter.mode(appTheme.whiteColor, BlendMode.srcIn),
-                                  ),
-                          ),
-                        ),
-                      );
-                    }),
                   ],
                 ),
+                child: SafeArea(
+                  top: false,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          decoration: BoxDecoration(color: appTheme.grayF1Color, borderRadius: BorderRadius.circular(24)),
+                          child: TextField(
+                            controller: controller.messageController,
+                            decoration: InputDecoration(
+                              hintText: 'sos_chat_hint'.tr,
+                              hintStyle: StyleThemeData.size14Weight400(color: appTheme.gray94Color),
+                              border: InputBorder.none,
+                              contentPadding: padding(horizontal: 16, vertical: 12),
+                              counterText: '',
+                            ),
+                            style: StyleThemeData.size14Weight400(),
+                            maxLines: null,
+                            maxLength: AppConstants.maxSosChatMessageLength,
+                            textInputAction: TextInputAction.send,
+                            onSubmitted: (_) => controller.sendMessage(),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 12.w),
+                      Obx(() {
+                        final canSend = controller.inputValue.value.trim().isNotEmpty && !controller.isSending.value;
+                        return InkWell(
+                          onTap: canSend ? controller.sendMessage : null,
+                          borderRadius: BorderRadius.circular(24),
+                          child: Container(
+                            width: 48.w,
+                            height: 48.w,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              gradient: canSend ? AppGradient.gradientBlueGenderMale : null,
+                              color: canSend ? null : appTheme.grayE6Color,
+                            ),
+                            child: Center(
+                              child: controller.isSending.value
+                                  ? SizedBox(
+                                      width: 20.w,
+                                      height: 20.w,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        valueColor: AlwaysStoppedAnimation<Color>(appTheme.gray94Color),
+                                      ),
+                                    )
+                                  : Assets.icons.send.svg(
+                                      width: 20.w,
+                                      height: 20.w,
+                                      colorFilter: ColorFilter.mode(appTheme.whiteColor, BlendMode.srcIn),
+                                    ),
+                            ),
+                          ),
+                        );
+                      }),
+                    ],
+                  ),
+                ),
               ),
-            ),
           ],
         ),
       ),

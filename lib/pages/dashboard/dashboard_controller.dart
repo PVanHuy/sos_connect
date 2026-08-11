@@ -60,6 +60,8 @@ class DashboardController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    // Ensure NotiController exists before FCM initial-message handling.
+    Get.find<NotiController>();
     fetchProfile();
     _init();
   }
@@ -67,7 +69,6 @@ class DashboardController extends GetxController {
   @override
   void onReady() {
     super.onReady();
-    Get.find<NotiController>();
     Get.find<SupportController>();
   }
 
