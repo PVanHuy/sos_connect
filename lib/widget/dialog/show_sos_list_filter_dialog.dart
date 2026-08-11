@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:sos_connect/extension/color_extension.dart';
 import 'package:sos_connect/main.dart';
 import 'package:sos_connect/theme/style/style_theme.dart';
 import 'package:sos_connect/utils/sos_list_filter_utils.dart';
@@ -13,10 +14,7 @@ class SosListFilterResult {
   final String? timeWindow;
 }
 
-Future<SosListFilterResult?> showSosListFilterDialog({
-  int? radiusKm,
-  String? timeWindow,
-}) {
+Future<SosListFilterResult?> showSosListFilterDialog({int? radiusKm, String? timeWindow}) {
   return Get.bottomSheet<SosListFilterResult>(
     _SosListFilterSheet(radiusKm: radiusKm, timeWindow: timeWindow),
     isScrollControlled: true,
@@ -59,17 +57,9 @@ class _SosListFilterSheetState extends State<_SosListFilterSheet> {
               spacing: 8.w,
               runSpacing: 8.h,
               children: [
-                _chip(
-                  label: 'all'.tr,
-                  selected: _radiusKm == null,
-                  onTap: () => setState(() => _radiusKm = null),
-                ),
+                _chip(label: 'all'.tr, selected: _radiusKm == null, onTap: () => setState(() => _radiusKm = null)),
                 for (final km in SosListFilterUtils.radiusKmOptions)
-                  _chip(
-                    label: '$km km',
-                    selected: _radiusKm == km,
-                    onTap: () => setState(() => _radiusKm = km),
-                  ),
+                  _chip(label: '$km km', selected: _radiusKm == km, onTap: () => setState(() => _radiusKm = km)),
               ],
             ),
             SizedBox(height: 16.h),
@@ -79,11 +69,7 @@ class _SosListFilterSheetState extends State<_SosListFilterSheet> {
               spacing: 8.w,
               runSpacing: 8.h,
               children: [
-                _chip(
-                  label: 'all'.tr,
-                  selected: _timeWindow == null,
-                  onTap: () => setState(() => _timeWindow = null),
-                ),
+                _chip(label: 'all'.tr, selected: _timeWindow == null, onTap: () => setState(() => _timeWindow = null)),
                 for (final window in SosListFilterUtils.timeWindowOptions)
                   _chip(
                     label: window,
@@ -129,15 +115,13 @@ class _SosListFilterSheetState extends State<_SosListFilterSheet> {
       child: Container(
         padding: padding(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: selected ? appTheme.appColor.withValues(alpha: 0.12) : appTheme.whiteColor,
+          color: selected ? appTheme.appColor.withSafeOpacity(0.12) : appTheme.whiteColor,
           borderRadius: BorderRadius.circular(999),
           border: Border.all(color: selected ? appTheme.appColor : appTheme.grayE5Color),
         ),
         child: Text(
           label,
-          style: StyleThemeData.size12Weight700(
-            color: selected ? appTheme.appColor : appTheme.gray83Color,
-          ),
+          style: StyleThemeData.size12Weight700(color: selected ? appTheme.appColor : appTheme.gray83Color),
         ),
       ),
     );

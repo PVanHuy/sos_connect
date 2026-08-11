@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sos_connect/core/app_gradient.dart';
+import 'package:sos_connect/extension/color_extension.dart';
 import 'package:sos_connect/gen/assets.gen.dart';
 import 'package:sos_connect/main.dart';
 import 'package:sos_connect/pages/sos_chat/sos_chat_controller.dart';
@@ -121,7 +122,7 @@ class SosChatPage extends GetWidget<SosChatController> {
                 color: appTheme.whiteColor,
                 boxShadow: [
                   BoxShadow(
-                    color: appTheme.blackColor.withValues(alpha: 0.05),
+                    color: appTheme.blackColor.withSafeOpacity(0.05),
                     blurRadius: 10,
                     offset: const Offset(0, -2),
                   ),
@@ -206,7 +207,7 @@ class SosChatPage extends GetWidget<SosChatController> {
               borderRadius: BorderRadius.circular(8),
               color: appTheme.whiteColor,
               boxShadow: [
-                BoxShadow(color: appTheme.blackColor.withValues(alpha: 0.1), blurRadius: 8, offset: const Offset(0, 2)),
+                BoxShadow(color: appTheme.blackColor.withSafeOpacity(0.1), blurRadius: 8, offset: const Offset(0, 2)),
               ],
             ),
             child: Row(
@@ -230,7 +231,7 @@ class SosChatPage extends GetWidget<SosChatController> {
             shape: BoxShape.circle,
             color: appTheme.whiteColor,
             boxShadow: [
-              BoxShadow(color: appTheme.blackColor.withValues(alpha: 0.1), blurRadius: 8, offset: const Offset(0, 2)),
+                BoxShadow(color: appTheme.blackColor.withSafeOpacity(0.1), blurRadius: 8, offset: const Offset(0, 2)),
             ],
           ),
           child: Assets.icons.arrowDown.svg(

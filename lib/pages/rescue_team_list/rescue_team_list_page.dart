@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:sos_connect/extension/color_extension.dart';
 import 'package:sos_connect/gen/assets.gen.dart';
 import 'package:sos_connect/main.dart';
 import 'package:sos_connect/pages/rescue_team_detail/rescue_team_detail_parameter.dart';
@@ -76,7 +77,7 @@ class RescueTeamListPage extends GetWidget<RescueTeamListController> {
                   child: Container(
                     padding: padding(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
-                      color: appTheme.appColor.withValues(alpha: 0.1),
+                      color: appTheme.appColor.withSafeOpacity(0.1),
                       borderRadius: .circular(20),
                     ),
                     child: Row(

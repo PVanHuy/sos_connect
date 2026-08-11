@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:sos_connect/extension/color_extension.dart';
 import 'package:sos_connect/gen/assets.gen.dart';
 import 'package:sos_connect/main.dart';
 import 'package:sos_connect/pages/register_rescue_team/register_rescue_team_controller.dart';
@@ -57,7 +58,9 @@ class RegisterRescueTeamPage extends GetWidget<RegisterRescueTeamController> {
                                 child: Container(
                                   padding: padding(horizontal: 10, vertical: 6),
                                   decoration: BoxDecoration(
-                                    color: isLive ? appTheme.appColor.withValues(alpha: 0.1) : appTheme.sliverColor,
+                                    color: isLive
+                                        ? appTheme.appColor.withSafeOpacity(0.1)
+                                        : appTheme.sliverColor,
                                     borderRadius: BorderRadius.circular(20),
                                     border: Border.all(color: isLive ? appTheme.appColor : appTheme.grayE5Color),
                                   ),

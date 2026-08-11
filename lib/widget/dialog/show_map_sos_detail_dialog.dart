@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:sos_connect/extension/color_extension.dart';
 import 'package:sos_connect/main.dart';
 import 'package:sos_connect/model/map/map_sos_item_model.dart';
 import 'package:sos_connect/pages/map/map_controller.dart';
@@ -35,6 +36,6 @@ Future<void> showMapSosDetailDialog({
             : null,
       ),
     ),
-    barrierColor: appTheme.blackColor.withValues(alpha: 0.45),
+    barrierColor: appTheme.blackColor.withSafeOpacity(0.45),
   );
 }

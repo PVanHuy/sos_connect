@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
+import 'package:sos_connect/extension/color_extension.dart';
 import 'package:sos_connect/main.dart';
 import 'package:sos_connect/model/map/map_sos_item_model.dart';
 import 'package:sos_connect/pages/map/widget/map_sos_marker_widget.dart';
@@ -83,11 +84,11 @@ class MapMarkerClusterUtil {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [appTheme.appColor, appTheme.appColor.withValues(alpha: 0.82)],
+          colors: [appTheme.appColor, appTheme.appColor.withSafeOpacity(0.82)],
         ),
         border: Border.all(color: appTheme.whiteColor, width: 3),
         boxShadow: [
-          BoxShadow(color: appTheme.appColor.withValues(alpha: 0.35), blurRadius: 10, offset: const Offset(0, 3)),
+          BoxShadow(color: appTheme.appColor.withSafeOpacity(0.35), blurRadius: 10, offset: const Offset(0, 3)),
         ],
       ),
       child: Center(

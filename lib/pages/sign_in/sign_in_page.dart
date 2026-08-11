@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:sos_connect/extension/color_extension.dart';
 import 'package:sos_connect/gen/assets.gen.dart';
 import 'package:sos_connect/main.dart';
 import 'package:sos_connect/pages/sign_in/sign_in_controller.dart';
@@ -35,7 +36,7 @@ class SignInPage extends GetView<SignInController> {
                       borderRadius: .circular(24),
                       boxShadow: [
                         BoxShadow(
-                          color: appTheme.blackColor.withValues(alpha: 0.12),
+                          color: appTheme.blackColor.withSafeOpacity(0.12),
                           blurRadius: 24,
                           offset: const Offset(0, 8),
                         ),

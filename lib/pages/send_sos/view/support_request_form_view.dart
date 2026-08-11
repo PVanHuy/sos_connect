@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:sos_connect/extension/color_extension.dart';
 import 'package:sos_connect/gen/assets.gen.dart';
 import 'package:sos_connect/main.dart';
 import 'package:sos_connect/pages/send_sos/send_sos_controller.dart';
@@ -113,7 +114,7 @@ class SupportRequestFormView extends GetView<SendSosController> {
                         child: Container(
                           padding: padding(horizontal: 12, vertical: 8),
                           decoration: BoxDecoration(
-                            color: appTheme.whiteColor.withValues(alpha: 0.92),
+                            color: appTheme.whiteColor.withSafeOpacity(0.92),
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sos_connect/extension/color_extension.dart';
 import 'package:sos_connect/main.dart';
 import 'package:sos_connect/utils/sos_emergency_type_utils.dart';
 import 'package:sos_connect/widget/image_asset_custom.dart';
@@ -33,7 +34,7 @@ class MapSosMarkerWidget extends StatelessWidget {
             border: Border.all(color: appTheme.whiteColor, width: isSelected ? 3 : 2),
             boxShadow: [
               BoxShadow(
-                color: style.text.withValues(alpha: 0.35),
+                color: style.text.withSafeOpacity(0.35),
                 blurRadius: isSelected ? 10 : 6,
                 offset: const Offset(0, 3),
               ),

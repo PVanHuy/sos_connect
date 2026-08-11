@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:sos_connect/extension/color_extension.dart';
 import 'package:sos_connect/gen/assets.gen.dart';
 import 'package:sos_connect/main.dart';
 import 'package:sos_connect/pages/register_rescue_team/register_rescue_team_controller.dart';
 import 'package:sos_connect/theme/style/style_theme.dart';
 import 'package:sos_connect/utils/custom_validator.dart';
 import 'package:sos_connect/utils/formatter_util.dart';
+import 'package:sos_connect/widget/custom_image_widget.dart';
 import 'package:sos_connect/widget/custom_text_field.dart';
 import 'package:sos_connect/widget/dash_border_painter.dart';
 import 'package:sos_connect/widget/full_photo_viewer.dart';
-import 'package:sos_connect/widget/custom_image_widget.dart';
 import 'package:sos_connect/widget/reponsive/extension.dart';
 
 class Step1RegisterRescueTeamView extends GetView<RegisterRescueTeamController> {
@@ -124,7 +125,7 @@ class Step1RegisterRescueTeamView extends GetView<RegisterRescueTeamController> 
                         child: Container(
                           padding: padding(horizontal: 12, vertical: 8),
                           decoration: BoxDecoration(
-                            color: appTheme.whiteColor.withValues(alpha: 0.92),
+                            color: appTheme.whiteColor.withSafeOpacity(0.92),
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
@@ -163,7 +164,7 @@ class Step1RegisterRescueTeamView extends GetView<RegisterRescueTeamController> 
                         child: Container(
                           padding: padding(horizontal: 12, vertical: 8),
                           decoration: BoxDecoration(
-                            color: appTheme.whiteColor.withValues(alpha: 0.92),
+                            color: appTheme.whiteColor.withSafeOpacity(0.92),
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:sos_connect/extension/color_extension.dart';
 import 'package:sos_connect/gen/assets.gen.dart';
 import 'package:sos_connect/main.dart';
 import 'package:sos_connect/pages/personal_information/personal_information_controller.dart';
@@ -55,7 +56,7 @@ class PersonalInformationPage extends GetWidget<PersonalInformationController> {
                             decoration: BoxDecoration(
                               color: appTheme.whiteColor,
                               shape: BoxShape.circle,
-                              boxShadow: [BoxShadow(color: appTheme.blackColor.withValues(alpha: 0.12), blurRadius: 8)],
+                              boxShadow: [BoxShadow(color: appTheme.blackColor.withSafeOpacity(0.12), blurRadius: 8)],
                             ),
                             child: Assets.icons.camera.svg(
                               width: 20.w,

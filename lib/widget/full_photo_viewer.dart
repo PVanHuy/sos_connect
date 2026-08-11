@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:sos_connect/extension/color_extension.dart';
 import 'package:sos_connect/extension/string_extension.dart';
 import 'package:sos_connect/main.dart';
 import 'package:sos_connect/theme/style/style_theme.dart';
@@ -25,15 +26,11 @@ class FullPhotoViewer extends StatefulWidget {
   final Function(int)? onPageChanged;
   final List<Widget>? customSubChild;
 
-  static Future<void> open(
-    BuildContext context, {
-    required List<dynamic> assets,
-    int initialIndex = 0,
-  }) {
+  static Future<void> open(BuildContext context, {required List<dynamic> assets, int initialIndex = 0}) {
     return Navigator.of(context).push(
       PageRouteBuilder(
         opaque: false,
-        barrierColor: Colors.black.withValues(alpha: 0.92),
+        barrierColor: Colors.black.withSafeOpacity(0.92),
         pageBuilder: (context, animation, secondaryAnimation) =>
             FullPhotoViewer(assets: assets, initialIndex: initialIndex),
       ),
@@ -107,10 +104,7 @@ class _FullPhotoViewerState extends State<FullPhotoViewer> {
                 children: [
                   const Icon(Icons.close, color: Colors.white),
                   SizedBox(width: 4.w),
-                  Text(
-                    'close'.tr,
-                    style: StyleThemeData.size14Weight400(color: appTheme.whiteColor, height: 1),
-                  ),
+                  Text('close'.tr, style: StyleThemeData.size14Weight400(color: appTheme.whiteColor, height: 1)),
                 ],
               ),
             ),

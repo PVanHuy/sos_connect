@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart' hide MapController;
 import 'package:get/get.dart';
+import 'package:sos_connect/extension/color_extension.dart';
 import 'package:sos_connect/gen/assets.gen.dart';
 import 'package:sos_connect/main.dart';
 import 'package:sos_connect/pages/map/map_controller.dart';
@@ -76,21 +77,47 @@ class MapPage extends GetWidget<MapController> {
                 Obx(() {
                   final myPos = controller.currentPosition.value;
                   final destination = controller.routeDestination.value;
+                  final hasRoute = controller.activeRoute.value != null;
                   final zoom = controller.mapZoom.value;
                   final markers = <Marker>[];
 
                   if (myPos != null) {
-                    final width = MapMarkerClusterUtil.myLocationPinWidth(zoom);
-                    final height = MapMarkerClusterUtil.myLocationPinHeight(zoom);
-                    markers.add(
-                      Marker(
-                        point: myPos,
-                        width: width,
-                        height: height,
-                        alignment: Alignment.bottomCenter,
-                        child: Assets.images.pinLocation.image(width: width, height: height, fit: BoxFit.contain),
-                      ),
-                    );
+                    if (hasRoute) {
+                      markers.add(
+                        Marker(
+                          point: myPos,
+                          width: 44.w,
+                          height: 44.w,
+                          alignment: Alignment.center,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: appTheme.whiteColor,
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: appTheme.blackColor.withSafeOpacity(0.22),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Icon(Icons.navigation_rounded, color: appTheme.appColor, size: 26.w),
+                          ),
+                        ),
+                      );
+                    } else {
+                      final width = MapMarkerClusterUtil.myLocationPinWidth(zoom);
+                      final height = MapMarkerClusterUtil.myLocationPinHeight(zoom);
+                      markers.add(
+                        Marker(
+                          point: myPos,
+                          width: width,
+                          height: height,
+                          alignment: Alignment.bottomCenter,
+                          child: Assets.images.pinLocation.image(width: width, height: height, fit: BoxFit.contain),
+                        ),
+                      );
+                    }
                   }
 
                   if (destination != null) {
@@ -107,7 +134,7 @@ class MapPage extends GetWidget<MapController> {
                             border: Border.all(color: appTheme.whiteColor, width: 3),
                             boxShadow: [
                               BoxShadow(
-                                color: appTheme.blackColor.withValues(alpha: 0.2),
+                                color: appTheme.blackColor.withSafeOpacity(0.2),
                                 blurRadius: 6,
                                 offset: const Offset(0, 2),
                               ),

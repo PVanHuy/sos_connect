@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sos_connect/core/app_gradient.dart';
+import 'package:sos_connect/extension/color_extension.dart';
 import 'package:sos_connect/gen/assets.gen.dart';
 import 'package:sos_connect/main.dart';
 import 'package:sos_connect/pages/chat/chat_controller.dart';
@@ -72,7 +73,7 @@ class ChatPage extends GetWidget<ChatController> {
                 color: appTheme.whiteColor,
                 boxShadow: [
                   BoxShadow(
-                    color: appTheme.blackColor.withValues(alpha: 0.05),
+                    color: appTheme.blackColor.withSafeOpacity(0.05),
                     blurRadius: 10,
                     offset: const Offset(0, -2),
                   ),
@@ -110,7 +111,7 @@ class ChatPage extends GetWidget<ChatController> {
                                           color: appTheme.grayF1Color,
                                           borderRadius: BorderRadius.circular(20),
                                           border: Border.all(
-                                            color: appTheme.blueBFFColor.withValues(alpha: 0.3),
+                                            color: appTheme.blueBFFColor.withSafeOpacity(0.3),
                                             width: 1,
                                           ),
                                         ),
@@ -146,7 +147,7 @@ class ChatPage extends GetWidget<ChatController> {
                                             color: appTheme.grayF1Color,
                                             borderRadius: BorderRadius.circular(20),
                                             border: Border.all(
-                                              color: appTheme.blueBFFColor.withValues(alpha: 0.3),
+                                              color: appTheme.blueBFFColor.withSafeOpacity(0.3),
                                               width: 1,
                                             ),
                                           ),

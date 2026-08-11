@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:sos_connect/extension/color_extension.dart';
 import 'package:sos_connect/main.dart';
 import 'package:sos_connect/theme/style/style_theme.dart';
 import 'package:sos_connect/utils/weather_util.dart';
@@ -20,7 +21,11 @@ class MapWeatherBarWidget extends StatelessWidget {
         color: appTheme.whiteColor,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
-          BoxShadow(color: appTheme.blackColor.withValues(alpha: 0.08), blurRadius: 12, offset: const Offset(0, 4)),
+          BoxShadow(
+            color: appTheme.blackColor.withSafeOpacity(0.08),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
         ],
       ),
       child: isLoading && weather == null
