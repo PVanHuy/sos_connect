@@ -7,16 +7,72 @@ on:
   pull_request:
     branches: [dev]
 
+concurrency:
+  group: flutter-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   android:
     runs-on: ubuntu-latest
 
     permissions:
-      contents: read
+      contents: write
 
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Bump versionCode
+        if: github.event_name == 'push'
+        id: bump
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          CURRENT=$(grep -E '^version:' pubspec.yaml | head -n1 | awk '{print $2}')
+          NAME="${CURRENT%%+*}"
+          CODE="${CURRENT##*+}"
+          if [ "$CODE" = "$CURRENT" ] || [ -z "$CODE" ]; then
+            CODE=0
+          fi
+
+          CODE=$((CODE + 1))
+          NEW_VERSION="${NAME}+${CODE}"
+
+          sed -i -E "s/^version: .*/version: ${NEW_VERSION}/" pubspec.yaml
+
+          echo "version=${NEW_VERSION}" >> "$GITHUB_OUTPUT"
+          echo "version_name=${NAME}" >> "$GITHUB_OUTPUT"
+          echo "version_code=${CODE}" >> "$GITHUB_OUTPUT"
+
+          echo "Bumped version: ${CURRENT} -> ${NEW_VERSION}"
+
+      - name: Commit version bump
+        if: github.event_name == 'push'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add pubspec.yaml
+          if git diff --cached --quiet; then
+            echo "No version changes to commit"
+          else
+            git commit -m "chore(ci): bump version to ${{ steps.bump.outputs.version }} [skip ci]"
+            git push
+          fi
+
+      - name: Read version
+        id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+          CURRENT=$(grep -E '^version:' pubspec.yaml | head -n1 | awk '{print $2}')
+          echo "version=${CURRENT}" >> "$GITHUB_OUTPUT"
+          echo "Using version ${CURRENT}"
 
       - name: Create .env
         shell: bash
@@ -74,14 +130,23 @@ jobs:
       - name: Build Release App Bundle
         run: flutter build appbundle --release
 
+      - name: Rename artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="${{ steps.version.outputs.version }}"
+          mkdir -p dist
+          cp build/app/outputs/flutter-apk/app-release.apk "dist/sos-connect-${VERSION}.apk"
+          cp build/app/outputs/bundle/release/app-release.aab "dist/sos-connect-${VERSION}.aab"
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: app-release-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+          name: sos-connect-${{ steps.version.outputs.version }}-apk
+          path: dist/sos-connect-${{ steps.version.outputs.version }}.apk
 
       - name: Upload AAB
         uses: actions/upload-artifact@v4
         with:
-          name: app-release-aab
-          path: build/app/outputs/bundle/release/app-release.aab
+          name: sos-connect-${{ steps.version.outputs.version }}-aab
+          path: dist/sos-connect-${{ steps.version.outputs.version }}.aab

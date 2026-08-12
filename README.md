@@ -181,7 +181,7 @@ Dùng **GitHub Actions** với 2 workflow. Chi tiết đầy đủ (secrets, ver
 
 **Trigger:** `push` / `pull_request` vào nhánh `dev`
 
-**Pipeline:** checkout → `.env` + keystore → Flutter 3.41.4 → `pub get` → `build_runner` → `analyze` → build signed APK/AAB → upload Artifacts
+**Pipeline:** checkout → **push `dev`: bump `versionCode` (`+N`) trong `pubspec.yaml`** → `.env` + keystore → Flutter 3.41.4 → `pub get` → `build_runner` → `analyze` → build signed APK/AAB → upload Artifacts (`sos-connect-X.Y.Z+N`)
 
 ### Release (`release.yml`)
 
@@ -211,7 +211,7 @@ Dùng **GitHub Actions** với 2 workflow. Chi tiết đầy đủ (secrets, ver
 
 ### Quyền Actions
 
-**Settings → Actions → General → Workflow permissions:** chọn **Read and write permissions** (để Release commit bump version + tạo Release).
+**Settings → Actions → General → Workflow permissions:** chọn **Read and write permissions** (CI commit bump `+N`; Release commit version + tạo Release).
 
 ### Google Play (sau này)
 

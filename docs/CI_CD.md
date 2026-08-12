@@ -26,7 +26,7 @@ Tài liệu mô tả pipeline **Continuous Integration / Continuous Delivery** c
 
 | Workflow | File | Trigger | Mục đích |
 |----------|------|---------|----------|
-| **Flutter CI** | [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) | `push` / `pull_request` → `dev` | Analyze + build signed APK/AAB + upload Artifacts |
+| **Flutter CI** | [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) | `push` / `pull_request` → `dev` | Push: tự tăng `versionCode` (`+N`) rồi build signed APK/AAB. PR: analyze + build, không bump |
 | **Release** | [`.github/workflows/release.yml`](../.github/workflows/release.yml) | Manual (`workflow_dispatch`) | Bump version, cập nhật CHANGELOG, tag, GitHub Release + đính kèm APK/AAB |
 
 **Stack build**
@@ -43,11 +43,15 @@ Tài liệu mô tả pipeline **Continuous Integration / Continuous Delivery** c
 ## Sơ đồ luồng
 
 ```text
-feature/* ──PR──► dev ──CI──► Artifacts (APK + AAB)
+feature/* ──PR──► dev ──CI──► bump +N trong pubspec.yaml
+                     │         (commit lại nhánh dev)
+                     │         build signed APK + AAB
+                     ▼
+              Artifacts sos-connect-X.Y.Z+N.aab  →  upload Play Console
                      │
                      │  Actions → Release (manual)
                      ▼
-              bump version + CHANGELOG
+              bump versionName (patch/minor/major) + CHANGELOG
                      │
                      ▼
               tag vX.Y.Z + GitHub Release
@@ -91,24 +95,29 @@ Release notes và CHANGELOG được sinh từ message commit kể từ tag gầ
 ### Các bước chính
 
 1. Checkout source
-2. Tạo `.env` từ secret `ENV_FILE`
-3. Decode keystore (`KEYSTORE_BASE64`) → `android/upload-keystore.jks`
-4. Tạo `android/key.properties` từ secrets signing
-5. Setup Java 17 + Flutter 3.41.4 (có cache)
-6. Cache Gradle
-7. `flutter pub get`
-8. `dart run build_runner build --delete-conflicting-outputs`
-9. `flutter analyze`
-10. `flutter build apk --release`
-11. `flutter build appbundle --release`
-12. Upload Artifacts: `app-release-apk`, `app-release-aab`
+2. **Push vào `dev`:** tăng `versionCode` trong `pubspec.yaml` (`1.0.0+6` → `1.0.0+7`), commit + push (`[skip ci]`)
+3. Tạo `.env` từ secret `ENV_FILE`
+4. Decode keystore (`KEYSTORE_BASE64`) → `android/upload-keystore.jks`
+5. Tạo `android/key.properties` từ secrets signing
+6. Setup Java 17 + Flutter 3.41.4 (có cache)
+7. Cache Gradle
+8. `flutter pub get`
+9. `dart run build_runner build --delete-conflicting-outputs`
+10. `flutter analyze`
+11. `flutter build apk --release`
+12. `flutter build appbundle --release`
+13. Upload Artifacts: `sos-connect-X.Y.Z+N-apk` / `-aab`
+
+> Pull request **không** bump version (tránh conflict). Chỉ push lên `dev` mới tăng `+N` — đây là số Google Play bắt buộc tăng mỗi lần upload AAB (`versionCode`).
 
 ### Quyền
 
 ```yaml
 permissions:
-  contents: read
+  contents: write
 ```
+
+Cần write để CI commit lại `pubspec.yaml` sau khi bump.
 
 ---
 
@@ -211,7 +220,7 @@ Thiếu quyền write → Release sẽ fail khi commit / tạo tag / tạo GitHu
 Sau khi CI xanh:
 
 1. Vào **Actions** → chọn run thành công
-2. **Artifacts** → tải `app-release-apk` / `app-release-aab`
+2. **Artifacts** → tải `sos-connect-X.Y.Z+N-apk` / `sos-connect-X.Y.Z+N-aab` (đúng `versionCode` vừa bump)
 
 ### GitHub Release
 
@@ -241,18 +250,23 @@ Sau khi Release thành công:
 Định dạng trong `pubspec.yaml`:
 
 ```yaml
-version: 1.0.0+1
+version: 1.0.0+6
 #         ^^^^^ ^
-#         name  build number (versionCode Android)
+#         name  build number = versionCode Android (Play Console)
 ```
 
-| Bump | Version name | Build number |
-|------|--------------|--------------|
-| `patch` | `X.Y.(Z+1)` | `+1` |
-| `minor` | `X.(Y+1).0` | `+1` |
-| `major` | `(X+1).0.0` | `+1` |
+Google Play **không cho upload AAB trùng `versionCode`**. Mỗi bản lên store phải có `+N` lớn hơn bản trước.
 
-Tag Git: `v` + version name (ví dụ `v1.0.1`).
+| Workflow | Version name (`1.0.0`) | Build number (`+N`) |
+|----------|------------------------|---------------------|
+| **CI** (push `dev`) | Giữ nguyên | Tự `+1` rồi commit `pubspec.yaml` |
+| **Release** `patch` | `X.Y.(Z+1)` | `+1` |
+| **Release** `minor` | `X.(Y+1).0` | `+1` |
+| **Release** `major` | `(X+1).0.0` | `+1` |
+
+Tag Git (Release): `v` + version name (ví dụ `v1.0.1`).
+
+AAB từ CI artifact đã mang `versionCode` mới — upload Play không cần sửa tay `pubspec.yaml`.
 
 ---
 
@@ -277,6 +291,8 @@ Tag Git: `v` + version name (ví dụ `v1.0.1`).
 | Release không push được | Workflow permissions read-only | Bật **Read and write permissions** |
 | Tag đã tồn tại | Chạy release trùng version | Không chạy lại cùng bump nếu tag đã tạo; tăng bump phù hợp |
 | Artifact rỗng | Path build sai / build fail trước đó | Xem log bước Build APK / AAB |
+| Play: version code already used | AAB vẫn `+N` cũ (CI chưa bump / tải nhầm artifact) | Push lại `dev` để CI tăng `+N`; tải artifact tên `sos-connect-X.Y.Z+N.aab` |
+| CI không push được bump | Workflow permissions read-only | Bật **Read and write permissions** |
 
 ---
 
