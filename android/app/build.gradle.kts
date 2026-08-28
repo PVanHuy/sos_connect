@@ -33,7 +33,7 @@ android {
     defaultConfig {
         applicationId = "com.sosconnect.app"
         minSdk = flutter.minSdkVersion
-        targetSdk = 35
+        targetSdk = 36
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
