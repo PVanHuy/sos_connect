@@ -38,7 +38,7 @@ class RegisterRescueTeamPage extends GetWidget<RegisterRescueTeamController> {
                       ? 'team_information_title'.tr
                       : 'register_rescue_team'.tr,
                   onBackPressed: controller.onBack,
-                  actions: showTeamInfo && controller.isLeader
+                  actions: showTeamInfo && controller.isLeader && controller.isTeamApproved
                       ? [
                           Obx(() {
                             if (!Get.isRegistered<TeamLiveModeService>()) {
@@ -117,29 +117,35 @@ class RegisterRescueTeamPage extends GetWidget<RegisterRescueTeamController> {
                     LineWidget(color: appTheme.grayF6Color),
                     Padding(
                       padding: padding(horizontal: 16, bottom: 16, top: 12),
-                      child: Row(
-                        children: [
-                          if (controller.isLeader) ...[
-                            Expanded(
-                              child: CustomButton(
-                                buttonText: 'edit_team'.tr,
-                                color: appTheme.sliverColor,
-                                textColor: appTheme.appColor,
-                                hasSafeArea: false,
-                                onPressed: controller.onEditTeam,
-                              ),
-                            ),
-                            SizedBox(width: 8.w),
-                          ],
-                          Expanded(
-                            child: CustomButton(
-                              buttonText: 'view_team_members'.tr,
+                      child: controller.isTeamRejected || controller.isTeamDeleted
+                          ? CustomButton(
+                              buttonText: 'send_appeal'.tr,
                               hasSafeArea: false,
-                              onPressed: controller.onViewTeamMembers,
+                              onPressed: controller.onAppeal,
+                            )
+                          : Row(
+                              children: [
+                                if (controller.isLeader) ...[
+                                  Expanded(
+                                    child: CustomButton(
+                                      buttonText: 'edit_team'.tr,
+                                      color: appTheme.sliverColor,
+                                      textColor: appTheme.appColor,
+                                      hasSafeArea: false,
+                                      onPressed: controller.onEditTeam,
+                                    ),
+                                  ),
+                                  SizedBox(width: 8.w),
+                                ],
+                                Expanded(
+                                  child: CustomButton(
+                                    buttonText: 'view_team_members'.tr,
+                                    hasSafeArea: false,
+                                    onPressed: controller.onViewTeamMembers,
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
-                        ],
-                      ),
                     ),
                   ],
                 )

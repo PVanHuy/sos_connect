@@ -33,6 +33,9 @@ class ItemActivitySosWidget extends StatelessWidget {
     this.showChatButton = false,
     this.onChat,
     this.onViewOnMap,
+    this.rejectionReason = '',
+    this.showAppealButton = false,
+    this.onAppeal,
   });
 
   final String imageUrl;
@@ -54,6 +57,9 @@ class ItemActivitySosWidget extends StatelessWidget {
   final bool showChatButton;
   final VoidCallback? onChat;
   final VoidCallback? onViewOnMap;
+  final String rejectionReason;
+  final bool showAppealButton;
+  final VoidCallback? onAppeal;
 
   bool get _hasTeamInfo => teamName.trim().isNotEmpty;
 
@@ -149,6 +155,22 @@ class ItemActivitySosWidget extends StatelessWidget {
               ),
             ),
           ],
+          if (rejectionReason.trim().isNotEmpty) ...[
+            SizedBox(height: 12.h),
+            Container(
+              width: double.infinity,
+              padding: padding(all: 12),
+              decoration: BoxDecoration(color: appTheme.redF4Color, borderRadius: BorderRadius.circular(10)),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('admin_reason'.tr, style: StyleThemeData.size12Weight700(color: appTheme.red55Color)),
+                  SizedBox(height: 4.h),
+                  Text(rejectionReason.trim(), style: StyleThemeData.size14Weight400()),
+                ],
+              ),
+            ),
+          ],
           if (onViewOnMap != null || showChatButton) ...[
             SizedBox(height: 12.h),
             Row(
@@ -169,6 +191,16 @@ class ItemActivitySosWidget extends StatelessWidget {
                     child: CustomButton(buttonText: 'sos_chat_open'.tr, hasSafeArea: false, onPressed: onChat),
                   ),
               ],
+            ),
+          ],
+          if (showAppealButton) ...[
+            SizedBox(height: 12.h),
+            CustomButton(
+              buttonText: 'send_appeal'.tr,
+              color: appTheme.sliverColor,
+              textColor: appTheme.appColor,
+              hasSafeArea: false,
+              onPressed: onAppeal,
             ),
           ],
           if (showSafeButton) ...[

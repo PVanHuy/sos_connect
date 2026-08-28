@@ -5,6 +5,7 @@ class NotiTypeUtils {
   static const String teamRegistration = 'team_registration';
   static const String sosRequest = 'sos_request';
   static const String chat = 'chat';
+  static const String appeal = 'appeal';
 }
 
 class NotiActionUtils {
@@ -17,10 +18,12 @@ class NotiActionUtils {
   static const String kicked = 'kicked';
   static const String nearby = 'nearby';
   static const String newMessage = 'new_message';
+  static const String deleted = 'deleted';
+  static const String resolved = 'resolved';
 
   static bool isSosRequesterUpdate(String? action) {
     final value = (action ?? '').trim().toLowerCase();
-    return value == approved || value == supported;
+    return value == approved || value == supported || value == rejected;
   }
 
   static bool isSosNearby(String? action) => (action ?? '').trim().toLowerCase() == nearby;

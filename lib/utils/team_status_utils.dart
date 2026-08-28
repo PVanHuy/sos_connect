@@ -38,6 +38,7 @@ class TeamStatusUtils {
   static const String pending = 'pending';
   static const String approved = 'approved';
   static const String rejected = 'rejected';
+  static const String deleted = 'deleted';
 }
 
 class TeamStatusStyle {
@@ -52,6 +53,7 @@ extension TeamStatusExtension on String? {
   bool get isTeamPending => (this ?? '').toLowerCase() == TeamStatusUtils.pending;
   bool get isTeamApproved => (this ?? '').toLowerCase() == TeamStatusUtils.approved;
   bool get isTeamRejected => (this ?? '').toLowerCase() == TeamStatusUtils.rejected;
+  bool get isTeamDeleted => (this ?? '').toLowerCase() == TeamStatusUtils.deleted;
 
   String get teamStatusName {
     switch ((this ?? '').toLowerCase()) {
@@ -61,6 +63,8 @@ extension TeamStatusExtension on String? {
         return 'team_status_approved'.tr;
       case TeamStatusUtils.rejected:
         return 'team_status_rejected'.tr;
+      case TeamStatusUtils.deleted:
+        return 'team_status_deleted'.tr;
       default:
         return (this ?? '').toString();
     }
@@ -81,6 +85,7 @@ extension TeamStatusExtension on String? {
           border: appTheme.green47Color,
         );
       case TeamStatusUtils.rejected:
+      case TeamStatusUtils.deleted:
         return TeamStatusStyle(background: appTheme.redF4Color, text: appTheme.red55Color, border: appTheme.red55Color);
       default:
         return TeamStatusStyle(

@@ -65,4 +65,8 @@ class AppConstants {
   static String notificationDetailUri(String notificationId) => '/notification/$notificationId';
 
   static String markNotificationAsReadUri(String notificationId) => '/notification/$notificationId/read';
+
+  static const String userAppealsUri = '/user/appeals';
+
+  static String userAppealDetailUri(String appealId) => '/user/appeals/$appealId';
 }

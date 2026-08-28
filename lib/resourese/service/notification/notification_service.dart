@@ -8,12 +8,16 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import 'package:sos_connect/model/notification/fcm_notification_model.dart';
 import 'package:sos_connect/pages/activity/activity_controller.dart';
+import 'package:sos_connect/pages/appeal_detail/appeal_detail_controller.dart';
+import 'package:sos_connect/pages/appeal_detail/appeal_detail_parameter.dart';
+import 'package:sos_connect/pages/appeal_list/appeal_list_controller.dart';
 import 'package:sos_connect/pages/dashboard/dashboard_controller.dart';
 import 'package:sos_connect/pages/join_request_detail/join_request_detail_parameter.dart';
 import 'package:sos_connect/pages/join_team_request_list/join_team_request_list_controller.dart';
 import 'package:sos_connect/pages/map/map_controller.dart';
 import 'package:sos_connect/pages/noti/noti_controller.dart';
 import 'package:sos_connect/pages/notification_detail/notification_detail_parameter.dart';
+import 'package:sos_connect/pages/register_rescue_team/register_rescue_team_controller.dart';
 import 'package:sos_connect/pages/rescue_team_detail/rescue_team_detail_parameter.dart';
 import 'package:sos_connect/pages/rescue_team_list/rescue_team_list_controller.dart';
 import 'package:sos_connect/pages/sos_chat/sos_chat_parameter.dart';
@@ -258,7 +262,7 @@ class NotificationService {
         requestId: fcmNotification.requestId,
         sosId: fcmNotification.resolvedSosId,
         sosEmergencyType: fcmNotification.resolvedSosEmergencyApiType,
-        reasonKicked: fcmNotification.resolvedReasonKicked,
+        reasonKicked: fcmNotification.resolvedReason,
         content: fcmNotification.content,
       );
     } catch (e) {
@@ -355,8 +359,29 @@ class NotificationService {
       case NotiTypeUtils.teamMembership:
         if (action == NotiActionUtils.kicked) {
           final wasOnTeamPage = _isOnTeamRelatedPage();
-          _handleKickedFromTeam(showDialogIfNeeded: true, reasonKicked: reasonKicked, content: content);
+          unawaited(
+            _handleRemovedFromTeam(
+              showDialogIfNeeded: wasOnTeamPage,
+              title: 'kicked_from_team_title'.tr,
+              fallbackContent: 'kicked_from_team_content'.tr,
+              reason: reasonKicked,
+              content: content,
+            ),
+          );
           if (!wasOnTeamPage && id.isNotEmpty) {
+            Get.toNamed(Routes.NOTIFICATION_DETAIL, arguments: NotificationDetailParameter(notificationId: id));
+          }
+        } else if (action == NotiActionUtils.deleted) {
+          unawaited(
+            _handleRemovedFromTeam(
+              showDialogIfNeeded: id.isEmpty,
+              title: 'team_deleted_title'.tr,
+              fallbackContent: 'team_deleted_content'.tr,
+              reason: reasonKicked,
+              content: content,
+            ),
+          );
+          if (id.isNotEmpty) {
             Get.toNamed(Routes.NOTIFICATION_DETAIL, arguments: NotificationDetailParameter(notificationId: id));
           }
         } else if (action == NotiActionUtils.approved) {
@@ -367,7 +392,9 @@ class NotificationService {
         break;
       case NotiTypeUtils.teamRegistration:
         final registrationAction = (action ?? '').trim();
-        if (registrationAction.isEmpty || registrationAction == NotiActionUtils.approved) {
+        if (registrationAction.isEmpty ||
+            registrationAction == NotiActionUtils.approved ||
+            registrationAction == NotiActionUtils.rejected) {
           unawaited(_openTeamInformation());
         } else if (id.isNotEmpty) {
           Get.toNamed(Routes.NOTIFICATION_DETAIL, arguments: NotificationDetailParameter(notificationId: id));
@@ -386,6 +413,18 @@ class NotificationService {
       case NotiTypeUtils.chat:
         if (targetSosId.isEmpty) return;
         Get.toNamed(Routes.SOS_CHAT, arguments: SosChatParameter(sosId: targetSosId));
+        break;
+      case NotiTypeUtils.appeal:
+        if (action == NotiActionUtils.created) return;
+        final appealId = targetRequestId;
+        if (appealId.isNotEmpty) {
+          Get.toNamed(
+            Routes.APPEAL_DETAIL,
+            arguments: AppealDetailParameter(appealId: appealId, notificationId: id.isNotEmpty ? id : null),
+          );
+        } else {
+          Get.toNamed(Routes.APPEAL_LIST);
+        }
         break;
       default:
         if (id.isNotEmpty) {
@@ -463,6 +502,10 @@ class NotificationService {
         _addIncomingNotification(data);
         _handleSosRequestRealtime(FcmNotificationModel.fromJson(data));
         break;
+      case NotiTypeUtils.appeal:
+        _addIncomingNotification(data);
+        _handleAppealRealtime(FcmNotificationModel.fromJson(data));
+        break;
       case NotiTypeUtils.chat:
         break;
       default:
@@ -494,7 +537,6 @@ class NotificationService {
   }
 
   Future<void> _handleNearbyRealtime(String sosId) async {
-    // Leader vừa đăng SOS vừa bật trực → nearby của chính SOS mình: refresh Hoạt động.
     if (await _isOwnSosRequest(sosId)) {
       if (Get.isRegistered<ActivityController>()) {
         await Get.find<ActivityController>().refreshYourRequests();
@@ -546,7 +588,28 @@ class NotificationService {
 
   void _handleTeamMembershipRealtime(FcmNotificationModel fcm) {
     if (fcm.action == NotiActionUtils.kicked) {
-      _handleKickedFromTeam(showDialogIfNeeded: true, reasonKicked: fcm.resolvedReasonKicked, content: fcm.content);
+      unawaited(
+        _handleRemovedFromTeam(
+          showDialogIfNeeded: true,
+          title: 'kicked_from_team_title'.tr,
+          fallbackContent: 'kicked_from_team_content'.tr,
+          reason: fcm.resolvedReason,
+          content: fcm.content,
+        ),
+      );
+      return;
+    }
+
+    if (fcm.action == NotiActionUtils.deleted) {
+      unawaited(
+        _handleRemovedFromTeam(
+          showDialogIfNeeded: true,
+          title: 'team_deleted_title'.tr,
+          fallbackContent: 'team_deleted_content'.tr,
+          reason: fcm.resolvedReason,
+          content: fcm.content,
+        ),
+      );
       return;
     }
 
@@ -559,6 +622,24 @@ class NotificationService {
     if (Get.isRegistered<DashboardController>()) {
       Get.find<DashboardController>().fetchProfile();
     }
+    if (Get.isRegistered<RegisterRescueTeamController>()) {
+      Get.find<RegisterRescueTeamController>().fetchTeamDetail();
+    }
+  }
+
+  void _handleAppealRealtime(FcmNotificationModel fcm) {
+    if (Get.isRegistered<AppealListController>()) {
+      Get.find<AppealListController>().listController.onRefresh();
+    }
+
+    final appealId = fcm.appealId?.trim() ?? '';
+    if (appealId.isNotEmpty && Get.isRegistered<AppealDetailController>()) {
+      final detailController = Get.find<AppealDetailController>();
+      if ((detailController.appeal.value?.id?.trim() ?? '') == appealId ||
+          (detailController.parameter.appealId?.trim() ?? '') == appealId) {
+        unawaited(detailController.fetchAppealDetail());
+      }
+    }
   }
 
   Future<void> _openTeamInformation() async {
@@ -568,7 +649,13 @@ class NotificationService {
     Get.toNamed(Routes.REGISTER_RESCUE_TEAM);
   }
 
-  Future<void> _handleKickedFromTeam({required bool showDialogIfNeeded, String? reasonKicked, String? content}) async {
+  Future<void> _handleRemovedFromTeam({
+    required bool showDialogIfNeeded,
+    required String title,
+    required String fallbackContent,
+    String? reason,
+    String? content,
+  }) async {
     final isOnTeamPage = _isOnTeamRelatedPage();
 
     if (isOnTeamPage) {
@@ -582,15 +669,15 @@ class NotificationService {
       await Get.find<DashboardController>().fetchProfile();
     }
 
-    if (showDialogIfNeeded && isOnTeamPage) {
-      final reason = reasonKicked?.trim() ?? '';
-      final dialogContent = reason.isNotEmpty
-          ? '${content?.trim().isNotEmpty == true ? content!.trim() : 'kicked_from_team_content'.tr}\n\n${'kicked_from_team_reason'.trParams({'reason': reason})}'
-          : (content?.trim().isNotEmpty == true ? content!.trim() : 'kicked_from_team_content'.tr);
+    if (showDialogIfNeeded) {
+      final reasonText = reason?.trim() ?? '';
+      final dialogContent = reasonText.isNotEmpty
+          ? '${content?.trim().isNotEmpty == true ? content!.trim() : fallbackContent}\n\n${'reason_label'.trParams({'reason': reasonText})}'
+          : (content?.trim().isNotEmpty == true ? content!.trim() : fallbackContent);
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (Get.isDialogOpen == true) return;
-        showAlertDialog(title: 'kicked_from_team_title'.tr, content: dialogContent);
+        showAlertDialog(title: title, content: dialogContent);
       });
     }
   }

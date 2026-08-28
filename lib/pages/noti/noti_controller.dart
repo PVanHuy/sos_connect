@@ -123,6 +123,7 @@ class NotiController extends GetxController {
       teamId: notification.data?.teamId,
       requestId: notification.requestId,
       sosId: sosId.isNotEmpty ? sosId : notification.requestId,
+      reasonKicked: notification.data?.reason,
     );
   }
 

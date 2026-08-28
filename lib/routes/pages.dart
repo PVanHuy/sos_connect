@@ -11,6 +11,10 @@ import 'package:sos_connect/pages/forgot_password/forgot_password_binding.dart';
 import 'package:sos_connect/pages/forgot_password/forgot_password_page.dart';
 import 'package:sos_connect/pages/onboarding/onboarding_binding.dart';
 import 'package:sos_connect/pages/onboarding/onboarding_page.dart';
+import 'package:sos_connect/pages/appeal_detail/appeal_detail_binding.dart';
+import 'package:sos_connect/pages/appeal_detail/appeal_detail_page.dart';
+import 'package:sos_connect/pages/appeal_list/appeal_list_binding.dart';
+import 'package:sos_connect/pages/appeal_list/appeal_list_page.dart';
 import 'package:sos_connect/pages/otp/otp_binding.dart';
 import 'package:sos_connect/pages/otp/otp_page.dart';
 import 'package:sos_connect/pages/personal_information/personal_information_binding.dart';
@@ -112,5 +116,7 @@ abstract class AppPages {
       binding: CreateNewPasswordBinding(),
     ),
     GetPage(name: Routes.SEND_SOS, page: () => SendSosPage(), binding: SendSosBinding()),
+    GetPage(name: Routes.APPEAL_LIST, page: () => AppealListPage(), binding: AppealListBinding()),
+    GetPage(name: Routes.APPEAL_DETAIL, page: () => AppealDetailPage(), binding: AppealDetailBinding()),
   ];
 }

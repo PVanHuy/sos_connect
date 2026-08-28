@@ -53,11 +53,16 @@ class RescueView extends GetView<AccountController> {
             ItemRowWidget(
               icon: Assets.icons.task,
               label: 'rescue_completed'.tr,
-              isLast: true,
               onTap: () => Get.toNamed(
                 Routes.RESCUE_COMPLETED,
                 arguments: const RescueCompletedParameter(type: RescueListType.received),
               ),
+            ),
+            ItemRowWidget(
+              icon: Assets.icons.clipboardText,
+              label: 'my_appeals'.tr,
+              isLast: true,
+              onTap: () => Get.toNamed(Routes.APPEAL_LIST),
             ),
           ],
         );

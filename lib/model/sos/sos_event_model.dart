@@ -40,6 +40,8 @@ class SosEventModel {
   String? province;
   @JsonKey(name: 'team_rescue')
   RescueTeamModel? teamRescue;
+  @JsonKey(name: 'rejection_reason')
+  String? rejectionReason;
 
   SosEventModel({
     this.id,
@@ -62,6 +64,7 @@ class SosEventModel {
     this.geom,
     this.province,
     this.teamRescue,
+    this.rejectionReason,
   });
 
   factory SosEventModel.fromJson(Map<String, dynamic> json) => _$SosEventModelFromJson(json);

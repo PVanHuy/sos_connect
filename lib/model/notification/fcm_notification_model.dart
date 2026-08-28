@@ -1,7 +1,9 @@
 import 'dart:convert';
 
 import 'package:json_annotation/json_annotation.dart';
+import 'package:sos_connect/model/notification/notification_extra_data_model.dart';
 import 'package:sos_connect/model/notification/notification_model.dart';
+import 'package:sos_connect/utils/noti_type_utils.dart';
 
 part 'fcm_notification_model.g.dart';
 
@@ -42,6 +44,7 @@ class FcmNotificationModel {
   String? senderId;
   @JsonKey(name: 'reason_kicked')
   String? reasonKicked;
+  String? reason;
   String? time;
   @JsonKey(fromJson: parseFcmPayload)
   Map<String, dynamic>? payload;
@@ -58,6 +61,7 @@ class FcmNotificationModel {
     this.messageId,
     this.senderId,
     this.reasonKicked,
+    this.reason,
     this.time,
     this.payload,
   });
@@ -71,12 +75,36 @@ class FcmNotificationModel {
     model.sosId ??= _readString(json['sos_id']);
     model.messageId ??= _readString(json['message_id']);
     model.senderId ??= _readString(json['sender_id']);
+    model.reason ??= _readString(json['reason']);
     return model;
   }
 
   Map<String, dynamic> toJson() => _$FcmNotificationModelToJson(this);
 
-  String? get teamId => payload?['team_id']?.toString();
+  String? get teamId {
+    final fromPayload = payload?['team_id']?.toString().trim() ?? '';
+    return fromPayload.isNotEmpty ? fromPayload : null;
+  }
+
+  String? get appealId {
+    final fromPayload = payload?['appeal_id']?.toString().trim() ?? '';
+    if (fromPayload.isNotEmpty) return fromPayload;
+    if ((type ?? '').trim() == NotiTypeUtils.appeal) {
+      final fromRequest = requestId?.trim() ?? '';
+      return fromRequest.isNotEmpty ? fromRequest : null;
+    }
+    return null;
+  }
+
+  String? get targetType {
+    final fromPayload = payload?['target_type']?.toString().trim() ?? '';
+    return fromPayload.isNotEmpty ? fromPayload : null;
+  }
+
+  String? get targetId {
+    final fromPayload = payload?['target_id']?.toString().trim() ?? '';
+    return fromPayload.isNotEmpty ? fromPayload : null;
+  }
 
   String? get resolvedSosId {
     final direct = sosId?.trim() ?? '';
@@ -101,12 +129,18 @@ class FcmNotificationModel {
     return fromPayload;
   }
 
-  String? get resolvedReasonKicked {
-    final direct = reasonKicked?.trim() ?? '';
+  String? get resolvedReason {
+    final direct = reason?.trim() ?? '';
     if (direct.isNotEmpty) return direct;
-    final fromPayload = payload?['reason_kicked']?.toString().trim() ?? '';
-    return fromPayload.isNotEmpty ? fromPayload : null;
+    final kicked = reasonKicked?.trim() ?? '';
+    if (kicked.isNotEmpty) return kicked;
+    final fromPayload = payload?['reason']?.toString().trim() ?? '';
+    if (fromPayload.isNotEmpty) return fromPayload;
+    final fromPayloadKicked = payload?['reason_kicked']?.toString().trim() ?? '';
+    return fromPayloadKicked.isNotEmpty ? fromPayloadKicked : null;
   }
+
+  String? get resolvedReasonKicked => resolvedReason;
 
   NotificationModel toNotificationModel() {
     return NotificationModel(
@@ -116,9 +150,17 @@ class FcmNotificationModel {
       imageUrl: imageUrl,
       type: type,
       action: action,
-      requestId: resolvedSosId ?? requestId,
+      requestId: appealId ?? resolvedSosId ?? requestId,
       isRead: false,
       createdAt: time,
+      data: NotificationExtraData(
+        teamId: teamId,
+        reason: resolvedReason,
+        sosId: resolvedSosId,
+        appealId: appealId,
+        targetType: targetType,
+        targetId: targetId,
+      ),
     );
   }
 }

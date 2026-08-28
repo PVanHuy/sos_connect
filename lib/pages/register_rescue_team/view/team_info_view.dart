@@ -53,6 +53,25 @@ class TeamInfoView extends GetView<RegisterRescueTeamController> {
               ],
             ),
             SizedBox(height: 16.h),
+            if (((team.rejectionReason ?? team.deleteReason) ?? '').trim().isNotEmpty) ...[
+              Container(
+                width: double.infinity,
+                padding: padding(all: 12),
+                decoration: BoxDecoration(color: appTheme.redF4Color, borderRadius: BorderRadius.circular(12)),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('admin_reason'.tr, style: StyleThemeData.size12Weight700(color: appTheme.red55Color)),
+                    SizedBox(height: 4.h),
+                    Text(
+                      (team.rejectionReason ?? team.deleteReason)!.trim(),
+                      style: StyleThemeData.size14Weight400(),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 16.h),
+            ],
             CustomTextField(
               titleText: 'team_name'.tr,
               controller: controller.teamNameController,

@@ -1,4 +1,6 @@
 import 'package:get/get.dart';
+import 'package:sos_connect/resourese/appeal/appeal_repository.dart';
+import 'package:sos_connect/resourese/appeal/iappeal_repository.dart';
 import 'package:sos_connect/resourese/auth/auth_repository.dart';
 import 'package:sos_connect/resourese/auth/iauth_repository.dart';
 import 'package:sos_connect/resourese/dashboard/dashboard_repository.dart';
@@ -27,6 +29,7 @@ class AppService {
     Get.put<ISosChatRepository>(SosChatRepository());
     Get.put<IDashboardRepository>(DashboardRepository());
     Get.put<INotificationRepository>(NotificationRepository());
+    Get.put<IAppealRepository>(AppealRepository());
     Get.put(NotificationService());
     Get.put(SocketIoService());
     Get.put(TeamLiveModeService());

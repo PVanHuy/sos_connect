@@ -17,6 +17,17 @@ class NotificationExtraData {
   String? leaderPhone;
   @JsonKey(name: 'sent_at')
   String? sentAt;
+  String? reason;
+  @JsonKey(name: 'sos_id')
+  String? sosId;
+  @JsonKey(name: 'appeal_id')
+  String? appealId;
+  @JsonKey(name: 'target_type')
+  String? targetType;
+  @JsonKey(name: 'target_id')
+  String? targetId;
+  @JsonKey(name: 'response_message')
+  String? responseMessage;
 
   NotificationExtraData({
     this.user,
@@ -26,6 +37,12 @@ class NotificationExtraData {
     this.leaderName,
     this.leaderPhone,
     this.sentAt,
+    this.reason,
+    this.sosId,
+    this.appealId,
+    this.targetType,
+    this.targetId,
+    this.responseMessage,
   });
 
   factory NotificationExtraData.fromJson(Map<String, dynamic> json) => _$NotificationExtraDataFromJson(json);

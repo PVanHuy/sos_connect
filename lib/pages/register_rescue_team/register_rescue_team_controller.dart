@@ -5,11 +5,14 @@ import 'package:sos_connect/model/team/rescue_team_model.dart';
 import 'package:sos_connect/pages/dashboard/dashboard_controller.dart';
 import 'package:sos_connect/resourese/team/iteam_repository.dart';
 import 'package:sos_connect/routes/pages.dart';
+import 'package:sos_connect/utils/appeal_submit_helper.dart';
+import 'package:sos_connect/utils/appeal_target_type_utils.dart';
 import 'package:sos_connect/utils/custom_validator.dart';
 import 'package:sos_connect/utils/dialog_utils.dart';
 import 'package:sos_connect/utils/image_utils.dart';
 import 'package:sos_connect/utils/logger_helper.dart';
 import 'package:sos_connect/utils/role_user.utils.dart';
+import 'package:sos_connect/utils/team_status_utils.dart';
 import 'package:sos_connect/utils/vietnam_address_utils.dart';
 import 'package:vietnam_provinces/vietnam_provinces.dart';
 
@@ -53,6 +56,12 @@ class RegisterRescueTeamController extends GetxController {
   }
 
   bool get showTeamInfo => hasRegisteredTeam.value && !isEditingTeam.value;
+
+  bool get isTeamApproved => teamModel.value?.teamStatus.isTeamApproved == true;
+
+  bool get isTeamRejected => teamModel.value?.teamStatus.isTeamRejected == true;
+
+  bool get isTeamDeleted => teamModel.value?.teamStatus.isTeamDeleted == true;
 
   bool get hasExistingDocument {
     final url = teamModel.value?.documentUrl?.trim() ?? '';
@@ -328,6 +337,15 @@ class RegisterRescueTeamController extends GetxController {
 
   void onViewTeamMembers() {
     Get.toNamed(Routes.TEAM_MEMBER_LIST);
+  }
+
+  Future<void> onAppeal() async {
+    final teamId = teamModel.value?.id?.trim() ?? '';
+    if (teamId.isEmpty) return;
+    final targetType = isTeamRejected
+        ? AppealTargetTypeUtils.teamRegistration
+        : AppealTargetTypeUtils.teamDeletion;
+    await AppealSubmitHelper.submit(targetType: targetType, targetId: teamId);
   }
 
   @override

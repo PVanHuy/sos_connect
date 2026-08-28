@@ -5,6 +5,8 @@ import 'package:sos_connect/pages/activity/widget/item_activity_sos_widget.dart'
 import 'package:sos_connect/pages/map/map_controller.dart';
 import 'package:sos_connect/pages/sos_chat/sos_chat_parameter.dart';
 import 'package:sos_connect/routes/pages.dart';
+import 'package:sos_connect/utils/appeal_submit_helper.dart';
+import 'package:sos_connect/utils/appeal_target_type_utils.dart';
 import 'package:sos_connect/utils/sos_emergency_type_utils.dart';
 import 'package:sos_connect/utils/sos_status_utils.dart';
 import 'package:sos_connect/widget/lazy_list/lazy_list.dart';
@@ -41,6 +43,7 @@ class YourRequestsActivityView extends GetView<ActivityController> {
         final chatReadOnly = status.isSosComplete;
         final canViewMap = hasTeam && !status.isSosComplete && team?.teamLat != null && team?.teamLon != null;
         final canSafe = item.canMarkAsSafe;
+        final isRejected = status.isSosRejected;
         final statusStyle = (item.status ?? SosStatusUtils.inProgress).sosStatusStyle;
 
         return Obx(() {
@@ -71,6 +74,14 @@ class YourRequestsActivityView extends GetView<ActivityController> {
                 : null,
             onViewOnMap: canViewMap
                 ? () => MapController.openInAppRouteFromCoords(lat: team!.teamLat, lon: team.teamLon)
+                : null,
+            rejectionReason: item.rejectionReason ?? '',
+            showAppealButton: isRejected && sosId.isNotEmpty,
+            onAppeal: isRejected && sosId.isNotEmpty
+                ? () => AppealSubmitHelper.submit(
+                    targetType: AppealTargetTypeUtils.sosRejection,
+                    targetId: sosId,
+                  )
                 : null,
           );
         });

@@ -29,6 +29,10 @@ class RescueTeamModel {
   double? teamLat;
   @JsonKey(name: 'team_lon', fromJson: parseToDouble)
   double? teamLon;
+  @JsonKey(name: 'rejection_reason')
+  String? rejectionReason;
+  @JsonKey(name: 'delete_reason')
+  String? deleteReason;
 
   RescueTeamModel({
     this.id,
@@ -48,6 +52,8 @@ class RescueTeamModel {
     this.email,
     this.teamLat,
     this.teamLon,
+    this.rejectionReason,
+    this.deleteReason,
   });
 
   factory RescueTeamModel.fromJson(Map<String, dynamic> json) => _$RescueTeamModelFromJson(json);

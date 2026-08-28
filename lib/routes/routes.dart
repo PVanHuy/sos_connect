@@ -27,4 +27,6 @@ abstract class Routes {
   static const SURVIVAL = '/survival';
   static const CREATE_NEW_PASSWORD = '/create_new_password';
   static const SEND_SOS = '/send_sos';
+  static const APPEAL_LIST = '/appeal_list';
+  static const APPEAL_DETAIL = '/appeal_detail';
 }
